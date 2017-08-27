@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <Authors>Ryan Wilson</Authors>
+    <PackageLicenseUrl>https://github.com/Icehunter/litterbox/blob/master/LitterBox/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Icehunter/LitterBox</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/Icehunter/litterbox/master/LitterBox/Logo.png</PackageIconUrl>
+    <RepositoryUrl></RepositoryUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageTags>csharp memory caching litterbox</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>1.0.0</Version>
+    <Company>SyndicatedLife</Company>
+    <Product>LitterBox</Product>
+    <Description>LitterBox Caching Base</Description>
+    <Copyright>Copyright © 2017 Ryan Wilson</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>distribution</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="dotnet pack $(ProjectPath) --no-build --include-symbols --include-source -c $(Configuration) -o $(SolutionDir)published&#xD;&#xA;%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\powershell.exe –NonInteractive –ExecutionPolicy Unrestricted –command &quot;&amp; { &amp;'$(SolutionDir)RenameSymbolsToPackage.ps1' '$(TargetName)' }&quot;" />
+  </Target>
+
+</Project>
