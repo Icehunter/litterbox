@@ -1,5 +1,3 @@
-﻿MIT License
-
 Copyright(c) 2017 Ryan Wilson <syndicated.life@gmail.com> (http://syndicated.life/)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
