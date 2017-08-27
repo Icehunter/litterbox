@@ -27,15 +27,6 @@ namespace LitterBox.Memory {
     using Microsoft.Extensions.Caching.Memory;
 
     public class Memoize : ILitterBox {
-        #region Memory Properties
-
-        /// <summary>
-        /// MemoryCache
-        /// </summary>
-        private MemoryCache _cache { get; set; }
-
-        #endregion
-
         /// <summary>
         /// Connect to MemoryCache
         /// </summary>
@@ -43,16 +34,33 @@ namespace LitterBox.Memory {
         /// <param name="expirationScanFrequency">How Often To Scan For Expired Items</param>
         /// <returns>Raw MemoryCache</returns>
         public async Task<MemoryCache> Connect(double compactionPercentage = 0.25, TimeSpan? expirationScanFrequency = null) {
-            expirationScanFrequency = expirationScanFrequency ?? new TimeSpan(0, 1, 0, 0);
+            this._compactionPercentage = compactionPercentage;
+            this._expirationScanFrequency = expirationScanFrequency ?? new TimeSpan(0, 1, 0, 0);
 
             return await Task.Run(() => {
                 this._cache = new MemoryCache(new MemoryCacheOptions {
-                    CompactionPercentage = compactionPercentage,
-                    ExpirationScanFrequency = (TimeSpan) expirationScanFrequency
+                    CompactionPercentage = this._compactionPercentage,
+                    ExpirationScanFrequency = this._expirationScanFrequency
                 });
 
                 return this._cache;
             }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Flush (Dispose) Of Cache / Recreate
+        /// </summary>
+        /// <returns>Success True|False</returns>
+        public async Task<bool> Flush() {
+            try {
+                this._cache.Dispose();
+                await this.Connect(this._compactionPercentage, this._expirationScanFrequency).ConfigureAwait(false);
+                return true;
+            }
+            catch (Exception ex) {
+                this.RaiseException(ex);
+                return false;
+            }
         }
 
         #region Single Sets
@@ -326,6 +334,20 @@ namespace LitterBox.Memory {
 
         #endregion
 
+        #region Connection Properties
+
+        /// <summary>
+        /// CompactionPercentage
+        /// </summary>
+        private double _compactionPercentage { get; set; }
+
+        /// <summary>
+        /// ExpirationScanFrequency
+        /// </summary>
+        private TimeSpan _expirationScanFrequency { get; set; }
+
+        #endregion
+
         #region Event Handlers
 
         /// <summary>
@@ -354,6 +376,15 @@ namespace LitterBox.Memory {
         /// Lazy Value
         /// </summary>
         public static Memoize Instance => _instance.Value;
+
+        #endregion
+
+        #region Memory Properties
+
+        /// <summary>
+        /// MemoryCache
+        /// </summary>
+        private MemoryCache _cache { get; set; }
 
         #endregion
     }

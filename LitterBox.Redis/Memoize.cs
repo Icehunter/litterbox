@@ -43,7 +43,7 @@ namespace LitterBox.Redis {
             this._port = port;
             this._password = password;
             this._databaseID = databaseID;
-
+            
             this._connectionMultiplexer = await ConnectionMultiplexer.ConnectAsync(new ConfigurationOptions {
                 AbortOnConnectFail = false,
                 DefaultDatabase = this._databaseID,
@@ -72,6 +72,23 @@ namespace LitterBox.Redis {
                 this.RaiseException(ex);
             }
             return await this.Connect(this._host, this._port, this._password, this._databaseID).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Flush Cache
+        /// </summary>
+        /// <returns>Success True|False</returns>
+        public async Task<bool> Flush()
+        {
+            try {
+                await Task.Run(() => this._database.Execute("FLUSHALL")).ConfigureAwait(false);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.RaiseException(ex);
+                return false;
+            }
         }
 
         #region Single Sets
