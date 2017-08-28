@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.0": {
-      "LitterBox.Memory/1.0.0": {
+      "LitterBox.Memory/2.0.0": {
         "dependencies": {
           "LitterBox": "1.0.0",
           "Microsoft.Extensions.Caching.Memory": "2.0.0",
@@ -445,7 +445,7 @@
     }
   },
   "libraries": {
-    "LitterBox.Memory/1.0.0": {
+    "LitterBox.Memory/2.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

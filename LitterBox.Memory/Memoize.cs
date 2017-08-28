@@ -28,39 +28,39 @@ namespace LitterBox.Memory {
 
     public class Memoize : ILitterBox {
         /// <summary>
-        /// Connect to MemoryCache
+        /// Memoize
         /// </summary>
-        /// <param name="compactionPercentage">How Much To Compant When Memory Exceeded</param>
-        /// <param name="expirationScanFrequency">How Often To Scan For Expired Items</param>
-        /// <returns>Raw MemoryCache</returns>
-        public async Task<MemoryCache> Connect(double compactionPercentage = 0.25, TimeSpan? expirationScanFrequency = null) {
-            this._compactionPercentage = compactionPercentage;
-            this._expirationScanFrequency = expirationScanFrequency ?? new TimeSpan(0, 1, 0, 0);
-
-            return await Task.Run(() => {
-                this._cache = new MemoryCache(new MemoryCacheOptions {
-                    CompactionPercentage = this._compactionPercentage,
-                    ExpirationScanFrequency = this._expirationScanFrequency
-                });
-
-                return this._cache;
-            }).ConfigureAwait(false);
+        /// <param name="config">config</param>
+        private Memoize(Config config) {
+            // connect on a seperate thread
+            Task.Run(async () => {
+                this._connection = new Connection(config);
+                await this._connection.Connect().ConfigureAwait(false);
+            }).Wait();
         }
 
+        #region Memory Properties
+
         /// <summary>
-        /// Flush (Dispose) Of Cache / Recreate
+        /// Connection Object
+        /// </summary>
+        private Connection _connection { get; set; }
+
+        #endregion
+
+        /// <summary>
+        /// Flush Cache
         /// </summary>
         /// <returns>Success True|False</returns>
         public async Task<bool> Flush() {
             try {
-                this._cache.Dispose();
-                await this.Connect(this._compactionPercentage, this._expirationScanFrequency).ConfigureAwait(false);
+                await this._connection.Flush().ConfigureAwait(false);
                 return true;
             }
             catch (Exception ex) {
                 this.RaiseException(ex);
-                return false;
             }
+            return false;
         }
 
         #region Single Sets
@@ -78,7 +78,7 @@ namespace LitterBox.Memory {
             try {
                 var json = Utilities.Serialize(litter);
                 if (!string.IsNullOrWhiteSpace(json)) {
-                    await Task.Run(() => this._cache.Set(key, Compression.Zip(json), litter.Expiry ?? Constants.DefaultExpiry)).ConfigureAwait(false);
+                    await Task.Run(() => this._connection.Cache.Set(key, Compression.Zip(json), litter.Expiry ?? Constants.DefaultExpiry)).ConfigureAwait(false);
                     success = true;
                 }
             }
@@ -119,6 +119,15 @@ namespace LitterBox.Memory {
 
         #endregion
 
+        #region Instance
+
+        /// <summary>
+        /// Lazy Value
+        /// </summary>
+        public static Memoize GetInstance(Config config = null) => new Lazy<Memoize>(() => new Memoize(config)).Value;
+
+        #endregion
+
         #region Single Gets
 
         /// <summary>
@@ -132,7 +141,7 @@ namespace LitterBox.Memory {
 
             try {
                 result = await Task.Run(() => {
-                    if (this._cache.TryGetValue(key, out byte[] bytes)) {
+                    if (this._connection.Cache.TryGetValue(key, out byte[] bytes)) {
                         return Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
                     }
                     return null;
@@ -181,7 +190,7 @@ namespace LitterBox.Memory {
             LitterBoxItem<T> result = null;
 
             try {
-                if (this._cache.TryGetValue(key, out byte[] bytes)) {
+                if (this._connection.Cache.TryGetValue(key, out byte[] bytes)) {
                     result = Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
                     if (result.IsStale() || result.IsExpired()) {
                         this.SetItemFireAndForget(key, generator, staleIn, expiry);
@@ -334,20 +343,6 @@ namespace LitterBox.Memory {
 
         #endregion
 
-        #region Connection Properties
-
-        /// <summary>
-        /// CompactionPercentage
-        /// </summary>
-        private double _compactionPercentage { get; set; }
-
-        /// <summary>
-        /// ExpirationScanFrequency
-        /// </summary>
-        private TimeSpan _expirationScanFrequency { get; set; }
-
-        #endregion
-
         #region Event Handlers
 
         /// <summary>
@@ -362,29 +357,6 @@ namespace LitterBox.Memory {
         protected internal virtual void RaiseException(Exception e) {
             this.ExceptionEvent?.Invoke(this, new ExceptionEvent(this, e));
         }
-
-        #endregion
-
-        #region Instance
-
-        /// <summary>
-        /// Lazy Instantiation
-        /// </summary>
-        private static readonly Lazy<Memoize> _instance = new Lazy<Memoize>(() => new Memoize());
-
-        /// <summary>
-        /// Lazy Value
-        /// </summary>
-        public static Memoize Instance => _instance.Value;
-
-        #endregion
-
-        #region Memory Properties
-
-        /// <summary>
-        /// MemoryCache
-        /// </summary>
-        private MemoryCache _cache { get; set; }
 
         #endregion
     }

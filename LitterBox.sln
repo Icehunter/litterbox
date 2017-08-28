@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LitterBox.Redis", "LitterBo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LitterBox.Memory", "LitterBox.Memory\LitterBox.Memory.csproj", "{641AE2FE-5C81-4E89-B6D2-DA24E1C72BF4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bootstrapper", "Bootstrapper\Bootstrapper.csproj", "{53CE43C9-44ED-417B-9BEE-F7AC3D887DBC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{641AE2FE-5C81-4E89-B6D2-DA24E1C72BF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{641AE2FE-5C81-4E89-B6D2-DA24E1C72BF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{641AE2FE-5C81-4E89-B6D2-DA24E1C72BF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53CE43C9-44ED-417B-9BEE-F7AC3D887DBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53CE43C9-44ED-417B-9BEE-F7AC3D887DBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53CE43C9-44ED-417B-9BEE-F7AC3D887DBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53CE43C9-44ED-417B-9BEE-F7AC3D887DBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

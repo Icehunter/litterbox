@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.0": {
-      "LitterBox.Redis/1.0.0": {
+      "LitterBox.Redis/2.0.0": {
         "dependencies": {
           "LitterBox": "1.0.0",
           "Newtonsoft.Json": "10.0.3",
@@ -983,7 +983,7 @@
     }
   },
   "libraries": {
-    "LitterBox.Redis/1.0.0": {
+    "LitterBox.Redis/2.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

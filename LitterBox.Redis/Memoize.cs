@@ -23,72 +23,61 @@
 namespace LitterBox.Redis {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
-    using StackExchange.Redis;
 
     /// <summary>
     /// Memoize Class Instance
     /// </summary>
     public class Memoize : ILitterBox {
         /// <summary>
-        /// Connect To Redis
+        /// Memoize
         /// </summary>
-        /// <param name="host">hostname</param>
-        /// <param name="port">port</param>
-        /// <param name="password">password</param>
-        /// <param name="databaseID">databaseID</param>
-        /// <returns>Raw Database</returns>
-        public async Task<IDatabase> Connect(string host = "127.0.0.1", int port = 6379, string password = "", int databaseID = 1) {
-            this._host = host;
-            this._port = port;
-            this._password = password;
-            this._databaseID = databaseID;
-            
-            this._connectionMultiplexer = await ConnectionMultiplexer.ConnectAsync(new ConfigurationOptions {
-                AbortOnConnectFail = false,
-                DefaultDatabase = this._databaseID,
-                EndPoints = { { this._host, this._port } },
-                KeepAlive = 30,
-                Password = this._password
-            }).ConfigureAwait(false);
+        /// <param name="config">config properties</param>
+        /// <param name="poolSize">poolSize</param>
+        private Memoize(Config config = null, int poolSize = 5) {
+            this._config = config ?? new Config();
+            this._poolSize = poolSize;
 
-            this._database = this._connectionMultiplexer.GetDatabase(this._databaseID);
-
-            return this._database;
+            // connect on a seperate thread; relative to poolSize
+            Task.Run(async () => {
+                for (var i = 0; i < this._poolSize; i++) {
+                    var connection = new Connection(this._config);
+                    await connection.Connect().ConfigureAwait(false);
+                    this.Connections.Add(connection);
+                }
+            }).Wait();
         }
 
         /// <summary>
         /// Close/Dispose Connection And Reconnect With Existing Properties
         /// </summary>
-        /// <returns></returns>
-        public async Task<IDatabase> Reconnect() {
+        /// <returns>Success True|False</returns>
+        public async Task<bool> Reconnect() {
             try {
-                if (this._connectionMultiplexer != null) {
-                    await this._connectionMultiplexer.CloseAsync().ConfigureAwait(false);
-                    this._connectionMultiplexer.Dispose();
+                foreach (var connection in this.Connections) {
+                    await connection.Reconnect().ConfigureAwait(false);
                 }
+                return true;
             }
             catch (Exception ex) {
                 this.RaiseException(ex);
             }
-            return await this.Connect(this._host, this._port, this._password, this._databaseID).ConfigureAwait(false);
+            return false;
         }
 
         /// <summary>
         /// Flush Cache
         /// </summary>
         /// <returns>Success True|False</returns>
-        public async Task<bool> Flush()
-        {
+        public async Task<bool> Flush() {
             try {
-                await Task.Run(() => this._database.Execute("FLUSHALL")).ConfigureAwait(false);
-                return true;
+                return await this.Connections.First().Flush().ConfigureAwait(false);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 this.RaiseException(ex);
-                return false;
             }
+            return false;
         }
 
         #region Single Sets
@@ -106,7 +95,7 @@ namespace LitterBox.Redis {
             try {
                 var json = Utilities.Serialize(litter);
                 if (!string.IsNullOrWhiteSpace(json)) {
-                    success = await this._database.HashSetAsync(key, "litter", Compression.Zip(json));
+                    success = await this.GetPooledConnection().Cache.HashSetAsync(key, "litter", Compression.Zip(json));
                 }
             }
             catch (Exception ex) {
@@ -146,6 +135,15 @@ namespace LitterBox.Redis {
 
         #endregion
 
+        #region Instance
+
+        /// <summary>
+        /// Lazy Value
+        /// </summary>
+        public static Memoize GetInstance(Config config = null, int poolSize = 5) => new Lazy<Memoize>(() => new Memoize(config, poolSize)).Value;
+
+        #endregion
+
         #region Single Gets
 
         /// <summary>
@@ -158,7 +156,7 @@ namespace LitterBox.Redis {
             LitterBoxItem<T> result = null;
 
             try {
-                var litterValue = await this._database.HashGetAsync(key, "litter").ConfigureAwait(false);
+                var litterValue = await this.GetPooledConnection().Cache.HashGetAsync(key, "litter").ConfigureAwait(false);
                 if (litterValue.HasValue) {
                     result = Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(litterValue));
                 }
@@ -206,7 +204,7 @@ namespace LitterBox.Redis {
             LitterBoxItem<T> result = null;
 
             try {
-                var litterValue = await this._database.HashGetAsync(key, "litter").ConfigureAwait(false);
+                var litterValue = await this.GetPooledConnection().Cache.HashGetAsync(key, "litter").ConfigureAwait(false);
                 if (litterValue.IsNullOrEmpty) {
                     var item = await Task.Run(generator).ConfigureAwait(false);
                     result = new LitterBoxItem<T> {
@@ -360,30 +358,6 @@ namespace LitterBox.Redis {
 
         #endregion
 
-        #region Connection Properties
-
-        /// <summary>
-        /// Hostname
-        /// </summary>
-        private string _host { get; set; }
-
-        /// <summary>
-        /// Port
-        /// </summary>
-        private int _port { get; set; }
-
-        /// <summary>
-        /// Password
-        /// </summary>
-        private string _password { get; set; }
-
-        /// <summary>
-        /// Database
-        /// </summary>
-        private int _databaseID { get; set; }
-
-        #endregion
-
         #region Event Handlers
 
         /// <summary>
@@ -401,31 +375,26 @@ namespace LitterBox.Redis {
 
         #endregion
 
-        #region Instance
-
-        /// <summary>
-        /// Lazy Instantiation
-        /// </summary>
-        private static readonly Lazy<Memoize> _instance = new Lazy<Memoize>(() => new Memoize());
-
-        /// <summary>
-        /// Lazy Value
-        /// </summary>
-        public static Memoize Instance => _instance.Value;
-
-        #endregion
-
         #region Redis Properties
 
-        /// <summary>
-        /// Connection Pool (Redis)
-        /// </summary>
-        private ConnectionMultiplexer _connectionMultiplexer { get; set; }
+        private Config _config { get; set; }
 
-        /// <summary>
-        /// Redis Database Selected
-        /// </summary>
-        private IDatabase _database { get; set; }
+        private int _poolSize { get; set; }
+
+        private uint _roundRobinCounter;
+
+        private readonly object _counterLock = new object();
+
+        private List<Connection> Connections { get; set; } = new List<Connection>();
+
+        private Connection GetPooledConnection() {
+            int index;
+            lock (this._counterLock)
+            {
+                index = (int)(++this._roundRobinCounter % this._poolSize);
+            }
+            return this.Connections[index];
+        }
 
         #endregion
     }

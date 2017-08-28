@@ -4,13 +4,13 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <Authors>Ryan Wilson</Authors>
     <PackageLicenseUrl>https://github.com/Icehunter/litterbox/blob/master/LitterBox.Redis/LICENSE.md</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/Icehunter/LitterBox</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Icehunter/litterbox</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/Icehunter/litterbox/master/LitterBox.Redis/Logo.png</PackageIconUrl>
     <RepositoryUrl></RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>csharp memory caching litterbox redis</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <Company>SyndicatedLife</Company>
     <Product>LitterBox.Redis</Product>
     <Description>Redis Adaptor For LitterBox Caching</Description>

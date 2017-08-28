@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <Authors>Ryan Wilson</Authors>
     <PackageLicenseUrl>https://github.com/Icehunter/litterbox/blob/master/LitterBox/LICENSE.md</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/Icehunter/LitterBox</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Icehunter/litterbox</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/Icehunter/litterbox/master/LitterBox/Logo.png</PackageIconUrl>
     <RepositoryUrl></RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
