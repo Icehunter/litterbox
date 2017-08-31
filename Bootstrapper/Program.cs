@@ -23,6 +23,7 @@
 namespace Bootstrapper {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
 
     class Program {
         static void Main(string[] args) {
@@ -38,18 +39,18 @@ namespace Bootstrapper {
             var xRedis = redisCache.GetItem<string>("what").Result;
             Console.WriteLine($"redis: x === null: {xRedis == null}");
 
-            var yMemory = memoryCache.GetItem("what", () => "happened").Result;
+            var yMemory = memoryCache.GetItem("what", Task.Run(() => "happened")).Result;
             Console.WriteLine($"memory: y === \"happened\": {yMemory.Value == "happened"}");
 
-            var yRedis = redisCache.GetItem("what", () => "happened").Result;
+            var yRedis = redisCache.GetItem("what", Task.Run(() => "happened")).Result;
             Console.WriteLine($"redis: y === \"happened\": {yRedis.Value == "happened"}");
 
             Thread.Sleep(1000);
 
-            var zMemory = memoryCache.GetItem("what", () => "is it").Result;
+            var zMemory = memoryCache.GetItem("what", Task.Run(() => "is it")).Result;
             Console.WriteLine($"memory: z == y: {zMemory.Value == yMemory.Value}");
 
-            var zRedis = redisCache.GetItem("what", () => "is it").Result;
+            var zRedis = redisCache.GetItem("what", Task.Run(() => "is it")).Result;
             Console.WriteLine($"redis: z = y: {zRedis.Value == yRedis.Value}");
 
             Console.ReadKey();

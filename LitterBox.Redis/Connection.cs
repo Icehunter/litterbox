@@ -24,13 +24,13 @@ namespace LitterBox.Redis {
     using System.Threading.Tasks;
     using StackExchange.Redis;
 
-    public class Connection {
+    internal class Connection {
         /// <summary>
         /// Connection
         /// </summary>
         /// <param name="config">config</param>
         public Connection(Config config) {
-            this._config = config;
+            this._config = config ?? new Config();
         }
 
         /// <summary>

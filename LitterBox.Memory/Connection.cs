@@ -24,12 +24,12 @@ namespace LitterBox.Memory {
     using System.Threading.Tasks;
     using Microsoft.Extensions.Caching.Memory;
 
-    public class Connection {
+    internal class Connection {
         /// <summary>
         /// Connection
         /// </summary>
         /// <param name="config">config</param>
-        public Connection(Config config = null) {
+        public Connection(Config config) {
             this._config = config ?? new Config();
         }
 

@@ -20,42 +20,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox {
-    using System;
+namespace LitterBox.Redis {
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public interface ILitterBox {
-        event EventHandler<ExceptionEvent> ExceptionEvent;
+    internal class ConnectionPool {
+        private readonly object _counterLock = new object();
 
-        #region Connection Based
+        private uint _roundRobinCounter;
+        public int PoolSize { get; set; } = 5;
 
-        Task<bool> Reconnect();
-        Task<bool> Flush();
+        public List<Connection> Connections { get; set; } = new List<Connection>();
 
-        #endregion
+        public Connection GetPooledConnection() {
+            int index;
+            lock (this._counterLock) {
+                index = (int) (++this._roundRobinCounter % this.PoolSize);
+            }
+            return this.Connections[index];
+        }
 
-        #region Getters
-
-        Task<LitterBoxItem<T>> GetItem<T>(string key);
-        Task<LitterBoxItem<T>> GetItem<T>(string key, Task<T> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null);
-        Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys);
-        Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys, List<Task<T>> generators, TimeSpan? staleIn = null, TimeSpan? expiry = null);
-
-        #endregion
-
-        #region Setters
-
-        Task<bool> SetItem<T>(string key, LitterBoxItem<T> litter);
-        Task<List<bool>> SetItems<T>(List<string> keys, List<LitterBoxItem<T>> litters);
-
-        #endregion
-
-        #region Fire Forget
-
-        void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter);
-        void SetItemFireAndForget<T>(string key, Task<T> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null);
-
-        #endregion
+        public async Task Initialize(Config config) {
+            for (var i = 0; i < this.PoolSize; i++) {
+                var connection = new Connection(config);
+                await connection.Connect().ConfigureAwait(false);
+                this.Connections.Add(connection);
+            }
+        }
     }
 }

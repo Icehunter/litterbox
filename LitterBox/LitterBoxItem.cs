@@ -45,7 +45,7 @@ namespace LitterBox {
         /// <summary>
         /// Time After Creation To Be Stale
         /// </summary>
-        public TimeSpan StaleIn { get; set; } = Constants.DefaultStaleIn;
+        public TimeSpan? StaleIn { get; set; } = null;
 
         /// <summary>
         /// Helper Function For Expiration
@@ -63,7 +63,10 @@ namespace LitterBox {
         /// </summary>
         /// <returns>True|False</returns>
         public bool IsStale() {
-            return DateTime.Now > this.Created.Add(this.StaleIn);
+            if (this.StaleIn == null) {
+                return false;
+            }
+            return DateTime.Now > this.Created.Add((TimeSpan) this.StaleIn);
         }
     }
 }
