@@ -30,7 +30,7 @@ namespace LitterBox.Redis {
         /// </summary>
         /// <param name="config">config</param>
         public Connection(Config config) {
-            this._config = config ?? new Config();
+            this._config = config;
         }
 
         /// <summary>

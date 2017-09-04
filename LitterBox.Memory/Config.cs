@@ -36,5 +36,15 @@ namespace LitterBox.Memory {
         /// ExpirationScanFrequency
         /// </summary>
         public TimeSpan ExpirationScanFrequency { get; set; } = new TimeSpan(0, 1, 0, 0);
+
+        /// <summary>
+        /// DefaultExpiry (1 Day)
+        /// </summary>
+        public TimeSpan DefaultExpiry { get; set; } = new TimeSpan(1, 0, 0, 0);
+
+        /// <summary>
+        /// DefaultStaleIn (5 Minutes)
+        /// </summary>
+        public TimeSpan DefaultStaleIn { get; set; } = new TimeSpan(0, 0, 5, 0);
     }
 }

@@ -20,26 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox {
+namespace LitterBox.JsonContractResolvers {
     using System;
+    using Newtonsoft.Json.Serialization;
 
     /// <summary>
-    /// Constants Class Instance
+    /// Handle dictoinary keys and don't lowercase them
     /// </summary>
-    public static class Constants {
+    public class CamelCaseExceptDictionaryKeysContractResolver : CamelCasePropertyNamesContractResolver {
         /// <summary>
-        /// Default Expiry Of Cached Item (Either From Created Or Insertion)
-        /// </summary>
-        public static TimeSpan DefaultExpiry = new TimeSpan(30, 0, 0, 0);
+        /// internal override to Resolver
+        /// </summary>  
+        /// <param name="objectType">objectType</param>
+        /// <returns>JsonDictionaryContract</returns>
+        protected override JsonDictionaryContract CreateDictionaryContract(Type objectType) {
+            var contract = base.CreateDictionaryContract(objectType);
 
-        /// <summary>
-        /// Default Inactive Expiry Of Cached Item (From Created)
-        /// </summary>
-        public static TimeSpan DefaultInactiveExpiry = new TimeSpan(7, 0, 0, 0);
+            contract.DictionaryKeyResolver = propertyName => propertyName;
 
-        /// <summary>
-        /// Default Time When Cached Item Is Stale (From Created)
-        /// </summary>
-        public static TimeSpan DefaultStaleIn = new TimeSpan(1, 0, 0, 0);
+            return contract;
+        }
     }
 }

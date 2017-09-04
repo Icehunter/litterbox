@@ -38,9 +38,9 @@ namespace LitterBox {
         #region Getters
 
         Task<LitterBoxItem<T>> GetItem<T>(string key);
-        Task<LitterBoxItem<T>> GetItem<T>(string key, Task<T> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null);
+        Task<LitterBoxItem<T>> GetItem<T>(string key, Func<Task<T>> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null);
         Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys);
-        Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys, List<Task<T>> generators, TimeSpan? staleIn = null, TimeSpan? expiry = null);
+        Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys, List<Func<Task<T>>> generators, TimeSpan? staleIn = null, TimeSpan? expiry = null);
 
         #endregion
 
@@ -54,7 +54,7 @@ namespace LitterBox {
         #region Fire Forget
 
         void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter);
-        void SetItemFireAndForget<T>(string key, Task<T> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null);
+        void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null);
 
         #endregion
     }

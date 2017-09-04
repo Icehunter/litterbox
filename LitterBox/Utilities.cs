@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 namespace LitterBox {
+    using LitterBox.JsonContractResolvers;
     using Newtonsoft.Json;
 
     public static class Utilities {
@@ -34,7 +35,9 @@ namespace LitterBox {
         /// <returns>Json Representation</returns>
         public static string Serialize<T>(T value) {
             return JsonConvert.SerializeObject(value, Formatting.None, new JsonSerializerSettings {
-                NullValueHandling = NullValueHandling.Ignore
+                ContractResolver = new CamelCaseExceptDictionaryKeysContractResolver(),
+                NullValueHandling = NullValueHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.Auto
             });
         }
 
@@ -46,7 +49,9 @@ namespace LitterBox {
         /// <returns>T Representation</returns>
         public static T Deserialize<T>(string value) {
             return JsonConvert.DeserializeObject<T>(value, new JsonSerializerSettings {
-                NullValueHandling = NullValueHandling.Ignore
+                ContractResolver = new CamelCaseExceptDictionaryKeysContractResolver(),
+                NullValueHandling = NullValueHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.Auto
             });
         }
 
