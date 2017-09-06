@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LitterBox</name>
+    </assembly>
+    <members>
+        <member name="T:LitterBox.Compression">
+            <summary>
+            Compression Class
+            </summary>
+        </member>
+        <member name="M:LitterBox.Compression.CopyTo(System.IO.Stream,System.IO.Stream)">
+            <summary>
+            Copy Source => Destination (By Ref)
+            </summary>
+            <param name="source">source stream</param>
+            <param name="destination">desition stream</param>
+        </member>
+        <member name="M:LitterBox.Compression.Zip(System.String)">
+            <summary>
+            Zip String => Byte[] (Compressed)
+            </summary>
+            <param name="value">String Data</param>
+            <returns>Byte[]</returns>
+        </member>
+        <member name="M:LitterBox.Compression.Unzip(System.Byte[])">
+            <summary>
+            Unzip Byte[] => String (Uncompressed)
+            </summary>
+            <param name="value">Byte[] Data</param>
+            <returns>String</returns>
+        </member>
+        <member name="T:LitterBox.ExceptionEvent">
+            <summary>
+            ExceptionEvent Instance
+            </summary>
+        </member>
+        <member name="M:LitterBox.ExceptionEvent.#ctor(System.Object,System.Exception)">
+            <summary>
+            ExceptionEvent Constructor
+            </summary>
+            <param name="sender">sender</param>
+            <param name="exception">exception</param>
+        </member>
+        <member name="P:LitterBox.ExceptionEvent.Sender">
+            <summary>
+            Sender
+            </summary>
+        </member>
+        <member name="P:LitterBox.ExceptionEvent.Exception">
+            <summary>
+            Exception
+            </summary>
+        </member>
+        <member name="T:LitterBox.JsonContractResolvers.CamelCaseExceptDictionaryKeysContractResolver">
+            <summary>
+            Handle dictoinary keys and don't lowercase them
+            </summary>
+        </member>
+        <member name="M:LitterBox.JsonContractResolvers.CamelCaseExceptDictionaryKeysContractResolver.CreateDictionaryContract(System.Type)">
+            <summary>
+            internal override to Resolver
+            </summary>  
+            <param name="objectType">objectType</param>
+            <returns>JsonDictionaryContract</returns>
+        </member>
+        <member name="T:LitterBox.LitterBoxItem`1">
+            <summary>
+            CacheItem Class Instance
+            </summary>
+        </member>
+        <member name="P:LitterBox.LitterBoxItem`1.Value">
+            <summary>
+            T Value Of Cached Item
+            </summary>
+        </member>
+        <member name="P:LitterBox.LitterBoxItem`1.Created">
+            <summary>
+            Creation Time
+            </summary>
+        </member>
+        <member name="P:LitterBox.LitterBoxItem`1.Expiry">
+            <summary>
+            Time After Creation To Expire
+            </summary>
+        </member>
+        <member name="P:LitterBox.LitterBoxItem`1.StaleIn">
+            <summary>
+            Time After Creation To Be Stale
+            </summary>
+        </member>
+        <member name="M:LitterBox.LitterBoxItem`1.IsExpired">
+            <summary>
+            Helper Function For Expiration
+            </summary>
+            <returns>True|False</returns>
+        </member>
+        <member name="M:LitterBox.LitterBoxItem`1.IsStale">
+            <summary>
+            Helper Function For Expiration
+            </summary>
+            <returns>True|False</returns>
+        </member>
+        <member name="M:LitterBox.Utilities.Serialize``1(``0)">
+            <summary>
+            Convert T To Json
+            </summary>
+            <typeparam name="T">Type Of Cached Item</typeparam>
+            <param name="value">Value Of Cached Item</param>
+            <returns>Json Representation</returns>
+        </member>
+        <member name="M:LitterBox.Utilities.Deserialize``1(System.String)">
+            <summary>
+            Convert Json To T
+            </summary>
+            <typeparam name="T">Type Of Cached Item</typeparam>
+            <param name="value">Value Of Cached Item</param>
+            <returns>T Representation</returns>
+        </member>
+    </members>
+</doc>

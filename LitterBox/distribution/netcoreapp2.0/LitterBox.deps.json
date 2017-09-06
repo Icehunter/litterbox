@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.0": {
-      "LitterBox/2.0.1": {
+      "LitterBox/2.0.2": {
         "dependencies": {
           "Newtonsoft.Json": "10.0.3"
         },
@@ -390,7 +390,7 @@
     }
   },
   "libraries": {
-    "LitterBox/2.0.1": {
+    "LitterBox/2.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

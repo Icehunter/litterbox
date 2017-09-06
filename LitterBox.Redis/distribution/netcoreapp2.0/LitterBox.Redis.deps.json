@@ -1,14 +1,14 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.0",
-    "signature": "07fb8227318781a7239db85e8c5c70f21fa83788"
+    "signature": "4ac23abd6e9193105d6357483ac9ac7f1b58d4ba"
   },
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.0": {
-      "LitterBox.Redis/2.0.2": {
+      "LitterBox.Redis/2.0.4": {
         "dependencies": {
-          "LitterBox": "2.0.1",
+          "LitterBox": "2.0.2",
           "Newtonsoft.Json": "10.0.3",
           "StackExchange.Redis": "1.2.6"
         },
@@ -16,7 +16,7 @@
           "LitterBox.Redis.dll": {}
         }
       },
-      "LitterBox/2.0.1": {
+      "LitterBox/2.0.2": {
         "dependencies": {
           "Newtonsoft.Json": "10.0.3"
         },
@@ -983,17 +983,17 @@
     }
   },
   "libraries": {
-    "LitterBox.Redis/2.0.2": {
+    "LitterBox.Redis/2.0.4": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "LitterBox/2.0.1": {
+    "LitterBox/2.0.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-CeLKjXYYkFdGNfRsKHyIHGZmROgBeMH1dGlvBbC2gdoCbKAKp7EIftmGSVGbrHOiOdfsrXupzj4IzkR313aZsQ==",
-      "path": "litterbox/2.0.1",
-      "hashPath": "litterbox.2.0.1.nupkg.sha512"
+      "sha512": "sha512-M/uzWBtGQ0rtWZ2XUgXt+tiWWUoFJ87v8kJ16TG+DjpW1xJJXlL28GUVtMVoTswD9B7VigQlwJWcuJ/kJaJGOQ==",
+      "path": "litterbox/2.0.2",
+      "hashPath": "litterbox.2.0.2.nupkg.sha512"
     },
     "Microsoft.CSharp/4.3.0": {
       "type": "package",

@@ -1,0 +1,211 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LitterBox.Memory</name>
+    </assembly>
+    <members>
+        <member name="T:LitterBox.Memory.Config">
+            <summary>
+            Configuration For Connection
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Config.CompactionPercentage">
+            <summary>
+            CompactionPercentage
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Config.ExpirationScanFrequency">
+            <summary>
+            ExpirationScanFrequency
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Config.DefaultExpiry">
+            <summary>
+            DefaultExpiry (1 Day)
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Config.DefaultStaleIn">
+            <summary>
+            DefaultStaleIn (5 Minutes)
+            </summary>
+        </member>
+        <member name="M:LitterBox.Memory.Connection.#ctor(LitterBox.Memory.Config)">
+            <summary>
+            Connection
+            </summary>
+            <param name="config">config</param>
+        </member>
+        <member name="P:LitterBox.Memory.Connection.Cache">
+            <summary>
+            MemoryCache
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Connection._config">
+            <summary>
+            Connection Config
+            </summary>
+        </member>
+        <member name="M:LitterBox.Memory.Connection.Connect">
+            <summary>
+            Connect to MemoryCache
+            </summary>
+            <returns>Raw MemoryCache</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Connection.Flush">
+            <summary>
+            Flush (Dispose) Of Cache / Recreate
+            </summary>
+            <returns>Success True|False</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.#ctor(LitterBox.Memory.Config)">
+            <summary>
+            Memoize
+            </summary>
+            <param name="config">config</param>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.GetInstance(LitterBox.Memory.Config)">
+            <summary>
+            Lazy Value
+            </summary>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.RaiseException(System.Exception)">
+            <summary>
+            Internal ExceptionEvent Invoker
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="P:LitterBox.Memory.Memoize._connection">
+            <summary>
+            Connection Object
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Memoize._config">
+            <summary>
+            MemoryCache Config
+            </summary>
+        </member>
+        <member name="E:LitterBox.Memory.Memoize.ExceptionEvent">
+            <summary>
+            EventHandler For ExceptionEvent
+            </summary>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.Reconnect">
+            <summary>
+            Close/Dispose Connection And Reconnect With Existing Properties
+            </summary>
+            <returns>Success True|False</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.Flush">
+            <summary>
+            Flush Cache
+            </summary>
+            <returns>Success True|False</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.GetItem``1(System.String)">
+            <summary>
+            GetItem T By Key
+            </summary>
+            <typeparam name="T">Type Of Cached Value</typeparam>
+            <param name="key">Key Lookup</param>
+            <returns>LitterBoxItem T</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.GetItem``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+            <summary>
+            GetItem T By Key, Generator, StaleIn, Expiry
+            </summary>
+            <typeparam name="T">Type Of Cached Value</typeparam>
+            <param name="key">Key Lookup</param>
+            <param name="generator">Generator Action If Not Found</param>
+            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <returns>LitterBoxItem T</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.GetItem``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+            <summary>
+            GetItem T By Key, Generator, StaleIn, Expiry
+            </summary>
+            <typeparam name="T">Type Of Cached Value</typeparam>
+            <param name="key">Key Lookup</param>
+            <param name="generator">Generator Action If Not Found</param>
+            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <returns>LitterBoxItem T</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.GetItems``1(System.Collections.Generic.List{System.String})">
+            <summary>
+            GetItems T By Keys
+            </summary>
+            <typeparam name="T">Type Of Cached Values</typeparam>
+            <param name="keys">Key Lookups</param>
+            <returns>List LitterBoxItem T</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+            <summary>
+            GetItems T By Keys, Generators, StaleIn, Expiry
+            </summary>
+            <typeparam name="T">Type Of Cached Values</typeparam>
+            <param name="keys">Key Lookups</param>
+            <param name="generators">Generator Actions If Not Found</param>
+            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <returns>List LitterBoxItem T</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{System.Threading.Tasks.Task{``0}}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+            <summary>
+            GetItems T By Keys, Generators, StaleIn, Expiry
+            </summary>
+            <typeparam name="T">Type Of Cached Values</typeparam>
+            <param name="keys">Key Lookups</param>
+            <param name="generators">Generator Actions If Not Found</param>
+            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <returns>List LitterBoxItem T</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.SetItem``1(System.String,LitterBox.LitterBoxItem{``0})">
+            <summary>
+            SetItem T By Key
+            </summary>
+            <typeparam name="T">Type Of Cached Value</typeparam>
+            <param name="key">Key Lookup</param>
+            <param name="litter">Item T To Be Cached</param>
+            <returns>Success True|False</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.SetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{LitterBox.LitterBoxItem{``0}})">
+            <summary>
+            SetItems T By Keys
+            </summary>
+            <typeparam name="T">Type Of Cached Values</typeparam>
+            <param name="keys">Key Lookups</param>
+            <param name="litters">Items T To Be Cached</param>
+            <returns>Success True|False</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.SetItemFireAndForget``1(System.String,LitterBox.LitterBoxItem{``0})">
+            <summary>
+            SetItem T (Fire Forget) By Key, LitterBoxItem T
+            </summary>
+            <typeparam name="T">Type Of Cached Value</typeparam>
+            <param name="key">Key Lookup</param>
+            <param name="litter">Item T To Be Cached</param>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.SetItemFireAndForget``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+            <summary>
+            SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+            </summary>
+            <typeparam name="T">Type Of Cached Value</typeparam>
+            <param name="key">Key Lookup</param>
+            <param name="generator">Generator Action</param>
+            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+            <param name="expiry">How Long After Creation To Auto-Delete</param>
+        </member>
+        <member name="M:LitterBox.Memory.Memoize.SetItemFireAndForget``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+            <summary>
+            SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+            </summary>
+            <typeparam name="T">Type Of Cached Value</typeparam>
+            <param name="key">Key Lookup</param>
+            <param name="generator">Generator Action</param>
+            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+            <param name="expiry">How Long After Creation To Auto-Delete</param>
+        </member>
+    </members>
+</doc>

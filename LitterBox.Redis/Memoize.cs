@@ -22,6 +22,7 @@
 
 namespace LitterBox.Redis {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -104,6 +105,11 @@ namespace LitterBox.Redis {
         /// RedisCache Config
         /// </summary>
         private Config _config { get; set; }
+
+        /// <summary>
+        /// Private Cache Of InProcess Items To Prevent Multiple Requests For The Same Object
+        /// </summary>
+        private ConcurrentDictionary<string, bool> _inProcess = new ConcurrentDictionary<string, bool>();
 
         #endregion
 
@@ -329,7 +335,13 @@ namespace LitterBox.Redis {
         /// <param name="key">Key Lookup</param>
         /// <param name="litter">Item T To Be Cached</param>
         public void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter) {
-            Task.Run(async () => await this.SetItem(key, litter).ConfigureAwait(false));
+            Task.Run(async () => {
+                if (this._inProcess.ContainsKey(key)) {
+                    return;
+                }
+                this._inProcess.TryAdd(key, true);
+                await this.SetItem(key, litter).ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -341,7 +353,7 @@ namespace LitterBox.Redis {
         /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
         /// <param name="expiry">How Long After Creation To Auto-Delete</param>
         public void SetItemFireAndForget<T>(string key, Func<T> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
-            Task.Run(() => this.SetItemFireAndForget(key, () => Task.Run(generator), staleIn, expiry));
+            Task.Run(() => this.SetItemFireAndForget(key, () => Task.Run(generator), staleIn, expiry)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -354,16 +366,28 @@ namespace LitterBox.Redis {
         /// <param name="expiry">How Long After Creation To Auto-Delete</param>
         public void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
             Task.Run(async () => {
-                var item = await Task.Run(generator).ConfigureAwait(false);
-                if (item != null) {
-                    var litter = new LitterBoxItem<T> {
-                        Value = item,
-                        Expiry = expiry,
-                        StaleIn = staleIn
-                    };
-                    await this.SetItem(key, litter).ConfigureAwait(false);
+                if (this._inProcess.ContainsKey(key))
+                {
+                    return;
                 }
-            });
+                this._inProcess.TryAdd(key, true);
+
+                try {
+                    var item = await Task.Run(generator).ConfigureAwait(false);
+                    if (item != null)
+                    {
+                        var litter = new LitterBoxItem<T> {
+                            Value = item,
+                            Expiry = expiry,
+                            StaleIn = staleIn
+                        };
+                        await this.SetItem(key, litter).ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex) {
+                    this.RaiseException(ex);
+                }
+            }).ConfigureAwait(false);
         }
 
         #endregion

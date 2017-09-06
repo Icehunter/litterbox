@@ -1,14 +1,14 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.0",
-    "signature": "66594f872fa0c69f2cb5858dc7dafdc64c2b4949"
+    "signature": "1836fccebbb2a7bbb3ea232b965d502c3b2de13c"
   },
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.0": {
-      "LitterBox.Memory/2.0.2": {
+      "LitterBox.Memory/2.0.4": {
         "dependencies": {
-          "LitterBox": "2.0.1",
+          "LitterBox": "2.0.2",
           "Microsoft.Extensions.Caching.Memory": "2.0.0",
           "Newtonsoft.Json": "10.0.3"
         },
@@ -16,7 +16,7 @@
           "LitterBox.Memory.dll": {}
         }
       },
-      "LitterBox/2.0.1": {
+      "LitterBox/2.0.2": {
         "dependencies": {
           "Newtonsoft.Json": "10.0.3"
         },
@@ -445,17 +445,17 @@
     }
   },
   "libraries": {
-    "LitterBox.Memory/2.0.2": {
+    "LitterBox.Memory/2.0.4": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "LitterBox/2.0.1": {
+    "LitterBox/2.0.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-CeLKjXYYkFdGNfRsKHyIHGZmROgBeMH1dGlvBbC2gdoCbKAKp7EIftmGSVGbrHOiOdfsrXupzj4IzkR313aZsQ==",
-      "path": "litterbox/2.0.1",
-      "hashPath": "litterbox.2.0.1.nupkg.sha512"
+      "sha512": "sha512-M/uzWBtGQ0rtWZ2XUgXt+tiWWUoFJ87v8kJ16TG+DjpW1xJJXlL28GUVtMVoTswD9B7VigQlwJWcuJ/kJaJGOQ==",
+      "path": "litterbox/2.0.2",
+      "hashPath": "litterbox.2.0.2.nupkg.sha512"
     },
     "Microsoft.CSharp/4.3.0": {
       "type": "package",

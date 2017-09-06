@@ -22,24 +22,48 @@
 
 namespace LitterBox.Redis {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     internal class ConnectionPool {
-        private readonly object _counterLock = new object();
+        /// <summary>
+        /// Counter Storages
+        /// </summary>
+        private int _roundRobinCounter;
 
-        private uint _roundRobinCounter;
+        /// <summary>
+        /// PoolSize
+        /// </summary>
         public int PoolSize { get; set; } = 5;
 
+        /// <summary>
+        /// Current Connections
+        /// </summary>
         public List<Connection> Connections { get; set; } = new List<Connection>();
 
+        /// <summary>
+        /// Get A RoundRobin Connection
+        /// </summary>
+        /// <returns></returns>
         public Connection GetPooledConnection() {
-            int index;
-            lock (this._counterLock) {
-                index = (int) (++this._roundRobinCounter % this.PoolSize);
-            }
+            var index = (int) (this.IncrementCount() % this.PoolSize);
             return this.Connections[index];
         }
 
+        /// <summary>
+        /// Atomic Increase On RoundRobinCounter
+        /// </summary>
+        /// <returns>uint index</returns>
+        private uint IncrementCount() {
+            var value = Interlocked.CompareExchange(ref this._roundRobinCounter, ++this._roundRobinCounter, this._roundRobinCounter);
+            return (uint) value;
+        }
+
+        /// <summary>
+        /// Initialize ConnectionPool
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public async Task Initialize(Config config) {
             for (var i = 0; i < this.PoolSize; i++) {
                 var connection = new Connection(config);

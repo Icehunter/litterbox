@@ -7,5 +7,5 @@ Where-Object { $_.Name -match "$source.[\d\.]+.nupkg" -and $_.Name -notmatch "\.
 Remove-Item
 
 Dir |
-Where-Object { $_.Name.Contains($source) } |
+Where-Object { $_.Name -match "$source.[\d\.]+.symbols.nupkg" } |
 Rename-Item -NewName { $_.Name -replace ".symbols","" }
