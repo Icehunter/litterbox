@@ -50,6 +50,7 @@ namespace LitterBox.Redis {
         /// </summary>
         /// <returns>Success True|False</returns>
         public async Task<bool> Reconnect() {
+            this._inProcess.Clear();
             try {
                 foreach (var connection in this._connectionPool.Connections) {
                     await connection.Reconnect().ConfigureAwait(false);
@@ -67,6 +68,7 @@ namespace LitterBox.Redis {
         /// </summary>
         /// <returns>Success True|False</returns>
         public async Task<bool> Flush() {
+            this._inProcess.Clear();
             try {
                 return await this._connectionPool.Connections.First().Flush().ConfigureAwait(false);
             }
@@ -294,6 +296,8 @@ namespace LitterBox.Redis {
             catch (Exception ex) {
                 this.RaiseException(ex);
             }
+
+            this._inProcess.TryRemove(key, out bool removed);
 
             return success;
         }

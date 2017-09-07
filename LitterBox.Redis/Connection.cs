@@ -78,7 +78,7 @@ namespace LitterBox.Redis {
         /// </summary>
         /// <returns>Success True|False</returns>
         internal async Task<bool> Flush() {
-            await Task.Run(() => this.Cache.Execute("FLUSHALL")).ConfigureAwait(false);
+            await Task.Run(() => this.Cache.Execute("FLUSHDB")).ConfigureAwait(false);
             return true;
         }
 

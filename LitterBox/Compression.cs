@@ -30,19 +30,6 @@ namespace LitterBox {
     /// </summary>
     public static class Compression {
         /// <summary>
-        /// Copy Source => Destination (By Ref)
-        /// </summary>
-        /// <param name="source">source stream</param>
-        /// <param name="destination">desition stream</param>
-        public static void CopyTo(Stream source, Stream destination) {
-            var bytes = new byte[16384];
-            int count;
-            while ((count = source.Read(bytes, 0, bytes.Length)) != 0) {
-                destination.Write(bytes, 0, count);
-            }
-        }
-
-        /// <summary>
         /// Zip String => Byte[] (Compressed)
         /// </summary>
         /// <param name="value">String Data</param>
@@ -52,7 +39,7 @@ namespace LitterBox {
             using (var input = new MemoryStream(buffer)) {
                 using (var output = new MemoryStream()) {
                     using (var gZipStream = new GZipStream(output, CompressionMode.Compress)) {
-                        CopyTo(input, gZipStream);
+                        input.CopyToAsync(gZipStream);
                     }
                     return output.ToArray();
                 }
@@ -68,7 +55,7 @@ namespace LitterBox {
             using (var input = new MemoryStream(value)) {
                 using (var output = new MemoryStream()) {
                     using (var gZipStream = new GZipStream(input, CompressionMode.Decompress)) {
-                        CopyTo(gZipStream, output);
+                        gZipStream.CopyTo(output);
                     }
                     return Encoding.UTF8.GetString(output.ToArray());
                 }

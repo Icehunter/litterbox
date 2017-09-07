@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 namespace LitterBox.Memory {
+    using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Caching.Memory;
 
@@ -32,6 +33,11 @@ namespace LitterBox.Memory {
         public Connection(Config config) {
             this._config = config;
         }
+
+        /// <summary>
+        /// Keep Track Of Cached Keys; Used For Flushing
+        /// </summary>
+        public readonly ConcurrentDictionary<string, bool> StorageKeys = new ConcurrentDictionary<string, bool>();
 
         /// <summary>
         /// MemoryCache
@@ -63,8 +69,12 @@ namespace LitterBox.Memory {
         /// </summary>
         /// <returns>Success True|False</returns>
         internal async Task Flush() {
-            this.Cache.Dispose();
-            await this.Connect().ConfigureAwait(false);
+            await Task.Run(() => {
+                foreach (var kvp in this.StorageKeys) {
+                    this.Cache.Remove(kvp.Key);
+                }
+                this.StorageKeys.Clear();
+            }).ConfigureAwait(false);
         }
 
         #endregion

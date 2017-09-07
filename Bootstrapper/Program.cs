@@ -27,9 +27,9 @@ namespace Bootstrapper {
     class Program {
         static void Main(string[] args) {
             var memoryCache = LitterBox.Memory.Memoize.GetInstance();
-            memoryCache.Flush().Wait();
-
             var redisCache = LitterBox.Redis.Memoize.GetInstance();
+
+            memoryCache.Flush().Wait();
             redisCache.Flush().Wait();
 
             var xMemory = memoryCache.GetItem<string>("what").Result;
@@ -51,6 +51,15 @@ namespace Bootstrapper {
 
             var zRedis = redisCache.GetItem("what", () => "is it").Result;
             Console.WriteLine($"redis: z = y: {zRedis.Value == yRedis.Value}");
+
+            memoryCache.Flush().Wait();
+            redisCache.Flush().Wait();
+
+            var x2Memory = memoryCache.GetItem<string>("what").Result;
+            Console.WriteLine($"memory: x2 === null: {x2Memory == null}");
+
+            var x2Redis = redisCache.GetItem<string>("what").Result;
+            Console.WriteLine($"redis: x2 === null: {x2Redis == null}");
 
             Console.ReadKey();
         }

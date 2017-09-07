@@ -10,12 +10,13 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>csharp memory caching litterbox memory</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>2.0.5</Version>
+    <Version>2.0.8</Version>
     <Company>SyndicatedLife</Company>
     <Product>LitterBox.Memory</Product>
     <Description>Memory Adaptor For LitterBox Caching</Description>
     <Copyright>Copyright © 2017 Ryan Wilson</Copyright>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.8.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -31,7 +32,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="LitterBox" Version="2.0.2" />
+    <PackageReference Include="LitterBox" Version="2.0.3" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>

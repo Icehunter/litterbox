@@ -95,6 +95,7 @@ namespace LitterBox.Memory {
         /// </summary>
         /// <returns>Success True|False</returns>
         public async Task<bool> Reconnect() {
+            this._inProcess.Clear();
             return await Task.Run(() => true).ConfigureAwait(false);
         }
 
@@ -103,6 +104,7 @@ namespace LitterBox.Memory {
         /// </summary>
         /// <returns>Success True|False</returns>
         public async Task<bool> Flush() {
+            this._inProcess.Clear();
             try {
                 await this._connection.Flush().ConfigureAwait(false);
                 return true;
@@ -287,6 +289,9 @@ namespace LitterBox.Memory {
             catch (Exception ex) {
                 this.RaiseException(ex);
             }
+
+            this._inProcess.TryRemove(key, out bool itemSet);
+            this._connection.StorageKeys.TryAdd(key, itemSet);
 
             return success;
         }
