@@ -23,14 +23,36 @@
 namespace Bootstrapper {
     using System;
     using System.Threading;
+    using LitterBox.Interfaces;
+    using LitterBox.Models;
 
     class Program {
         static void Main(string[] args) {
             var memoryCache = LitterBox.Memory.Memoize.GetInstance();
             var redisCache = LitterBox.Redis.Memoize.GetInstance();
 
-            memoryCache.Flush().Wait();
-            redisCache.Flush().Wait();
+            var tenancy = new Tenancy(new ILitterBox[] { memoryCache, redisCache });
+
+            var t = new Tenancy(new ILitterBox[] { memoryCache, redisCache });
+
+            var flushed = t.Flush().Result;
+            var reconnected = t.Reconnect().Result;
+
+            var x = t.GetItem<string>("what").Result;
+            Console.WriteLine($"x === null: {x == null}");
+
+            var y = t.GetItem("what", () => "happened").Result;
+            Console.WriteLine($"y === \"happened\": {y.Value.Value == "happened"}");
+
+            Thread.Sleep(1000);
+
+            var z = t.GetItem("what", () => "is it").Result;
+            Console.WriteLine($"z == y: {z.Value.Value == y.Value.Value}");
+
+            flushed = t.Flush().Result;
+
+            var zz = t.GetItem<string>("what").Result;
+            Console.WriteLine($"zz === null: {zz == null}");
 
             var xMemory = memoryCache.GetItem<string>("what").Result;
             Console.WriteLine($"memory: x === null: {xMemory == null}");

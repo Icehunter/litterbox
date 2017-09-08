@@ -39,7 +39,7 @@ namespace LitterBox {
             using (var input = new MemoryStream(buffer)) {
                 using (var output = new MemoryStream()) {
                     using (var gZipStream = new GZipStream(output, CompressionMode.Compress)) {
-                        input.CopyToAsync(gZipStream);
+                        input.CopyTo(gZipStream);
                     }
                     return output.ToArray();
                 }

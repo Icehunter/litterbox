@@ -23,8 +23,24 @@
 namespace LitterBox.Models {
     using System;
 
+    /// <summary>
+    /// Tenancy Result Class
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class TenancyResult<T> {
+        /// <summary>
+        /// Key In Cache (Null If Not Getting Items)
+        /// </summary>
+        public string Key { get; set; } = null;
+
+        /// <summary>
+        /// Type Of Cache Data Came From
+        /// </summary>
         public Type Type { get; set; } = typeof(T);
-        public T Result { get; set; } = default(T);
+
+        /// <summary>
+        /// T Value Of Stored Item
+        /// </summary>
+        public T Value { get; set; } = default(T);
     }
 }

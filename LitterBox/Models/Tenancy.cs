@@ -80,7 +80,7 @@ namespace LitterBox.Models {
                 var success = await cache.Reconnect().ConfigureAwait(false);
                 results.Add(new TenancyResult<bool> {
                     Type = cache.GetType(),
-                    Result = success
+                    Value = success
                 });
             }
 
@@ -98,7 +98,7 @@ namespace LitterBox.Models {
                 var success = await cache.Flush().ConfigureAwait(false);
                 results.Add(new TenancyResult<bool> {
                     Type = cache.GetType(),
-                    Result = success
+                    Value = success
                 });
             }
 
@@ -120,12 +120,16 @@ namespace LitterBox.Models {
                 var result = await cache.GetItem<T>(key).ConfigureAwait(false);
                 if (result != null) {
                     return new TenancyResult<LitterBoxItem<T>> {
+                        Key = key,
                         Type = cache.GetType(),
-                        Result = result
+                        Value = result
                     };
                 }
             }
-            return null;
+            return new TenancyResult<LitterBoxItem<T>> {
+                Key = key,
+                Value = null
+            };
         }
 
         /// <summary>
@@ -161,8 +165,9 @@ namespace LitterBox.Models {
                 if (value != null) {
                     foundIndex = i;
                     result = new TenancyResult<LitterBoxItem<T>> {
+                        Key = key,
                         Type = cache.GetType(),
-                        Result = value
+                        Value = value
                     };
                     break;
                 }
@@ -176,7 +181,8 @@ namespace LitterBox.Models {
                     Value = await Task.Run(generator).ConfigureAwait(false)
                 };
                 result = new TenancyResult<LitterBoxItem<T>> {
-                    Result = value
+                    Key = key,
+                    Value = value
                 };
             }
 
@@ -264,8 +270,9 @@ namespace LitterBox.Models {
             foreach (var cache in this._caches) {
                 var success = await cache.SetItem(key, litter).ConfigureAwait(false);
                 results.Add(new TenancyResult<bool> {
+                    Key = key,
                     Type = cache.GetType(),
-                    Result = success
+                    Value = success
                 });
             }
 

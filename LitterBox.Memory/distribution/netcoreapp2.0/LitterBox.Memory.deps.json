@@ -1,27 +1,19 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.0",
-    "signature": "1836fccebbb2a7bbb3ea232b965d502c3b2de13c"
+    "signature": "43a69139e5a14f5f05fd81fbafcd12772c8af227"
   },
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.0": {
-      "LitterBox.Memory/2.0.4": {
+      "LitterBox.Memory/3.0.3": {
         "dependencies": {
-          "LitterBox": "2.0.2",
+          "LitterBox": "3.0.3",
           "Microsoft.Extensions.Caching.Memory": "2.0.0",
           "Newtonsoft.Json": "10.0.3"
         },
         "runtime": {
           "LitterBox.Memory.dll": {}
-        }
-      },
-      "LitterBox/2.0.2": {
-        "dependencies": {
-          "Newtonsoft.Json": "10.0.3"
-        },
-        "runtime": {
-          "lib/netcoreapp2.0/LitterBox.dll": {}
         }
       },
       "Microsoft.CSharp/4.3.0": {
@@ -441,21 +433,22 @@
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
         }
+      },
+      "LitterBox/3.0.3": {
+        "dependencies": {
+          "Newtonsoft.Json": "10.0.3"
+        },
+        "runtime": {
+          "LitterBox.dll": {}
+        }
       }
     }
   },
   "libraries": {
-    "LitterBox.Memory/2.0.4": {
+    "LitterBox.Memory/3.0.3": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
-    },
-    "LitterBox/2.0.2": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-M/uzWBtGQ0rtWZ2XUgXt+tiWWUoFJ87v8kJ16TG+DjpW1xJJXlL28GUVtMVoTswD9B7VigQlwJWcuJ/kJaJGOQ==",
-      "path": "litterbox/2.0.2",
-      "hashPath": "litterbox.2.0.2.nupkg.sha512"
     },
     "Microsoft.CSharp/4.3.0": {
       "type": "package",
@@ -785,6 +778,11 @@
       "sha512": "sha512-lJ8AxvkX7GQxpC6GFCeBj8ThYVyQczx2+f/cWHJU8tjS7YfI6Cv6bon70jVEgs2CiFbmmM8b9j1oZVx0dSI2Ww==",
       "path": "system.xml.xmldocument/4.3.0",
       "hashPath": "system.xml.xmldocument.4.3.0.nupkg.sha512"
+    },
+    "LitterBox/3.0.3": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }
