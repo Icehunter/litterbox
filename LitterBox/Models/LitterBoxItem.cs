@@ -20,56 +20,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox.Redis {
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
+namespace LitterBox.Models {
+    using System;
 
-    internal class ConnectionPool {
+    /// <summary>
+    /// CacheItem Class Instance
+    /// </summary>
+    public class LitterBoxItem<T> {
         /// <summary>
-        /// Counter Storages
+        /// T Value Of Cached Item
         /// </summary>
-        private int _roundRobinCounter;
-
-        /// <summary>
-        /// PoolSize
-        /// </summary>
-        public int PoolSize { get; set; } = 5;
+        public T Value { get; set; }
 
         /// <summary>
-        /// Current Connections
+        /// Creation Time
         /// </summary>
-        public List<Connection> Connections { get; set; } = new List<Connection>();
+        public DateTime Created { get; set; } = DateTime.Now;
 
         /// <summary>
-        /// Get A RoundRobin Connection
+        /// Time After Creation To Expire
         /// </summary>
-        /// <returns></returns>
-        public Connection GetPooledConnection() {
-            var index = (int) (this.IncrementCount() % this.PoolSize);
-            return this.Connections[index];
-        }
+        public TimeSpan? Expiry { get; set; } = null;
 
         /// <summary>
-        /// Atomic Increase On RoundRobinCounter
+        /// Time After Creation To Be Stale
         /// </summary>
-        /// <returns>uint index</returns>
-        private uint IncrementCount() {
-            var value = Interlocked.CompareExchange(ref this._roundRobinCounter, ++this._roundRobinCounter, this._roundRobinCounter);
-            return (uint) value;
-        }
+        public TimeSpan? StaleIn { get; set; } = null;
 
         /// <summary>
-        /// Initialize ConnectionPool
+        /// Helper Function For Expiration
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        public async Task Initialize(Config config) {
-            for (var i = 0; i < this.PoolSize; i++) {
-                var connection = new Connection(config);
-                await connection.Connect().ConfigureAwait(false);
-                this.Connections.Add(connection);
+        /// <returns>True|False</returns>
+        public bool IsExpired() {
+            if (this.Expiry == null) {
+                return false;
             }
+            return DateTime.Now > this.Created.Add((TimeSpan) this.Expiry);
+        }
+
+        /// <summary>
+        /// Helper Function For Expiration
+        /// </summary>
+        /// <returns>True|False</returns>
+        public bool IsStale() {
+            if (this.StaleIn == null) {
+                return false;
+            }
+            return DateTime.Now > this.Created.Add((TimeSpan) this.StaleIn);
         }
     }
 }

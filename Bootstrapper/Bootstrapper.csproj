@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LitterBox.Memory\LitterBox.Memory.csproj" />
     <ProjectReference Include="..\LitterBox.Redis\LitterBox.Redis.csproj" />
+    <ProjectReference Include="..\LitterBox\LitterBox.csproj" />
   </ItemGroup>
 
 </Project>

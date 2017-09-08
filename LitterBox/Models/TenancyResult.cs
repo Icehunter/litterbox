@@ -20,31 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox.Memory {
+namespace LitterBox.Models {
     using System;
 
-    /// <summary>
-    /// Configuration For Connection
-    /// </summary>
-    public class Config {
-        /// <summary>
-        /// CompactionPercentage
-        /// </summary>
-        public double CompactionPercentage { get; set; } = 0.25;
-
-        /// <summary>
-        /// ExpirationScanFrequency
-        /// </summary>
-        public TimeSpan ExpirationScanFrequency { get; set; } = new TimeSpan(0, 1, 0, 0);
-
-        /// <summary>
-        /// DefaultExpiry (1 Day)
-        /// </summary>
-        public TimeSpan DefaultExpiry { get; set; } = new TimeSpan(1, 0, 0, 0);
-
-        /// <summary>
-        /// DefaultStaleIn (5 Minutes)
-        /// </summary>
-        public TimeSpan DefaultStaleIn { get; set; } = new TimeSpan(0, 0, 5, 0);
+    public class TenancyResult<T> {
+        public Type Type { get; set; } = typeof(T);
+        public T Result { get; set; } = default(T);
     }
 }

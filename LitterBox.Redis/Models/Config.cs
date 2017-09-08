@@ -20,31 +20,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox {
+namespace LitterBox.Redis.Models {
     using System;
 
     /// <summary>
-    /// ExceptionEvent Instance
+    /// Configuration For Connection
     /// </summary>
-    public class ExceptionEvent : EventArgs {
+    public class Config {
         /// <summary>
-        /// ExceptionEvent Constructor
+        /// Hostname
         /// </summary>
-        /// <param name="sender">sender</param>
-        /// <param name="exception">exception</param>
-        public ExceptionEvent(object sender, Exception exception) {
-            this.Sender = sender;
-            this.Exception = exception;
-        }
+        public string Host { get; set; } = "127.0.0.1";
 
         /// <summary>
-        /// Sender
+        /// Port
         /// </summary>
-        public object Sender { get; set; }
+        public int Port { get; set; } = 6379;
 
         /// <summary>
-        /// Exception
+        /// Password
         /// </summary>
-        public Exception Exception { get; set; }
+        public string Password { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Database
+        /// </summary>
+        public int DatabaseID { get; set; } = 0;
+
+        /// <summary>
+        /// Connection PoolSize
+        /// </summary>
+        public int PoolSize { get; set; } = 5;
+
+        /// <summary>
+        /// DefaultExpiry (1 Day)
+        /// </summary>
+        public TimeSpan DefaultExpiry { get; set; } = new TimeSpan(1, 0, 0, 0);
+
+        /// <summary>
+        /// DefaultStaleIn (5 Minutes)
+        /// </summary>
+        public TimeSpan DefaultStaleIn { get; set; } = new TimeSpan(0, 0, 5, 0);
     }
 }

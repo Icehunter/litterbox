@@ -20,40 +20,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox.Memory {
+namespace LitterBox.Models {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using LitterBox.Interfaces;
-    using LitterBox.Memory.Models;
-    using LitterBox.Models;
-    using Microsoft.Extensions.Caching.Memory;
 
-    public class Memoize : ILitterBox {
+    /// <summary>
+    /// Abstraction Around Multi-Level Caching
+    /// </summary>
+    public class Tenancy {
         /// <summary>
-        /// Memoize
+        /// Instiate A New Tenancy
         /// </summary>
-        /// <param name="config">config</param>
-        private Memoize(Config config) {
-            this._config = config ?? new Config();
-
-            // connect on a seperate thread
-            Task.Run(async () => {
-                this._connection = new Connection(this._config);
-                await this._connection.Connect().ConfigureAwait(false);
-            }).Wait();
+        /// <param name="caches">Array Of Caches In Priority</param>
+        public Tenancy(ILitterBox[] caches) {
+            this._caches = caches;
         }
 
-        #region Instance
-
         /// <summary>
-        /// Lazy Value
+        /// Private Backing Of Cache Array
         /// </summary>
-        public static Memoize GetInstance(Config config = null) => new Lazy<Memoize>(() => new Memoize(config)).Value;
-
-        #endregion
+        private ILitterBox[] _caches { get; set; }
 
         #region Event Handlers
 
@@ -67,25 +56,6 @@ namespace LitterBox.Memory {
 
         #endregion
 
-        #region Memory Properties
-
-        /// <summary>
-        /// Connection Object
-        /// </summary>
-        private Connection _connection { get; set; }
-
-        /// <summary>
-        /// MemoryCache Config
-        /// </summary>
-        private Config _config { get; set; }
-
-        /// <summary>
-        /// Private Cache Of InProcess Items To Prevent Multiple Requests For The Same Object
-        /// </summary>
-        private ConcurrentDictionary<string, bool> _inProcess = new ConcurrentDictionary<string, bool>();
-
-        #endregion
-
         #region ILitterBox Implementation
 
         #region Events
@@ -93,7 +63,7 @@ namespace LitterBox.Memory {
         /// <summary>
         /// EventHandler For ExceptionEvent
         /// </summary>
-        public event EventHandler<ExceptionEvent> ExceptionEvent = delegate { };
+        public event EventHandler<ExceptionEvent> ExceptionEvent;
 
         #endregion
 
@@ -102,26 +72,37 @@ namespace LitterBox.Memory {
         /// <summary>
         /// Close/Dispose Connection And Reconnect With Existing Properties
         /// </summary>
-        /// <returns>Success True|False</returns>
-        public async Task<bool> Reconnect() {
-            this._inProcess.Clear();
-            return await Task.Run(() => true).ConfigureAwait(false);
+        /// <returns>Success True|False (For Each Cache)</returns>
+        public async Task<List<TenancyResult<bool>>> Reconnect() {
+            var results = new List<TenancyResult<bool>>();
+
+            foreach (var cache in this._caches) {
+                var success = await cache.Reconnect().ConfigureAwait(false);
+                results.Add(new TenancyResult<bool> {
+                    Type = cache.GetType(),
+                    Result = success
+                });
+            }
+
+            return results;
         }
 
         /// <summary>
         /// Flush Cache
         /// </summary>
-        /// <returns>Success True|False</returns>
-        public async Task<bool> Flush() {
-            this._inProcess.Clear();
-            try {
-                await this._connection.Flush().ConfigureAwait(false);
-                return true;
+        /// <returns>Success True|False (For Each Cache)</returns>
+        public async Task<List<TenancyResult<bool>>> Flush() {
+            var results = new List<TenancyResult<bool>>();
+
+            foreach (var cache in this._caches) {
+                var success = await cache.Flush().ConfigureAwait(false);
+                results.Add(new TenancyResult<bool> {
+                    Type = cache.GetType(),
+                    Result = success
+                });
             }
-            catch (Exception ex) {
-                this.RaiseException(ex);
-            }
-            return false;
+
+            return results;
         }
 
         #endregion
@@ -133,23 +114,18 @@ namespace LitterBox.Memory {
         /// </summary>
         /// <typeparam name="T">Type Of Cached Value</typeparam>
         /// <param name="key">Key Lookup</param>
-        /// <returns>LitterBoxItem T</returns>
-        public async Task<LitterBoxItem<T>> GetItem<T>(string key) {
-            LitterBoxItem<T> result = null;
-
-            try {
-                result = await Task.Run(() => {
-                    if (this._connection.Cache.TryGetValue(key, out byte[] bytes)) {
-                        return Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
-                    }
-                    return null;
-                }).ConfigureAwait(false);
+        /// <returns>TenancyResult => LitterBoxItem T</returns>
+        public async Task<TenancyResult<LitterBoxItem<T>>> GetItem<T>(string key) {
+            foreach (var cache in this._caches) {
+                var result = await cache.GetItem<T>(key).ConfigureAwait(false);
+                if (result != null) {
+                    return new TenancyResult<LitterBoxItem<T>> {
+                        Type = cache.GetType(),
+                        Result = result
+                    };
+                }
             }
-            catch (Exception ex) {
-                this.RaiseException(ex);
-            }
-
-            return result;
+            return null;
         }
 
         /// <summary>
@@ -160,8 +136,8 @@ namespace LitterBox.Memory {
         /// <param name="generator">Generator Action If Not Found</param>
         /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
         /// <param name="expiry">How Long After Creation To Auto-Delete</param>
-        /// <returns>LitterBoxItem T</returns>
-        public async Task<LitterBoxItem<T>> GetItem<T>(string key, Func<T> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
+        /// <returns>TenancyResult => LitterBoxItem T</returns>
+        public async Task<TenancyResult<LitterBoxItem<T>>> GetItem<T>(string key, Func<T> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
             return await this.GetItem(key, async () => await Task.Run(generator).ConfigureAwait(false), staleIn, expiry).ConfigureAwait(false);
         }
 
@@ -173,39 +149,40 @@ namespace LitterBox.Memory {
         /// <param name="generator">Generator Action If Not Found</param>
         /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
         /// <param name="expiry">How Long After Creation To Auto-Delete</param>
-        /// <returns>LitterBoxItem T</returns>
-        public async Task<LitterBoxItem<T>> GetItem<T>(string key, Func<Task<T>> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
-            LitterBoxItem<T> result = null;
+        /// <returns>TenancyResult => LitterBoxItem T</returns>
+        public async Task<TenancyResult<LitterBoxItem<T>>> GetItem<T>(string key, Func<Task<T>> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
+            var foundIndex = 0;
+            LitterBoxItem<T> value = null;
+            TenancyResult<LitterBoxItem<T>> result = null;
 
-            try {
-                if (this._connection.Cache.TryGetValue(key, out byte[] bytes)) {
-                    result = Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
-                    if (result.IsStale() || result.IsExpired()) {
-                        this.SetItemFireAndForget(key, generator, staleIn, expiry);
-                    }
-                }
-                else {
-                    var item = await Task.Run(generator).ConfigureAwait(false);
-                    if (item != null) {
-                        result = new LitterBoxItem<T> {
-                            Value = item,
-                            Expiry = expiry,
-                            StaleIn = staleIn
-                        };
-                        this.SetItemFireAndForget(key, result);
-                    }
+            for (var i = 0; i < this._caches.Length; i++) {
+                var cache = this._caches[i];
+                value = await cache.GetItem<T>(key).ConfigureAwait(false);
+                if (value != null) {
+                    foundIndex = i;
+                    result = new TenancyResult<LitterBoxItem<T>> {
+                        Type = cache.GetType(),
+                        Result = value
+                    };
+                    break;
                 }
             }
-            catch (Exception ex) {
-                this.RaiseException(ex);
-                var item = await Task.Run(generator).ConfigureAwait(false);
-                if (item != null) {
-                    result = new LitterBoxItem<T> {
-                        Value = item,
-                        Expiry = expiry,
-                        StaleIn = staleIn
-                    };
-                }
+
+            if (result == null) {
+                foundIndex = this._caches.Length;
+                value = new LitterBoxItem<T> {
+                    Expiry = expiry,
+                    StaleIn = staleIn,
+                    Value = await Task.Run(generator).ConfigureAwait(false)
+                };
+                result = new TenancyResult<LitterBoxItem<T>> {
+                    Result = value
+                };
+            }
+
+            for (var i = 0; i < foundIndex; i++) {
+                var cache = this._caches[i];
+                cache.SetItemFireAndForget(key, value);
             }
 
             return result;
@@ -216,12 +193,12 @@ namespace LitterBox.Memory {
         /// </summary>
         /// <typeparam name="T">Type Of Cached Values</typeparam>
         /// <param name="keys">Key Lookups</param>
-        /// <returns>List LitterBoxItem T</returns>
-        public async Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys) {
-            var tasks = new List<Task<LitterBoxItem<T>>>();
+        /// <returns>List TenancyResult => LitterBoxItem T</returns>
+        public async Task<List<TenancyResult<LitterBoxItem<T>>>> GetItems<T>(List<string> keys) {
+            var tasks = new List<Task<TenancyResult<LitterBoxItem<T>>>>();
 
             foreach (var key in keys) {
-                tasks.Add(Task.Run(async () => await this.GetItem<T>(key).ConfigureAwait(false)));
+                tasks.Add(Task.Run(() => this.GetItem<T>(key)));
             }
 
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -237,8 +214,8 @@ namespace LitterBox.Memory {
         /// <param name="generators">Generator Actions If Not Found</param>
         /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
         /// <param name="expiry">How Long After Creation To Auto-Delete</param>
-        /// <returns>List LitterBoxItem T</returns>
-        public async Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys, List<Func<T>> generators, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
+        /// <returns>List TenancyResult => LitterBoxItem T</returns>
+        public async Task<List<TenancyResult<LitterBoxItem<T>>>> GetItems<T>(List<string> keys, List<Func<T>> generators, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
             return await this.GetItems(keys, generators.Select(generator => (Func<Task<T>>) (async () => await Task.Run(generator).ConfigureAwait(false))).ToList(), staleIn, expiry).ConfigureAwait(false);
         }
 
@@ -250,14 +227,14 @@ namespace LitterBox.Memory {
         /// <param name="generators">Generator Actions If Not Found</param>
         /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
         /// <param name="expiry">How Long After Creation To Auto-Delete</param>
-        /// <returns>List LitterBoxItem T</returns>
-        public async Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys, List<Func<Task<T>>> generators, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
+        /// <returns>List TenancyResult => LitterBoxItem T</returns>
+        public async Task<List<TenancyResult<LitterBoxItem<T>>>> GetItems<T>(List<string> keys, List<Func<Task<T>>> generators, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
             if (keys.Count != generators.Count) {
                 this.RaiseException(new Exception("Keys.Count/Generators.Count Must Be Equal"));
-                return new List<LitterBoxItem<T>>();
+                return new List<TenancyResult<LitterBoxItem<T>>>();
             }
 
-            var tasks = new List<Task<LitterBoxItem<T>>>();
+            var tasks = new List<Task<TenancyResult<LitterBoxItem<T>>>>();
 
             for (var i = 0; i < keys.Count; i++) {
                 var key = keys[i];
@@ -280,31 +257,19 @@ namespace LitterBox.Memory {
         /// <typeparam name="T">Type Of Cached Value</typeparam>
         /// <param name="key">Key Lookup</param>
         /// <param name="litter">Item T To Be Cached</param>
-        /// <returns>Success True|False</returns>
-        public async Task<bool> SetItem<T>(string key, LitterBoxItem<T> litter) {
-            var success = false;
+        /// <returns>Success True|False (For Each Cache)</returns>
+        public async Task<List<TenancyResult<bool>>> SetItem<T>(string key, LitterBoxItem<T> litter) {
+            var results = new List<TenancyResult<bool>>();
 
-            var staleIn = litter.StaleIn ?? this._config.DefaultStaleIn;
-            var expiry = litter.Expiry ?? this._config.DefaultExpiry;
-
-            litter.StaleIn = staleIn;
-            litter.Expiry = expiry;
-
-            try {
-                var json = Utilities.Serialize(litter);
-                if (!string.IsNullOrWhiteSpace(json)) {
-                    await Task.Run(() => this._connection.Cache.Set(key, Compression.Zip(json), expiry)).ConfigureAwait(false);
-                    success = true;
-                }
-            }
-            catch (Exception ex) {
-                this.RaiseException(ex);
+            foreach (var cache in this._caches) {
+                var success = await cache.SetItem(key, litter).ConfigureAwait(false);
+                results.Add(new TenancyResult<bool> {
+                    Type = cache.GetType(),
+                    Result = success
+                });
             }
 
-            this._inProcess.TryRemove(key, out bool itemSet);
-            this._connection.StorageKeys.TryAdd(key, itemSet);
-
-            return success;
+            return results;
         }
 
         /// <summary>
@@ -313,14 +278,14 @@ namespace LitterBox.Memory {
         /// <typeparam name="T">Type Of Cached Values</typeparam>
         /// <param name="keys">Key Lookups</param>
         /// <param name="litters">Items T To Be Cached</param>
-        /// <returns>Success True|False</returns>
-        public async Task<List<bool>> SetItems<T>(List<string> keys, List<LitterBoxItem<T>> litters) {
+        /// <returns>Success True|False (For Each Cache)</returns>
+        public async Task<List<List<TenancyResult<bool>>>> SetItems<T>(List<string> keys, List<LitterBoxItem<T>> litters) {
             if (keys.Count != litters.Count) {
                 this.RaiseException(new Exception("Keys.Count/LitterBoxItems.Count Must Be Equal"));
-                return new List<bool>();
+                return new List<List<TenancyResult<bool>>>();
             }
 
-            var tasks = new List<Task<bool>>();
+            var tasks = new List<Task<List<TenancyResult<bool>>>>();
 
             for (var i = 0; i < keys.Count; i++) {
                 var key = keys[i];
@@ -344,15 +309,10 @@ namespace LitterBox.Memory {
         /// <param name="key">Key Lookup</param>
         /// <param name="litter">Item T To Be Cached</param>
         public void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter) {
-            if (litter == null) {
-                return;
-            }
-            Task.Run(async () => {
-                if (this._inProcess.ContainsKey(key)) {
-                    return;
+            Task.Run(() => {
+                foreach (var cache in this._caches) {
+                    cache.SetItemFireAndForget(key, litter);
                 }
-                this._inProcess.TryAdd(key, true);
-                await this.SetItem(key, litter).ConfigureAwait(false);
             }).ConfigureAwait(false);
         }
 
@@ -377,25 +337,9 @@ namespace LitterBox.Memory {
         /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
         /// <param name="expiry">How Long After Creation To Auto-Delete</param>
         public void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
-            Task.Run(async () => {
-                if (this._inProcess.ContainsKey(key)) {
-                    return;
-                }
-                this._inProcess.TryAdd(key, true);
-
-                try {
-                    var item = await Task.Run(generator).ConfigureAwait(false);
-                    if (item != null) {
-                        var litter = new LitterBoxItem<T> {
-                            Value = item,
-                            Expiry = expiry,
-                            StaleIn = staleIn
-                        };
-                        await this.SetItem(key, litter).ConfigureAwait(false);
-                    }
-                }
-                catch (Exception ex) {
-                    this.RaiseException(ex);
+            Task.Run(() => {
+                foreach (var cache in this._caches) {
+                    cache.SetItemFireAndForget(key, generator, staleIn, expiry);
                 }
             }).ConfigureAwait(false);
         }

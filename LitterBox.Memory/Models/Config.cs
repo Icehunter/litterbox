@@ -20,53 +20,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox {
+namespace LitterBox.Memory.Models {
     using System;
 
     /// <summary>
-    /// CacheItem Class Instance
+    /// Configuration For Connection
     /// </summary>
-    public class LitterBoxItem<T> {
+    public class Config {
         /// <summary>
-        /// T Value Of Cached Item
+        /// CompactionPercentage
         /// </summary>
-        public T Value { get; set; }
+        public double CompactionPercentage { get; set; } = 0.25;
 
         /// <summary>
-        /// Creation Time
+        /// ExpirationScanFrequency
         /// </summary>
-        public DateTime Created { get; set; } = DateTime.Now;
+        public TimeSpan ExpirationScanFrequency { get; set; } = new TimeSpan(0, 1, 0, 0);
 
         /// <summary>
-        /// Time After Creation To Expire
+        /// DefaultExpiry (1 Day)
         /// </summary>
-        public TimeSpan? Expiry { get; set; } = null;
+        public TimeSpan DefaultExpiry { get; set; } = new TimeSpan(1, 0, 0, 0);
 
         /// <summary>
-        /// Time After Creation To Be Stale
+        /// DefaultStaleIn (5 Minutes)
         /// </summary>
-        public TimeSpan? StaleIn { get; set; } = null;
-
-        /// <summary>
-        /// Helper Function For Expiration
-        /// </summary>
-        /// <returns>True|False</returns>
-        public bool IsExpired() {
-            if (this.Expiry == null) {
-                return false;
-            }
-            return DateTime.Now > this.Created.Add((TimeSpan) this.Expiry);
-        }
-
-        /// <summary>
-        /// Helper Function For Expiration
-        /// </summary>
-        /// <returns>True|False</returns>
-        public bool IsStale() {
-            if (this.StaleIn == null) {
-                return false;
-            }
-            return DateTime.Now > this.Created.Add((TimeSpan) this.StaleIn);
-        }
+        public TimeSpan DefaultStaleIn { get; set; } = new TimeSpan(0, 0, 5, 0);
     }
 }

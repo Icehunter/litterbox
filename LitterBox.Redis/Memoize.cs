@@ -26,6 +26,9 @@ namespace LitterBox.Redis {
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using LitterBox.Interfaces;
+    using LitterBox.Models;
+    using LitterBox.Redis.Models;
 
     /// <summary>
     /// Memoize Class Instance
@@ -43,39 +46,6 @@ namespace LitterBox.Redis {
             };
             // connect on a seperate thread; relative to poolSize
             Task.Run(async () => await this._connectionPool.Initialize(this._config)).Wait();
-        }
-
-        /// <summary>
-        /// Close/Dispose Connection And Reconnect With Existing Properties
-        /// </summary>
-        /// <returns>Success True|False</returns>
-        public async Task<bool> Reconnect() {
-            this._inProcess.Clear();
-            try {
-                foreach (var connection in this._connectionPool.Connections) {
-                    await connection.Reconnect().ConfigureAwait(false);
-                }
-                return true;
-            }
-            catch (Exception ex) {
-                this.RaiseException(ex);
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Flush Cache
-        /// </summary>
-        /// <returns>Success True|False</returns>
-        public async Task<bool> Flush() {
-            this._inProcess.Clear();
-            try {
-                return await this._connectionPool.Connections.First().Flush().ConfigureAwait(false);
-            }
-            catch (Exception ex) {
-                this.RaiseException(ex);
-            }
-            return false;
         }
 
         #region Instance
@@ -117,10 +87,51 @@ namespace LitterBox.Redis {
 
         #region ILitterBox Implementation
 
+        #region Events
+
         /// <summary>
         /// EventHandler For ExceptionEvent
         /// </summary>
         public event EventHandler<ExceptionEvent> ExceptionEvent = delegate { };
+
+        #endregion
+
+        #region Connection Based
+
+        /// <summary>
+        /// Close/Dispose Connection And Reconnect With Existing Properties
+        /// </summary>
+        /// <returns>Success True|False</returns>
+        public async Task<bool> Reconnect() {
+            this._inProcess.Clear();
+            try {
+                foreach (var connection in this._connectionPool.Connections) {
+                    await connection.Reconnect().ConfigureAwait(false);
+                }
+                return true;
+            }
+            catch (Exception ex) {
+                this.RaiseException(ex);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Flush Cache
+        /// </summary>
+        /// <returns>Success True|False</returns>
+        public async Task<bool> Flush() {
+            this._inProcess.Clear();
+            try {
+                return await this._connectionPool.Connections.First().Flush().ConfigureAwait(false);
+            }
+            catch (Exception ex) {
+                this.RaiseException(ex);
+            }
+            return false;
+        }
+
+        #endregion
 
         #region Getters
 
@@ -339,6 +350,9 @@ namespace LitterBox.Redis {
         /// <param name="key">Key Lookup</param>
         /// <param name="litter">Item T To Be Cached</param>
         public void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter) {
+            if (litter == null) {
+                return;
+            }
             Task.Run(async () => {
                 if (this._inProcess.ContainsKey(key)) {
                     return;
@@ -370,16 +384,14 @@ namespace LitterBox.Redis {
         /// <param name="expiry">How Long After Creation To Auto-Delete</param>
         public void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
             Task.Run(async () => {
-                if (this._inProcess.ContainsKey(key))
-                {
+                if (this._inProcess.ContainsKey(key)) {
                     return;
                 }
                 this._inProcess.TryAdd(key, true);
 
                 try {
                     var item = await Task.Run(generator).ConfigureAwait(false);
-                    if (item != null)
-                    {
+                    if (item != null) {
                         var litter = new LitterBoxItem<T> {
                             Value = item,
                             Expiry = expiry,

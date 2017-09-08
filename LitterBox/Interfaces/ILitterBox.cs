@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 // 
 // Copyright(c) 2017 Ryan Wilson <syndicated.life@gmail.com> (http://syndicated.life/)
 // 
@@ -20,13 +20,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox {
+namespace LitterBox.Interfaces {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using LitterBox.Models;
 
     public interface ILitterBox {
+        #region Events
+
         event EventHandler<ExceptionEvent> ExceptionEvent;
+
+        #endregion
 
         #region Connection Based
 

@@ -20,63 +20,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox.Memory {
-    using System.Collections.Concurrent;
+namespace LitterBox.Redis.Models {
+    using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Caching.Memory;
 
-    internal class Connection {
+    internal class ConnectionPool {
         /// <summary>
-        /// Connection
+        /// Counter Storages
         /// </summary>
-        /// <param name="config">config</param>
-        public Connection(Config config) {
-            this._config = config;
+        private int _roundRobinCounter;
+
+        /// <summary>
+        /// PoolSize
+        /// </summary>
+        public int PoolSize { get; set; } = 5;
+
+        /// <summary>
+        /// Current Connections
+        /// </summary>
+        public List<Connection> Connections { get; set; } = new List<Connection>();
+
+        /// <summary>
+        /// Get A RoundRobin Connection
+        /// </summary>
+        /// <returns></returns>
+        public Connection GetPooledConnection() {
+            var index = (int) (this.IncrementCount() % this.PoolSize);
+            return this.Connections[index];
         }
 
         /// <summary>
-        /// Keep Track Of Cached Keys; Used For Flushing
+        /// Atomic Increase On RoundRobinCounter
         /// </summary>
-        public readonly ConcurrentDictionary<string, bool> StorageKeys = new ConcurrentDictionary<string, bool>();
-
-        /// <summary>
-        /// MemoryCache
-        /// </summary>
-        public MemoryCache Cache { get; set; }
-
-        /// <summary>
-        /// Connection Config
-        /// </summary>
-        private Config _config { get; set; }
-
-        #region Internals
-
-        /// <summary>
-        /// Connect to MemoryCache
-        /// </summary>
-        /// <returns>Raw MemoryCache</returns>
-        internal async Task Connect() {
-            await Task.Run(() => {
-                this.Cache = new MemoryCache(new MemoryCacheOptions {
-                    CompactionPercentage = this._config.CompactionPercentage,
-                    ExpirationScanFrequency = this._config.ExpirationScanFrequency
-                });
-            }).ConfigureAwait(false);
+        /// <returns>uint index</returns>
+        private uint IncrementCount() {
+            var value = Interlocked.CompareExchange(ref this._roundRobinCounter, ++this._roundRobinCounter, this._roundRobinCounter);
+            return (uint) value;
         }
 
         /// <summary>
-        /// Flush (Dispose) Of Cache / Recreate
+        /// Initialize ConnectionPool
         /// </summary>
-        /// <returns>Success True|False</returns>
-        internal async Task Flush() {
-            await Task.Run(() => {
-                foreach (var kvp in this.StorageKeys) {
-                    this.Cache.Remove(kvp.Key);
-                }
-                this.StorageKeys.Clear();
-            }).ConfigureAwait(false);
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public async Task Initialize(Config config) {
+            for (var i = 0; i < this.PoolSize; i++) {
+                var connection = new Connection(config);
+                await connection.Connect().ConfigureAwait(false);
+                this.Connections.Add(connection);
+            }
         }
-
-        #endregion
     }
 }

@@ -1,237 +1,245 @@
 <?xml version="1.0"?>
+
 <doc>
-    <assembly>
-        <name>LitterBox.Redis</name>
-    </assembly>
-    <members>
-        <member name="T:LitterBox.Redis.Config">
-            <summary>
-            Configuration For Connection
-            </summary>
-        </member>
-        <member name="P:LitterBox.Redis.Config.Host">
-            <summary>
-            Hostname
-            </summary>
-        </member>
-        <member name="P:LitterBox.Redis.Config.Port">
-            <summary>
-            Port
-            </summary>
-        </member>
-        <member name="P:LitterBox.Redis.Config.Password">
-            <summary>
-            Password
-            </summary>
-        </member>
-        <member name="P:LitterBox.Redis.Config.DatabaseID">
-            <summary>
-            Database
-            </summary>
-        </member>
-        <member name="P:LitterBox.Redis.Config.PoolSize">
-            <summary>
-            Connection PoolSize
-            </summary>
-        </member>
-        <member name="P:LitterBox.Redis.Config.DefaultExpiry">
-            <summary>
-            DefaultExpiry (1 Day)
-            </summary>
-        </member>
-        <member name="P:LitterBox.Redis.Config.DefaultStaleIn">
-            <summary>
-            DefaultStaleIn (5 Minutes)
-            </summary>
-        </member>
-        <member name="M:LitterBox.Redis.Connection.#ctor(LitterBox.Redis.Config)">
-            <summary>
-            Connection
-            </summary>
-            <param name="config">config</param>
-        </member>
-        <member name="P:LitterBox.Redis.Connection.Cache">
-            <summary>
-            Database (Redis)
-            </summary>
-        </member>
-        <member name="P:LitterBox.Redis.Connection._config">
-            <summary>
-            Connection Config
-            </summary>
-        </member>
-        <member name="M:LitterBox.Redis.Connection.Connect">
-            <summary>
-            Connect To Redis
-            </summary>
-            <returns>Raw Database</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Connection.Reconnect">
-            <summary>
-            Close/Dispose Connection And Reconnect With Existing Properties
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:LitterBox.Redis.Connection.Flush">
-            <summary>
-            Flush Cache
-            </summary>
-            <returns>Success True|False</returns>
-        </member>
-        <member name="T:LitterBox.Redis.Memoize">
-            <summary>
-            Memoize Class Instance
-            </summary>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.#ctor(LitterBox.Redis.Config)">
-            <summary>
-            Memoize
-            </summary>
-            <param name="config">config properties</param>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.Reconnect">
-            <summary>
-            Close/Dispose Connection And Reconnect With Existing Properties
-            </summary>
-            <returns>Success True|False</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.Flush">
-            <summary>
-            Flush Cache
-            </summary>
-            <returns>Success True|False</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.GetInstance(LitterBox.Redis.Config)">
-            <summary>
-            Lazy Value
-            </summary>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.RaiseException(System.Exception)">
-            <summary>
-            Internal ExceptionEvent Invoker
-            </summary>
-            <param name="e"></param>
-        </member>
-        <member name="P:LitterBox.Redis.Memoize._config">
-            <summary>
-            RedisCache Config
-            </summary>
-        </member>
-        <member name="F:LitterBox.Redis.Memoize._inProcess">
-            <summary>
-            Private Cache Of InProcess Items To Prevent Multiple Requests For The Same Object
-            </summary>
-        </member>
-        <member name="E:LitterBox.Redis.Memoize.ExceptionEvent">
-            <summary>
-            EventHandler For ExceptionEvent
-            </summary>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.GetItem``1(System.String)">
-            <summary>
-            GetItem T By Key
-            </summary>
-            <typeparam name="T">Type Of Cached Value</typeparam>
-            <param name="key">Key Lookup</param>
-            <returns>LitterBoxItem T</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.GetItem``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
-            <summary>
-            GetItem T By Key, Generator, StaleIn, Expiry
-            </summary>
-            <typeparam name="T">Type Of Cached Value</typeparam>
-            <param name="key">Key Lookup</param>
-            <param name="generator">Generator Action If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
-            <returns>LitterBoxItem T</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.GetItem``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
-            <summary>
-            GetItem T By Key, Generator, StaleIn, Expiry
-            </summary>
-            <typeparam name="T">Type Of Cached Value</typeparam>
-            <param name="key">Key Lookup</param>
-            <param name="generator">Generator Action If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
-            <returns>LitterBoxItem T</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.GetItems``1(System.Collections.Generic.List{System.String})">
-            <summary>
-            GetItems T By Keys
-            </summary>
-            <typeparam name="T">Type Of Cached Values</typeparam>
-            <param name="keys">Key Lookups</param>
-            <returns>List LitterBoxItem T</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
-            <summary>
-            GetItems T By Keys, Generators, StaleIn, Expiry
-            </summary>
-            <typeparam name="T">Type Of Cached Values</typeparam>
-            <param name="keys">Key Lookups</param>
-            <param name="generators">Generator Actions If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
-            <returns>List LitterBoxItem T</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{System.Threading.Tasks.Task{``0}}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
-            <summary>
-            GetItems T By Keys, Generators, StaleIn, Expiry
-            </summary>
-            <typeparam name="T">Type Of Cached Values</typeparam>
-            <param name="keys">Key Lookups</param>
-            <param name="generators">Generator Actions If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
-            <returns>List LitterBoxItem T</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.SetItem``1(System.String,LitterBox.LitterBoxItem{``0})">
-            <summary>
-            SetItem T By Key
-            </summary>
-            <typeparam name="T">Type Of Cached Value</typeparam>
-            <param name="key">Key Lookup</param>
-            <param name="litter">Item T To Be Cached</param>
-            <returns>Success True|False</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.SetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{LitterBox.LitterBoxItem{``0}})">
-            <summary>
-            SetItems T By Keys
-            </summary>
-            <typeparam name="T">Type Of Cached Values</typeparam>
-            <param name="keys">Key Lookups</param>
-            <param name="litters">Items T To Be Cached</param>
-            <returns>Success True|False</returns>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.SetItemFireAndForget``1(System.String,LitterBox.LitterBoxItem{``0})">
-            <summary>
-            SetItem T (Fire Forget) By Key, LitterBoxItem T
-            </summary>
-            <typeparam name="T">Type Of Cached Value</typeparam>
-            <param name="key">Key Lookup</param>
-            <param name="litter">Item T To Be Cached</param>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.SetItemFireAndForget``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
-            <summary>
-            SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
-            </summary>
-            <typeparam name="T">Type Of Cached Value</typeparam>
-            <param name="key">Key Lookup</param>
-            <param name="generator">Generator Action</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
-        </member>
-        <member name="M:LitterBox.Redis.Memoize.SetItemFireAndForget``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
-            <summary>
-            SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
-            </summary>
-            <typeparam name="T">Type Of Cached Value</typeparam>
-            <param name="key">Key Lookup</param>
-            <param name="generator">Generator Action</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
-        </member>
-    </members>
+  <assembly>
+    <name>LitterBox.Redis</name>
+  </assembly>
+  <members>
+    <member name="T:LitterBox.Redis.Config">
+      <summary>
+        Configuration For Connection
+      </summary>
+    </member>
+    <member name="P:LitterBox.Redis.Config.Host">
+      <summary>
+        Hostname
+      </summary>
+    </member>
+    <member name="P:LitterBox.Redis.Config.Port">
+      <summary>
+        Port
+      </summary>
+    </member>
+    <member name="P:LitterBox.Redis.Config.Password">
+      <summary>
+        Password
+      </summary>
+    </member>
+    <member name="P:LitterBox.Redis.Config.DatabaseID">
+      <summary>
+        Database
+      </summary>
+    </member>
+    <member name="P:LitterBox.Redis.Config.PoolSize">
+      <summary>
+        Connection PoolSize
+      </summary>
+    </member>
+    <member name="P:LitterBox.Redis.Config.DefaultExpiry">
+      <summary>
+        DefaultExpiry (1 Day)
+      </summary>
+    </member>
+    <member name="P:LitterBox.Redis.Config.DefaultStaleIn">
+      <summary>
+        DefaultStaleIn (5 Minutes)
+      </summary>
+    </member>
+    <member name="M:LitterBox.Redis.Connection.#ctor(LitterBox.Redis.Config)">
+      <summary>
+        Connection
+      </summary>
+      <param name="config">config</param>
+    </member>
+    <member name="P:LitterBox.Redis.Connection.Cache">
+      <summary>
+        Database (Redis)
+      </summary>
+    </member>
+    <member name="P:LitterBox.Redis.Connection._config">
+      <summary>
+        Connection Config
+      </summary>
+    </member>
+    <member name="M:LitterBox.Redis.Connection.Connect">
+      <summary>
+        Connect To Redis
+      </summary>
+      <returns>Raw Database</returns>
+    </member>
+    <member name="M:LitterBox.Redis.Connection.Reconnect">
+      <summary>
+        Close/Dispose Connection And Reconnect With Existing Properties
+      </summary>
+      <returns></returns>
+    </member>
+    <member name="M:LitterBox.Redis.Connection.Flush">
+      <summary>
+        Flush Cache
+      </summary>
+      <returns>Success True|False</returns>
+    </member>
+    <member name="T:LitterBox.Redis.Memoize">
+      <summary>
+        Memoize Class Instance
+      </summary>
+    </member>
+    <member name="M:LitterBox.Redis.Memoize.#ctor(LitterBox.Redis.Config)">
+      <summary>
+        Memoize
+      </summary>
+      <param name="config">config properties</param>
+    </member>
+    <member name="M:LitterBox.Redis.Memoize.Reconnect">
+      <summary>
+        Close/Dispose Connection And Reconnect With Existing Properties
+      </summary>
+      <returns>Success True|False</returns>
+    </member>
+    <member name="M:LitterBox.Redis.Memoize.Flush">
+      <summary>
+        Flush Cache
+      </summary>
+      <returns>Success True|False</returns>
+    </member>
+    <member name="M:LitterBox.Redis.Memoize.GetInstance(LitterBox.Redis.Config)">
+      <summary>
+        Lazy Value
+      </summary>
+    </member>
+    <member name="M:LitterBox.Redis.Memoize.RaiseException(System.Exception)">
+      <summary>
+        Internal ExceptionEvent Invoker
+      </summary>
+      <param name="e"></param>
+    </member>
+    <member name="P:LitterBox.Redis.Memoize._config">
+      <summary>
+        RedisCache Config
+      </summary>
+    </member>
+    <member name="F:LitterBox.Redis.Memoize._inProcess">
+      <summary>
+        Private Cache Of InProcess Items To Prevent Multiple Requests For The Same Object
+      </summary>
+    </member>
+    <member name="E:LitterBox.Redis.Memoize.ExceptionEvent">
+      <summary>
+        EventHandler For ExceptionEvent
+      </summary>
+    </member>
+    <member name="M:LitterBox.Redis.Memoize.GetItem``1(System.String)">
+      <summary>
+        GetItem T By Key
+      </summary>
+      <typeparam name="T">Type Of Cached Value</typeparam>
+      <param name="key">Key Lookup</param>
+      <returns>LitterBoxItem T</returns>
+    </member>
+    <member
+      name="M:LitterBox.Redis.Memoize.GetItem``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+      <summary>
+        GetItem T By Key, Generator, StaleIn, Expiry
+      </summary>
+      <typeparam name="T">Type Of Cached Value</typeparam>
+      <param name="key">Key Lookup</param>
+      <param name="generator">Generator Action If Not Found</param>
+      <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+      <param name="expiry">How Long After Creation To Auto-Delete</param>
+      <returns>LitterBoxItem T</returns>
+    </member>
+    <member
+      name="M:LitterBox.Redis.Memoize.GetItem``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+      <summary>
+        GetItem T By Key, Generator, StaleIn, Expiry
+      </summary>
+      <typeparam name="T">Type Of Cached Value</typeparam>
+      <param name="key">Key Lookup</param>
+      <param name="generator">Generator Action If Not Found</param>
+      <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+      <param name="expiry">How Long After Creation To Auto-Delete</param>
+      <returns>LitterBoxItem T</returns>
+    </member>
+    <member name="M:LitterBox.Redis.Memoize.GetItems``1(System.Collections.Generic.List{System.String})">
+      <summary>
+        GetItems T By Keys
+      </summary>
+      <typeparam name="T">Type Of Cached Values</typeparam>
+      <param name="keys">Key Lookups</param>
+      <returns>List LitterBoxItem T</returns>
+    </member>
+    <member
+      name="M:LitterBox.Redis.Memoize.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+      <summary>
+        GetItems T By Keys, Generators, StaleIn, Expiry
+      </summary>
+      <typeparam name="T">Type Of Cached Values</typeparam>
+      <param name="keys">Key Lookups</param>
+      <param name="generators">Generator Actions If Not Found</param>
+      <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+      <param name="expiry">How Long After Creation To Auto-Delete</param>
+      <returns>List LitterBoxItem T</returns>
+    </member>
+    <member
+      name="M:LitterBox.Redis.Memoize.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{System.Threading.Tasks.Task{``0}}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+      <summary>
+        GetItems T By Keys, Generators, StaleIn, Expiry
+      </summary>
+      <typeparam name="T">Type Of Cached Values</typeparam>
+      <param name="keys">Key Lookups</param>
+      <param name="generators">Generator Actions If Not Found</param>
+      <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+      <param name="expiry">How Long After Creation To Auto-Delete</param>
+      <returns>List LitterBoxItem T</returns>
+    </member>
+    <member name="M:LitterBox.Redis.Memoize.SetItem``1(System.String,LitterBox.LitterBoxItem{``0})">
+      <summary>
+        SetItem T By Key
+      </summary>
+      <typeparam name="T">Type Of Cached Value</typeparam>
+      <param name="key">Key Lookup</param>
+      <param name="litter">Item T To Be Cached</param>
+      <returns>Success True|False</returns>
+    </member>
+    <member
+      name="M:LitterBox.Redis.Memoize.SetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{LitterBox.LitterBoxItem{``0}})">
+      <summary>
+        SetItems T By Keys
+      </summary>
+      <typeparam name="T">Type Of Cached Values</typeparam>
+      <param name="keys">Key Lookups</param>
+      <param name="litters">Items T To Be Cached</param>
+      <returns>Success True|False</returns>
+    </member>
+    <member name="M:LitterBox.Redis.Memoize.SetItemFireAndForget``1(System.String,LitterBox.LitterBoxItem{``0})">
+      <summary>
+        SetItem T (Fire Forget) By Key, LitterBoxItem T
+      </summary>
+      <typeparam name="T">Type Of Cached Value</typeparam>
+      <param name="key">Key Lookup</param>
+      <param name="litter">Item T To Be Cached</param>
+    </member>
+    <member
+      name="M:LitterBox.Redis.Memoize.SetItemFireAndForget``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+      <summary>
+        SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+      </summary>
+      <typeparam name="T">Type Of Cached Value</typeparam>
+      <param name="key">Key Lookup</param>
+      <param name="generator">Generator Action</param>
+      <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+      <param name="expiry">How Long After Creation To Auto-Delete</param>
+    </member>
+    <member
+      name="M:LitterBox.Redis.Memoize.SetItemFireAndForget``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+      <summary>
+        SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+      </summary>
+      <typeparam name="T">Type Of Cached Value</typeparam>
+      <param name="key">Key Lookup</param>
+      <param name="generator">Generator Action</param>
+      <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
+      <param name="expiry">How Long After Creation To Auto-Delete</param>
+    </member>
+  </members>
 </doc>

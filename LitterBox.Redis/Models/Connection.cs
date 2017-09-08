@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox.Redis {
+namespace LitterBox.Redis.Models {
     using System.Threading.Tasks;
     using StackExchange.Redis;
 
