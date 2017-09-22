@@ -63,24 +63,24 @@
         </member>
         <member name="M:LitterBox.Redis.Memoize.GetItem``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            GetItem T By Key, Generator, StaleIn, Expiry
+            GetItem T By Key, Generator, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Value</typeparam>
             <param name="key">Key Lookup</param>
             <param name="generator">Generator Action If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
             <returns>LitterBoxItem T</returns>
         </member>
         <member name="M:LitterBox.Redis.Memoize.GetItem``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            GetItem T By Key, Generator, StaleIn, Expiry
+            GetItem T By Key, Generator, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Value</typeparam>
             <param name="key">Key Lookup</param>
             <param name="generator">Generator Action If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
             <returns>LitterBoxItem T</returns>
         </member>
         <member name="M:LitterBox.Redis.Memoize.GetItems``1(System.Collections.Generic.List{System.String})">
@@ -93,24 +93,24 @@
         </member>
         <member name="M:LitterBox.Redis.Memoize.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            GetItems T By Keys, Generators, StaleIn, Expiry
+            GetItems T By Keys, Generators, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Values</typeparam>
             <param name="keys">Key Lookups</param>
             <param name="generators">Generator Actions If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
             <returns>List LitterBoxItem T</returns>
         </member>
         <member name="M:LitterBox.Redis.Memoize.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{System.Threading.Tasks.Task{``0}}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            GetItems T By Keys, Generators, StaleIn, Expiry
+            GetItems T By Keys, Generators, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Values</typeparam>
             <param name="keys">Key Lookups</param>
             <param name="generators">Generator Actions If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
             <returns>List LitterBoxItem T</returns>
         </member>
         <member name="M:LitterBox.Redis.Memoize.SetItem``1(System.String,LitterBox.Models.LitterBoxItem{``0})">
@@ -141,23 +141,23 @@
         </member>
         <member name="M:LitterBox.Redis.Memoize.SetItemFireAndForget``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+            SetItem T (Fire Forget) By Key, Generator, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Value</typeparam>
             <param name="key">Key Lookup</param>
             <param name="generator">Generator Action</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         </member>
         <member name="M:LitterBox.Redis.Memoize.SetItemFireAndForget``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+            SetItem T (Fire Forget) By Key, Generator, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Value</typeparam>
             <param name="key">Key Lookup</param>
             <param name="generator">Generator Action</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         </member>
         <member name="T:LitterBox.Redis.Models.Config">
             <summary>
@@ -189,14 +189,14 @@
             Connection PoolSize
             </summary>
         </member>
-        <member name="P:LitterBox.Redis.Models.Config.DefaultExpiry">
+        <member name="P:LitterBox.Redis.Models.Config.DefaultTimeToLive">
             <summary>
-            DefaultExpiry (1 Day)
+            DefaultTimeToLive (1 Day)
             </summary>
         </member>
-        <member name="P:LitterBox.Redis.Models.Config.DefaultStaleIn">
+        <member name="P:LitterBox.Redis.Models.Config.DefaultTimeToRefresh">
             <summary>
-            DefaultStaleIn (5 Minutes)
+            DefaultTimeToRefresh (5 Minutes)
             </summary>
         </member>
         <member name="M:LitterBox.Redis.Models.Connection.#ctor(LitterBox.Redis.Models.Config)">

@@ -22,40 +22,51 @@
 
 namespace LitterBox.Models {
     using System;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// CacheItem Class Instance
     /// </summary>
     public class LitterBoxItem<T> {
         /// <summary>
+        /// Key Of Cached Item
+        /// </summary>
+        [JsonProperty(PropertyName = "key")]
+        public string Key { get; set; }
+
+        /// <summary>
         /// T Value Of Cached Item
         /// </summary>
+        [JsonProperty(PropertyName = "value")]
         public T Value { get; set; }
 
         /// <summary>
         /// Creation Time
         /// </summary>
+        [JsonProperty(PropertyName = "created")]
         public DateTime Created { get; set; } = DateTime.Now;
 
         /// <summary>
-        /// Time After Creation To Expire
+        /// Time (seconds) After Creation To Expire
         /// </summary>
-        public TimeSpan? Expiry { get; set; } = null;
+        [JsonProperty(PropertyName = "ttl", NullValueHandling = NullValueHandling.Ignore)]
+        public int? TimeToLive { get; set; }
 
         /// <summary>
-        /// Time After Creation To Be Stale
+        /// Time (seconds) After Creation To Be Stale/Need Refreshing
         /// </summary>
-        public TimeSpan? StaleIn { get; set; } = null;
+        [JsonProperty(PropertyName = "ttr", NullValueHandling = NullValueHandling.Ignore)]
+        public int? TimeToRefresh { get; set; }
 
         /// <summary>
         /// Helper Function For Expiration
         /// </summary>
         /// <returns>True|False</returns>
         public bool IsExpired() {
-            if (this.Expiry == null) {
+            if (this.TimeToLive == null) {
                 return false;
             }
-            return DateTime.Now > this.Created.Add((TimeSpan) this.Expiry);
+            return DateTime.Now > this.Created.Add(TimeSpan.FromSeconds((double) this.TimeToLive));
         }
 
         /// <summary>
@@ -63,10 +74,10 @@ namespace LitterBox.Models {
         /// </summary>
         /// <returns>True|False</returns>
         public bool IsStale() {
-            if (this.StaleIn == null) {
+            if (this.TimeToRefresh == null) {
                 return false;
             }
-            return DateTime.Now > this.Created.Add((TimeSpan) this.StaleIn);
+            return DateTime.Now > this.Created.Add(TimeSpan.FromSeconds((double) this.TimeToRefresh));
         }
     }
 }

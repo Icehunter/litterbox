@@ -38,13 +38,13 @@ namespace LitterBox.Memory.Models {
         public TimeSpan ExpirationScanFrequency { get; set; } = new TimeSpan(0, 1, 0, 0);
 
         /// <summary>
-        /// DefaultExpiry (1 Day)
+        /// DefaultTimeToLive (1 Day)
         /// </summary>
-        public TimeSpan DefaultExpiry { get; set; } = new TimeSpan(1, 0, 0, 0);
+        public TimeSpan DefaultTimeToLive { get; set; } = new TimeSpan(1, 0, 0, 0);
 
         /// <summary>
-        /// DefaultStaleIn (5 Minutes)
+        /// DefaultTimeToRefresh (5 Minutes)
         /// </summary>
-        public TimeSpan DefaultStaleIn { get; set; } = new TimeSpan(0, 0, 5, 0);
+        public TimeSpan DefaultTimeToRefresh { get; set; } = new TimeSpan(0, 0, 5, 0);
     }
 }

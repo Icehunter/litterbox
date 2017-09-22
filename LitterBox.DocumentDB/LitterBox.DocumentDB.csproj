@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netcoreapp2.0;net462</TargetFrameworks>
+        <Authors>Ryan Wilson</Authors>
+        <PackageLicenseUrl>https://github.com/Icehunter/litterbox/blob/master/LitterBox.DocumentDB/LICENSE.md</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/Icehunter/litterbox</PackageProjectUrl>
+        <PackageIconUrl>https://raw.githubusercontent.com/Icehunter/litterbox/master/LitterBox.DocumentDB/Logo.png</PackageIconUrl>
+        <RepositoryUrl></RepositoryUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageTags>csharp memory caching litterbox documentdb</PackageTags>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <Version>1.0.0</Version>
+        <Company>SyndicatedLife</Company>
+        <Product>LitterBox.DocumentDB</Product>
+        <Description>DocumentDB Adaptor For LitterBox Caching</Description>
+        <Copyright>Copyright © 2017 Ryan Wilson</Copyright>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <OutputPath>distribution</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
+        <DocumentationFile>distribution\netcoreapp2.0\LitterBox.DocumentDB.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
+        <DocumentationFile>distribution\net462\LitterBox.DocumentDB.xml</DocumentationFile>
+    </PropertyGroup>
+  
+    <ItemGroup>
+        <PackageReference Include="LitterBox" Version="4.0.0" />
+        <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.5.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    </ItemGroup>
+  
+    <ItemGroup>
+        <ProjectReference Include="..\LitterBox\LitterBox.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -62,6 +62,11 @@
             CacheItem Class Instance
             </summary>
         </member>
+        <member name="P:LitterBox.Models.LitterBoxItem`1.Key">
+            <summary>
+            Key Of Cached Item
+            </summary>
+        </member>
         <member name="P:LitterBox.Models.LitterBoxItem`1.Value">
             <summary>
             T Value Of Cached Item
@@ -72,14 +77,14 @@
             Creation Time
             </summary>
         </member>
-        <member name="P:LitterBox.Models.LitterBoxItem`1.Expiry">
+        <member name="P:LitterBox.Models.LitterBoxItem`1.TimeToLive">
             <summary>
-            Time After Creation To Expire
+            Time (seconds) After Creation To Expire
             </summary>
         </member>
-        <member name="P:LitterBox.Models.LitterBoxItem`1.StaleIn">
+        <member name="P:LitterBox.Models.LitterBoxItem`1.TimeToRefresh">
             <summary>
-            Time After Creation To Be Stale
+            Time (seconds) After Creation To Be Stale/Need Refreshing
             </summary>
         </member>
         <member name="M:LitterBox.Models.LitterBoxItem`1.IsExpired">
@@ -143,24 +148,24 @@
         </member>
         <member name="M:LitterBox.Models.Tenancy.GetItem``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            GetItem T By Key, Generator, StaleIn, Expiry
+            GetItem T By Key, Generator, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Value</typeparam>
             <param name="key">Key Lookup</param>
             <param name="generator">Generator Action If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
             <returns>TenancyResult => LitterBoxItem T</returns>
         </member>
         <member name="M:LitterBox.Models.Tenancy.GetItem``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            GetItem T By Key, Generator, StaleIn, Expiry
+            GetItem T By Key, Generator, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Value</typeparam>
             <param name="key">Key Lookup</param>
             <param name="generator">Generator Action If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
             <returns>TenancyResult => LitterBoxItem T</returns>
         </member>
         <member name="M:LitterBox.Models.Tenancy.GetItems``1(System.Collections.Generic.List{System.String})">
@@ -173,24 +178,24 @@
         </member>
         <member name="M:LitterBox.Models.Tenancy.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            GetItems T By Keys, Generators, StaleIn, Expiry
+            GetItems T By Keys, Generators, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Values</typeparam>
             <param name="keys">Key Lookups</param>
             <param name="generators">Generator Actions If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
             <returns>List TenancyResult => LitterBoxItem T</returns>
         </member>
         <member name="M:LitterBox.Models.Tenancy.GetItems``1(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Func{System.Threading.Tasks.Task{``0}}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            GetItems T By Keys, Generators, StaleIn, Expiry
+            GetItems T By Keys, Generators, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Values</typeparam>
             <param name="keys">Key Lookups</param>
             <param name="generators">Generator Actions If Not Found</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
             <returns>List TenancyResult => LitterBoxItem T</returns>
         </member>
         <member name="M:LitterBox.Models.Tenancy.SetItem``1(System.String,LitterBox.Models.LitterBoxItem{``0})">
@@ -221,23 +226,23 @@
         </member>
         <member name="M:LitterBox.Models.Tenancy.SetItemFireAndForget``1(System.String,System.Func{``0},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+            SetItem T (Fire Forget) By Key, Generator, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Value</typeparam>
             <param name="key">Key Lookup</param>
             <param name="generator">Generator Action</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         </member>
         <member name="M:LitterBox.Models.Tenancy.SetItemFireAndForget``1(System.String,System.Func{System.Threading.Tasks.Task{``0}},System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+            SetItem T (Fire Forget) By Key, Generator, TimeToRefresh, TimeToLive
             </summary>
             <typeparam name="T">Type Of Cached Value</typeparam>
             <param name="key">Key Lookup</param>
             <param name="generator">Generator Action</param>
-            <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-            <param name="expiry">How Long After Creation To Auto-Delete</param>
+            <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+            <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         </member>
         <member name="T:LitterBox.Models.TenancyResult`1">
             <summary>

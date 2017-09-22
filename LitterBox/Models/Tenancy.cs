@@ -133,28 +133,28 @@ namespace LitterBox.Models {
         }
 
         /// <summary>
-        /// GetItem T By Key, Generator, StaleIn, Expiry
+        /// GetItem T By Key, Generator, TimeToRefresh, TimeToLive
         /// </summary>
         /// <typeparam name="T">Type Of Cached Value</typeparam>
         /// <param name="key">Key Lookup</param>
         /// <param name="generator">Generator Action If Not Found</param>
-        /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-        /// <param name="expiry">How Long After Creation To Auto-Delete</param>
+        /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+        /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         /// <returns>TenancyResult => LitterBoxItem T</returns>
-        public async Task<TenancyResult<LitterBoxItem<T>>> GetItem<T>(string key, Func<T> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
-            return await this.GetItem(key, async () => await Task.Run(generator).ConfigureAwait(false), staleIn, expiry).ConfigureAwait(false);
+        public async Task<TenancyResult<LitterBoxItem<T>>> GetItem<T>(string key, Func<T> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            return await this.GetItem(key, async () => await Task.Run(generator).ConfigureAwait(false), timeToRefresh, timeToLive).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// GetItem T By Key, Generator, StaleIn, Expiry
+        /// GetItem T By Key, Generator, TimeToRefresh, TimeToLive
         /// </summary>
         /// <typeparam name="T">Type Of Cached Value</typeparam>
         /// <param name="key">Key Lookup</param>
         /// <param name="generator">Generator Action If Not Found</param>
-        /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-        /// <param name="expiry">How Long After Creation To Auto-Delete</param>
+        /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+        /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         /// <returns>TenancyResult => LitterBoxItem T</returns>
-        public async Task<TenancyResult<LitterBoxItem<T>>> GetItem<T>(string key, Func<Task<T>> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
+        public async Task<TenancyResult<LitterBoxItem<T>>> GetItem<T>(string key, Func<Task<T>> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
             var foundIndex = 0;
             LitterBoxItem<T> value = null;
             TenancyResult<LitterBoxItem<T>> result = null;
@@ -173,12 +173,22 @@ namespace LitterBox.Models {
                 }
             }
 
+            int? toLive = null;
+            int? toRefresh = null;
+            if (timeToLive != null) {
+                toLive = ((TimeSpan) timeToLive).Seconds;
+            }
+            if (timeToRefresh != null) {
+                toRefresh = ((TimeSpan) timeToRefresh).Seconds;
+            }
+
             if (result == null) {
                 foundIndex = this._caches.Length;
                 value = new LitterBoxItem<T> {
-                    Expiry = expiry,
-                    StaleIn = staleIn,
-                    Value = await Task.Run(generator).ConfigureAwait(false)
+                    Key = key,
+                    Value = await Task.Run(generator).ConfigureAwait(false),
+                    TimeToLive = toLive,
+                    TimeToRefresh = toRefresh
                 };
                 result = new TenancyResult<LitterBoxItem<T>> {
                     Key = key,
@@ -213,28 +223,28 @@ namespace LitterBox.Models {
         }
 
         /// <summary>
-        /// GetItems T By Keys, Generators, StaleIn, Expiry
+        /// GetItems T By Keys, Generators, TimeToRefresh, TimeToLive
         /// </summary>
         /// <typeparam name="T">Type Of Cached Values</typeparam>
         /// <param name="keys">Key Lookups</param>
         /// <param name="generators">Generator Actions If Not Found</param>
-        /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-        /// <param name="expiry">How Long After Creation To Auto-Delete</param>
+        /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+        /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         /// <returns>List TenancyResult => LitterBoxItem T</returns>
-        public async Task<List<TenancyResult<LitterBoxItem<T>>>> GetItems<T>(List<string> keys, List<Func<T>> generators, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
-            return await this.GetItems(keys, generators.Select(generator => (Func<Task<T>>) (async () => await Task.Run(generator).ConfigureAwait(false))).ToList(), staleIn, expiry).ConfigureAwait(false);
+        public async Task<List<TenancyResult<LitterBoxItem<T>>>> GetItems<T>(List<string> keys, List<Func<T>> generators, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            return await this.GetItems(keys, generators.Select(generator => (Func<Task<T>>) (async () => await Task.Run(generator).ConfigureAwait(false))).ToList(), timeToRefresh, timeToLive).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// GetItems T By Keys, Generators, StaleIn, Expiry
+        /// GetItems T By Keys, Generators, TimeToRefresh, TimeToLive
         /// </summary>
         /// <typeparam name="T">Type Of Cached Values</typeparam>
         /// <param name="keys">Key Lookups</param>
         /// <param name="generators">Generator Actions If Not Found</param>
-        /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-        /// <param name="expiry">How Long After Creation To Auto-Delete</param>
+        /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+        /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         /// <returns>List TenancyResult => LitterBoxItem T</returns>
-        public async Task<List<TenancyResult<LitterBoxItem<T>>>> GetItems<T>(List<string> keys, List<Func<Task<T>>> generators, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
+        public async Task<List<TenancyResult<LitterBoxItem<T>>>> GetItems<T>(List<string> keys, List<Func<Task<T>>> generators, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
             if (keys.Count != generators.Count) {
                 this.RaiseException(new Exception("Keys.Count/Generators.Count Must Be Equal"));
                 return new List<TenancyResult<LitterBoxItem<T>>>();
@@ -245,7 +255,7 @@ namespace LitterBox.Models {
             for (var i = 0; i < keys.Count; i++) {
                 var key = keys[i];
                 var generator = generators[i];
-                tasks.Add(Task.Run(async () => await this.GetItem(key, generator, staleIn, expiry).ConfigureAwait(false)));
+                tasks.Add(Task.Run(async () => await this.GetItem(key, generator, timeToRefresh, timeToLive).ConfigureAwait(false)));
             }
 
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -324,29 +334,29 @@ namespace LitterBox.Models {
         }
 
         /// <summary>
-        /// SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+        /// SetItem T (Fire Forget) By Key, Generator, TimeToRefresh, TimeToLive
         /// </summary>
         /// <typeparam name="T">Type Of Cached Value</typeparam>
         /// <param name="key">Key Lookup</param>
         /// <param name="generator">Generator Action</param>
-        /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-        /// <param name="expiry">How Long After Creation To Auto-Delete</param>
-        public void SetItemFireAndForget<T>(string key, Func<T> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
-            Task.Run(() => this.SetItemFireAndForget(key, () => Task.Run(generator), staleIn, expiry)).ConfigureAwait(false);
+        /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+        /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
+        public void SetItemFireAndForget<T>(string key, Func<T> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            Task.Run(() => this.SetItemFireAndForget(key, () => Task.Run(generator), timeToRefresh, timeToLive)).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// SetItem T (Fire Forget) By Key, Generator, StaleIn, Expiry
+        /// SetItem T (Fire Forget) By Key, Generator, TimeToRefresh, TimeToLive
         /// </summary>
         /// <typeparam name="T">Type Of Cached Value</typeparam>
         /// <param name="key">Key Lookup</param>
         /// <param name="generator">Generator Action</param>
-        /// <param name="staleIn">How Long After Creation To Be Considered "Good"</param>
-        /// <param name="expiry">How Long After Creation To Auto-Delete</param>
-        public void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? staleIn = null, TimeSpan? expiry = null) {
+        /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+        /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
+        public void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
             Task.Run(() => {
                 foreach (var cache in this._caches) {
-                    cache.SetItemFireAndForget(key, generator, staleIn, expiry);
+                    cache.SetItemFireAndForget(key, generator, timeToRefresh, timeToLive);
                 }
             }).ConfigureAwait(false);
         }
