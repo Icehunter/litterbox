@@ -36,6 +36,11 @@
             Private Cache Of InProcess Items To Prevent Multiple Requests For The Same Object
             </summary>
         </member>
+        <member name="F:LitterBox.DocumentDB.Memoize._partitionKey">
+            <summary>
+            ParitionKey For DocumentDB Queries
+            </summary>
+        </member>
         <member name="E:LitterBox.DocumentDB.Memoize.ExceptionEvent">
             <summary>
             EventHandler For ExceptionEvent
@@ -226,6 +231,23 @@
             Flush (Dispose) Of Cache / Recreate
             </summary>
             <returns>Success True|False</returns>
+        </member>
+        <member name="P:LitterBox.DocumentDB.Models.DocumentDBItem`1.ID">
+            <summary>
+            ID/Key Of Cached Item
+            </summary>
+        </member>
+        <member name="F:LitterBox.DocumentDB.Models.DocumentDBItem`1._partitionKey">
+            <summary>
+            PartitionKey Of Cached Item
+            </summary>
+        </member>
+        <member name="M:LitterBox.DocumentDB.Models.DocumentDBItem`1.#ctor(System.String,LitterBox.Models.LitterBoxItem{`0})">
+            <summary>
+            Copy TLitterBoxItem To TDocumentDBItem
+            </summary>
+            <param name="key">Key/ID Of Document</param>
+            <param name="litter">Existing T LitterBoxItem</param>
         </member>
     </members>
 </doc>

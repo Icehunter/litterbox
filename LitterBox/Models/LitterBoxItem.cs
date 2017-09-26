@@ -29,12 +29,6 @@ namespace LitterBox.Models {
     /// </summary>
     public class LitterBoxItem<T> {
         /// <summary>
-        /// Key Of Cached Item
-        /// </summary>
-        [JsonProperty(PropertyName = "key")]
-        public string Key { get; set; }
-
-        /// <summary>
         /// T Value Of Cached Item
         /// </summary>
         [JsonProperty(PropertyName = "value")]

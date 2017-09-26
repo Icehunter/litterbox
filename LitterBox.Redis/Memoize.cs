@@ -201,7 +201,6 @@ namespace LitterBox.Redis {
                     var item = await Task.Run(generator).ConfigureAwait(false);
                     if (item != null) {
                         result = new LitterBoxItem<T> {
-                            Key = key,
                             Value = item,
                             TimeToLive = toLive,
                             TimeToRefresh = toRefresh
@@ -215,7 +214,6 @@ namespace LitterBox.Redis {
                 var item = await Task.Run(generator).ConfigureAwait(false);
                 if (item != null) {
                     result = new LitterBoxItem<T> {
-                        Key = key,
                         Value = item,
                         TimeToLive = toLive,
                         TimeToRefresh = toRefresh
@@ -408,7 +406,6 @@ namespace LitterBox.Redis {
                     var item = await Task.Run(generator).ConfigureAwait(false);
                     if (item != null) {
                         var litter = new LitterBoxItem<T> {
-                            Key = key,
                             Value = item,
                             TimeToLive = toLive,
                             TimeToRefresh = toRefresh

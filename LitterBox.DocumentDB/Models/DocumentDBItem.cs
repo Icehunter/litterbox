@@ -20,26 +20,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace LitterBox.Memory.Models {
-    using System;
+namespace LitterBox.DocumentDB.Models {
+    using LitterBox.Models;
+    using Newtonsoft.Json;
 
-    /// <summary>
-    /// Configuration For Connection
-    /// </summary>
-    public class Config {
+    public class DocumentDBItem<T> : LitterBoxItem<T> {
         /// <summary>
-        /// ExpirationScanFrequency
+        /// ID/Key Of Cached Item
         /// </summary>
-        public TimeSpan ExpirationScanFrequency { get; set; } = new TimeSpan(0, 1, 0, 0);
-
-        /// <summary>
-        /// DefaultTimeToLive (1 Day)
-        /// </summary>
-        public TimeSpan DefaultTimeToLive { get; set; } = new TimeSpan(1, 0, 0, 0);
+        [JsonProperty(PropertyName = "id")]
+        public string ID { get; set; }
 
         /// <summary>
-        /// DefaultTimeToRefresh (5 Minutes)
+        /// PartitionKey Of Cached Item
         /// </summary>
-        public TimeSpan DefaultTimeToRefresh { get; set; } = new TimeSpan(0, 0, 5, 0);
+        [JsonProperty(PropertyName = "_partitionKey", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        private readonly string _partitionKey = "cache";
+
+        /// <summary>
+        /// Copy TLitterBoxItem To TDocumentDBItem
+        /// </summary>
+        /// <param name="key">Key/ID Of Document</param>
+        /// <param name="litter">Existing T LitterBoxItem</param>
+        public DocumentDBItem(string key, LitterBoxItem<T> litter) {
+            this.ID = key;
+            this.Value = litter.Value;
+            this.Created = litter.Created;
+            this.TimeToLive = litter.TimeToLive;
+            this.TimeToRefresh = litter.TimeToRefresh;
+        }
     }
 }

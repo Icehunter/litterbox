@@ -185,7 +185,6 @@ namespace LitterBox.Models {
             if (result == null) {
                 foundIndex = this._caches.Length;
                 value = new LitterBoxItem<T> {
-                    Key = key,
                     Value = await Task.Run(generator).ConfigureAwait(false),
                     TimeToLive = toLive,
                     TimeToRefresh = toRefresh

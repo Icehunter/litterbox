@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		RenameSymbolsToPackage.ps1 = RenameSymbolsToPackage.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LitterBox.DocumentDB", "LitterBox.DocumentDB\LitterBox.DocumentDB.csproj", "{9A9E208F-B202-4A3F-B472-998179FB4707}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LitterBox.DocumentDB", "LitterBox.DocumentDB\LitterBox.DocumentDB.csproj", "{9A9E208F-B202-4A3F-B472-998179FB4707}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

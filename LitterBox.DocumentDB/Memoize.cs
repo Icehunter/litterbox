@@ -68,7 +68,7 @@ namespace LitterBox.DocumentDB {
 
         #endregion
 
-        #region Memory Properties
+        #region DocumentDB Properties
 
         /// <summary>
         /// Connection Object
@@ -84,6 +84,11 @@ namespace LitterBox.DocumentDB {
         /// Private Cache Of InProcess Items To Prevent Multiple Requests For The Same Object
         /// </summary>
         private ConcurrentDictionary<string, bool> _inProcess = new ConcurrentDictionary<string, bool>();
+
+        /// <summary>
+        /// ParitionKey For DocumentDB Queries
+        /// </summary>
+        private readonly PartitionKey _partitionKey = new PartitionKey("cache");
 
         #endregion
 
@@ -142,14 +147,10 @@ namespace LitterBox.DocumentDB {
                 var uri = UriFactory.CreateDocumentUri(this._config.DocumentDBDatabase, this._config.DocumentDBCollection, key);
                 var options = new RequestOptions {
                     ConsistencyLevel = ConsistencyLevel.Eventual,
-                    DisableRUPerMinuteUsage = true
+                    DisableRUPerMinuteUsage = true,
+                    PartitionKey = this._partitionKey
                 };
-                var response = await this._connection.Cache.ReadDocumentAsync<T>(uri, options).ConfigureAwait(false);
-                if (response != null) {
-                    result = new LitterBoxItem<T> {
-                        Value = response
-                    };
-                }
+                result = await this._connection.Cache.ReadDocumentAsync<LitterBoxItem<T>>(uri, options).ConfigureAwait(false);
             }
             catch (Exception ex) {
                 this.RaiseException(ex);
@@ -202,7 +203,6 @@ namespace LitterBox.DocumentDB {
                     var item = await Task.Run(generator).ConfigureAwait(false);
                     if (item != null) {
                         result = new LitterBoxItem<T> {
-                            Key = key,
                             Value = item,
                             TimeToLive = toLive,
                             TimeToRefresh = toRefresh
@@ -216,7 +216,6 @@ namespace LitterBox.DocumentDB {
                 var item = await Task.Run(generator).ConfigureAwait(false);
                 if (item != null) {
                     result = new LitterBoxItem<T> {
-                        Key = key,
                         Value = item,
                         TimeToLive = toLive,
                         TimeToRefresh = toRefresh
@@ -307,9 +306,10 @@ namespace LitterBox.DocumentDB {
                 var uri = UriFactory.CreateDocumentCollectionUri(this._config.DocumentDBDatabase, this._config.DocumentDBCollection);
                 var options = new RequestOptions {
                     ConsistencyLevel = ConsistencyLevel.Eventual,
-                    DisableRUPerMinuteUsage = true
+                    DisableRUPerMinuteUsage = true,
+                    PartitionKey = this._partitionKey
                 };
-                var response = await this._connection.Cache.UpsertDocumentAsync(uri, litter, options).ConfigureAwait(false);
+                var response = await this._connection.Cache.UpsertDocumentAsync(uri, new DocumentDBItem<T>(key, litter), options).ConfigureAwait(false);
                 if (response != null) {
                     success = true;
                 }
@@ -412,7 +412,6 @@ namespace LitterBox.DocumentDB {
                     var item = await Task.Run(generator).ConfigureAwait(false);
                     if (item != null) {
                         var litter = new LitterBoxItem<T> {
-                            Key = key,
                             Value = item,
                             TimeToLive = toLive,
                             TimeToRefresh = toRefresh

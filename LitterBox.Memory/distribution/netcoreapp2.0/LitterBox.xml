@@ -62,11 +62,6 @@
             CacheItem Class Instance
             </summary>
         </member>
-        <member name="P:LitterBox.Models.LitterBoxItem`1.Key">
-            <summary>
-            Key Of Cached Item
-            </summary>
-        </member>
         <member name="P:LitterBox.Models.LitterBoxItem`1.Value">
             <summary>
             T Value Of Cached Item

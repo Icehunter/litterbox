@@ -23,23 +23,9 @@
 namespace LitterBox.Memory.Models {
     using System;
 
-    /// <summary>
-    /// Configuration For Connection
-    /// </summary>
-    public class Config {
-        /// <summary>
-        /// ExpirationScanFrequency
-        /// </summary>
-        public TimeSpan ExpirationScanFrequency { get; set; } = new TimeSpan(0, 1, 0, 0);
-
-        /// <summary>
-        /// DefaultTimeToLive (1 Day)
-        /// </summary>
-        public TimeSpan DefaultTimeToLive { get; set; } = new TimeSpan(1, 0, 0, 0);
-
-        /// <summary>
-        /// DefaultTimeToRefresh (5 Minutes)
-        /// </summary>
-        public TimeSpan DefaultTimeToRefresh { get; set; } = new TimeSpan(0, 0, 5, 0);
+    public class CacheItem {
+        public TimeSpan Expiry { get; set; } = TimeSpan.MaxValue;
+        public DateTime Created { get; set; } = DateTime.Now;
+        public byte[] Value { get; set; }
     }
 }

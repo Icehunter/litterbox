@@ -29,7 +29,6 @@ namespace LitterBox.Memory {
     using LitterBox.Interfaces;
     using LitterBox.Memory.Models;
     using LitterBox.Models;
-    using Microsoft.Extensions.Caching.Memory;
 
     public class Memoize : ILitterBox {
         /// <summary>
@@ -196,7 +195,6 @@ namespace LitterBox.Memory {
                     var item = await Task.Run(generator).ConfigureAwait(false);
                     if (item != null) {
                         result = new LitterBoxItem<T> {
-                            Key = key,
                             Value = item,
                             TimeToLive = toLive,
                             TimeToRefresh = toRefresh
@@ -210,7 +208,6 @@ namespace LitterBox.Memory {
                 var item = await Task.Run(generator).ConfigureAwait(false);
                 if (item != null) {
                     result = new LitterBoxItem<T> {
-                        Key = key,
                         Value = item,
                         TimeToLive = toLive,
                         TimeToRefresh = toRefresh
@@ -308,8 +305,7 @@ namespace LitterBox.Memory {
                 this.RaiseException(ex);
             }
 
-            this._inProcess.TryRemove(key, out bool itemSet);
-            this._connection.StorageKeys.TryAdd(key, itemSet);
+            this._inProcess.TryRemove(key, out var removed);
 
             return success;
         }
@@ -403,7 +399,6 @@ namespace LitterBox.Memory {
                     var item = await Task.Run(generator).ConfigureAwait(false);
                     if (item != null) {
                         var litter = new LitterBoxItem<T> {
-                            Key = key,
                             Value = item,
                             TimeToLive = toLive,
                             TimeToRefresh = toRefresh

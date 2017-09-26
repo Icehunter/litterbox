@@ -23,14 +23,8 @@
 namespace LitterBox.Memory.Models {
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Caching.Memory;
 
     internal class Connection {
-        /// <summary>
-        /// Keep Track Of Cached Keys; Used For Flushing
-        /// </summary>
-        public readonly ConcurrentDictionary<string, bool> StorageKeys = new ConcurrentDictionary<string, bool>();
-
         /// <summary>
         /// Connection
         /// </summary>
@@ -42,7 +36,7 @@ namespace LitterBox.Memory.Models {
         /// <summary>
         /// MemoryCache
         /// </summary>
-        public MemoryCache Cache { get; set; }
+        public CacheStore Cache { get; set; }
 
         /// <summary>
         /// Connection Config
@@ -57,8 +51,7 @@ namespace LitterBox.Memory.Models {
         /// <returns>Raw MemoryCache</returns>
         internal async Task Connect() {
             await Task.Run(() => {
-                this.Cache = new MemoryCache(new MemoryCacheOptions {
-                    CompactionPercentage = this._config.CompactionPercentage,
+                this.Cache = new CacheStore(new CacheStoreOptions {
                     ExpirationScanFrequency = this._config.ExpirationScanFrequency
                 });
             }).ConfigureAwait(false);
@@ -70,10 +63,7 @@ namespace LitterBox.Memory.Models {
         /// <returns>Success True|False</returns>
         internal async Task Flush() {
             await Task.Run(() => {
-                foreach (var kvp in this.StorageKeys) {
-                    this.Cache.Remove(kvp.Key);
-                }
-                this.StorageKeys.Clear();
+                this.Cache.Flush();
             }).ConfigureAwait(false);
         }
 

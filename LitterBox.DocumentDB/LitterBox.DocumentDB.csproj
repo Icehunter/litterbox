@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp2.0;net462</TargetFrameworks>
+        <TargetFrameworks>netcoreapp2.0;net452;net462</TargetFrameworks>
         <Authors>Ryan Wilson</Authors>
         <PackageLicenseUrl>https://github.com/Icehunter/litterbox/blob/master/LitterBox.DocumentDB/LICENSE.md</PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/Icehunter/litterbox</PackageProjectUrl>
@@ -10,13 +10,13 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageTags>csharp memory caching litterbox documentdb</PackageTags>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <Version>1.0.0</Version>
+        <Version>2.0.0</Version>
         <Company>SyndicatedLife</Company>
         <Product>LitterBox.DocumentDB</Product>
         <Description>DocumentDB Adaptor For LitterBox Caching</Description>
         <Copyright>Copyright © 2017 Ryan Wilson</Copyright>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
-        <FileVersion>1.0.0.0</FileVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <FileVersion>2.0.0.0</FileVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -27,18 +27,39 @@
         <DocumentationFile>distribution\netcoreapp2.0\LitterBox.DocumentDB.xml</DocumentationFile>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
+        <DocumentationFile>distribution\net452\LitterBox.DocumentDB.xml</DocumentationFile>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
         <DocumentationFile>distribution\net462\LitterBox.DocumentDB.xml</DocumentationFile>
     </PropertyGroup>
-  
+
     <ItemGroup>
-        <PackageReference Include="LitterBox" Version="4.0.0" />
-        <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.5.0" />
+        <PackageReference Include="LitterBox" Version="5.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     </ItemGroup>
-  
+
     <ItemGroup>
         <ProjectReference Include="..\LitterBox\LitterBox.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+        <PackageReference Include="Microsoft.Azure.DocumentDB">
+            <Version>1.17.0</Version>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+        <PackageReference Include="Microsoft.Azure.DocumentDB.Core">
+            <Version>1.5.0</Version>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+        <PackageReference Include="Microsoft.Azure.DocumentDB.Core">
+            <Version>1.5.0</Version>
+        </PackageReference>
     </ItemGroup>
 
 </Project>

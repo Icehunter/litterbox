@@ -1,38 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net462</TargetFrameworks>
-    <Authors>Ryan Wilson</Authors>
-    <PackageLicenseUrl>https://github.com/Icehunter/litterbox/blob/master/LitterBox/LICENSE.md</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/Icehunter/litterbox</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/Icehunter/litterbox/master/LitterBox/Logo.png</PackageIconUrl>
-    <RepositoryUrl></RepositoryUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageTags>csharp memory caching litterbox</PackageTags>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>4.0.0</Version>
-    <Company>SyndicatedLife</Company>
-    <Product>LitterBox</Product>
-    <Description>LitterBox Caching Base</Description>
-    <Copyright>Copyright © 2017 Ryan Wilson</Copyright>
-    <FileVersion>4.0.0.0</FileVersion>
-    <AssemblyVersion>4.0.0.0</AssemblyVersion>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netcoreapp2.0;net452;net462</TargetFrameworks>
+        <Authors>Ryan Wilson</Authors>
+        <PackageLicenseUrl>https://github.com/Icehunter/litterbox/blob/master/LitterBox/LICENSE.md</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/Icehunter/litterbox</PackageProjectUrl>
+        <PackageIconUrl>https://raw.githubusercontent.com/Icehunter/litterbox/master/LitterBox/Logo.png</PackageIconUrl>
+        <RepositoryUrl></RepositoryUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageTags>csharp memory caching litterbox</PackageTags>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <Version>5.0.0</Version>
+        <Company>SyndicatedLife</Company>
+        <Product>LitterBox</Product>
+        <Description>LitterBox Caching Base</Description>
+        <Copyright>Copyright © 2017 Ryan Wilson</Copyright>
+        <FileVersion>5.0.0.0</FileVersion>
+        <AssemblyVersion>5.0.0.0</AssemblyVersion>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>distribution</OutputPath>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <OutputPath>distribution</OutputPath>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
-    <DocumentationFile>distribution\netcoreapp2.0\LitterBox.xml</DocumentationFile>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
+        <DocumentationFile>distribution\netcoreapp2.0\LitterBox.xml</DocumentationFile>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
-    <DocumentationFile>distribution\net462\LitterBox.xml</DocumentationFile>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
+        <DocumentationFile>distribution\net452\LitterBox.xml</DocumentationFile>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
+        <DocumentationFile>distribution\net462\LitterBox.xml</DocumentationFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    </ItemGroup>
 
 </Project>
