@@ -6,9 +6,9 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.0": {
-      "LitterBox.Redis/5.0.0": {
+      "LitterBox.Redis/5.0.1": {
         "dependencies": {
-          "LitterBox": "5.0.0",
+          "LitterBox": "5.0.1",
           "Newtonsoft.Json": "10.0.3",
           "StackExchange.Redis": "1.2.6"
         },
@@ -972,7 +972,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "LitterBox/5.0.0": {
+      "LitterBox/5.0.1": {
         "dependencies": {
           "Newtonsoft.Json": "10.0.3"
         },
@@ -983,7 +983,7 @@
     }
   },
   "libraries": {
-    "LitterBox.Redis/5.0.0": {
+    "LitterBox.Redis/5.0.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -1583,7 +1583,7 @@
       "path": "system.xml.xmldocument/4.3.0",
       "hashPath": "system.xml.xmldocument.4.3.0.nupkg.sha512"
     },
-    "LitterBox/5.0.0": {
+    "LitterBox/5.0.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

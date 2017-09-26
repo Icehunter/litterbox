@@ -31,12 +31,12 @@ namespace LitterBox.Models {
         /// <summary>
         /// Key In Cache (Null If Not Getting Items)
         /// </summary>
-        public string Key { get; set; } = null;
+        public string Key { get; set; }
 
         /// <summary>
         /// Type Of Cache Data Came From
         /// </summary>
-        public Type Type { get; set; } = typeof(T);
+        public Type Type { get; set; }
 
         /// <summary>
         /// T Value Of Stored Item
