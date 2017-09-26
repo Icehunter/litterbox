@@ -26,16 +26,9 @@ namespace LitterBox.DocumentDB.Models {
 
     public class DocumentDBItem<T> : LitterBoxItem<T> {
         /// <summary>
-        /// ID/Key Of Cached Item
-        /// </summary>
-        [JsonProperty(PropertyName = "id")]
-        public string ID { get; set; }
-
-        /// <summary>
         /// PartitionKey Of Cached Item
         /// </summary>
-        [JsonProperty(PropertyName = "_partitionKey", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        private readonly string _partitionKey = "cache";
+        [JsonProperty(PropertyName = "_partitionKey", DefaultValueHandling = DefaultValueHandling.Ignore)] private readonly string _partitionKey = "cache";
 
         /// <summary>
         /// Copy TLitterBoxItem To TDocumentDBItem
@@ -49,5 +42,11 @@ namespace LitterBox.DocumentDB.Models {
             this.TimeToLive = litter.TimeToLive;
             this.TimeToRefresh = litter.TimeToRefresh;
         }
+
+        /// <summary>
+        /// ID/Key Of Cached Item
+        /// </summary>
+        [JsonProperty(PropertyName = "id")]
+        public string ID { get; set; }
     }
 }

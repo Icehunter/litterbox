@@ -23,9 +23,23 @@
 namespace LitterBox.Memory.Models {
     using System;
 
+    /// <summary>
+    /// Memory CacheItem
+    /// </summary>
     public class CacheItem {
-        public TimeSpan Expiry { get; set; } = TimeSpan.MaxValue;
+        /// <summary>
+        /// Expiry Of Item (Expiration Scan)
+        /// </summary>
+        public TimeSpan Expiry { get; set; }
+
+        /// <summary>
+        /// Insertion Time
+        /// </summary>
         public DateTime Created { get; set; } = DateTime.Now;
+
+        /// <summary>
+        /// Cache Value (T LitterBoxItem Gzipped Bytes)
+        /// </summary>
         public byte[] Value { get; set; }
     }
 }

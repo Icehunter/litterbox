@@ -232,11 +232,6 @@
             </summary>
             <returns>Success True|False</returns>
         </member>
-        <member name="P:LitterBox.DocumentDB.Models.DocumentDBItem`1.ID">
-            <summary>
-            ID/Key Of Cached Item
-            </summary>
-        </member>
         <member name="F:LitterBox.DocumentDB.Models.DocumentDBItem`1._partitionKey">
             <summary>
             PartitionKey Of Cached Item
@@ -248,6 +243,11 @@
             </summary>
             <param name="key">Key/ID Of Document</param>
             <param name="litter">Existing T LitterBoxItem</param>
+        </member>
+        <member name="P:LitterBox.DocumentDB.Models.DocumentDBItem`1.ID">
+            <summary>
+            ID/Key Of Cached Item
+            </summary>
         </member>
     </members>
 </doc>

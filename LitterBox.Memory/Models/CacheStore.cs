@@ -27,21 +27,37 @@ namespace LitterBox.Memory.Models {
     using System.Timers;
 
     public class CacheStore : IDisposable {
+        /// <summary>
+        /// Private Storage
+        /// </summary>
         private readonly ConcurrentDictionary<string, CacheItem> _cache = new ConcurrentDictionary<string, CacheItem>();
 
-        public CacheStore(CacheStoreOptions cacheStoreOptions) {
-            this._cacheStoreOptions = cacheStoreOptions;
-            this._expirationTimer = new Timer(this._cacheStoreOptions.ExpirationScanFrequency.TotalMilliseconds);
+        /// <summary>
+        /// Create New CacheStore
+        /// </summary>
+        /// <param name="config"></param>
+        public CacheStore(Config config) {
+            this._config = config;
+            this._expirationTimer = new Timer(this._config.ExpirationScanFrequency.TotalMilliseconds);
             this._expirationTimer.Elapsed += this.ExpirationTimerOnElapsed;
             this._expirationTimer.Start();
         }
 
-        private Timer _expirationTimer { get; set; }
+        /// <summary>
+        /// Cache Configuration
+        /// </summary>
+        private Config _config { get; }
 
-        private CacheStoreOptions _cacheStoreOptions { get; set; }
+        /// <summary>
+        /// Private Scan Timer
+        /// </summary>
+        private Timer _expirationTimer { get; }
 
         #region IDisposable Implementation
 
+        /// <summary>
+        /// Dispose Object
+        /// </summary>
         public void Dispose() {
             this._expirationTimer.Start();
             this._expirationTimer.Elapsed -= this.ExpirationTimerOnElapsed;
@@ -50,10 +66,18 @@ namespace LitterBox.Memory.Models {
 
         #endregion
 
+        /// <summary>
+        /// Call Dispose
+        /// </summary>
         ~CacheStore() {
             this.Dispose();
         }
 
+        /// <summary>
+        /// Expiration Timer Tick
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="elapsedEventArgs">Event Arguments</param>
         private void ExpirationTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs) {
             Task.Run(() => {
                 foreach (var item in this._cache) {
@@ -65,10 +89,19 @@ namespace LitterBox.Memory.Models {
             }).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Flush Cache
+        /// </summary>
         public void Flush() {
             this._cache.Clear();
         }
 
+        /// <summary>
+        /// TryGet Value
+        /// </summary>
+        /// <param name="key">Cache Key</param>
+        /// <param name="bytes">Out Cache Value</param>
+        /// <returns>Success True|False</returns>
         public bool TryGetValue(string key, out byte[] bytes) {
             if (this._cache.TryGetValue(key, out var cacheItem)) {
                 bytes = cacheItem.Value;
@@ -78,11 +111,20 @@ namespace LitterBox.Memory.Models {
             return false;
         }
 
-        public void Set(string key, byte[] value, TimeSpan expiry) {
+        /// <summary>
+        /// Set Value
+        /// </summary>
+        /// <param name="key">Cache Key</param>
+        /// <param name="value">Cache Value</param>
+        /// <param name="expiry"></param>
+        public void Set(string key, byte[] value, TimeSpan? expiry = null) {
             var cacheItem = new CacheItem {
-                Expiry = expiry,
+                Expiry = this._config.DefaultTimeToLive,
                 Value = value
             };
+            if (expiry != null) {
+                cacheItem.Expiry = (TimeSpan) expiry;
+            }
             this._cache.AddOrUpdate(key, cacheItem, (k, v) => cacheItem);
         }
     }

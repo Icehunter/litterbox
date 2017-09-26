@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 namespace LitterBox.Memory.Models {
-    using System.Collections.Concurrent;
     using System.Threading.Tasks;
 
     internal class Connection {
@@ -50,11 +49,7 @@ namespace LitterBox.Memory.Models {
         /// </summary>
         /// <returns>Raw MemoryCache</returns>
         internal async Task Connect() {
-            await Task.Run(() => {
-                this.Cache = new CacheStore(new CacheStoreOptions {
-                    ExpirationScanFrequency = this._config.ExpirationScanFrequency
-                });
-            }).ConfigureAwait(false);
+            await Task.Run(() => { this.Cache = new CacheStore(this._config); }).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -62,9 +57,7 @@ namespace LitterBox.Memory.Models {
         /// </summary>
         /// <returns>Success True|False</returns>
         internal async Task Flush() {
-            await Task.Run(() => {
-                this.Cache.Flush();
-            }).ConfigureAwait(false);
+            await Task.Run(() => { this.Cache.Flush(); }).ConfigureAwait(false);
         }
 
         #endregion

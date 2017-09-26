@@ -159,14 +159,88 @@
             <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
             <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         </member>
+        <member name="T:LitterBox.Memory.Models.CacheItem">
+            <summary>
+            Memory CacheItem
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Models.CacheItem.Expiry">
+            <summary>
+            Expiry Of Item (Expiration Scan)
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Models.CacheItem.Created">
+            <summary>
+            Insertion Time
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Models.CacheItem.Value">
+            <summary>
+            Cache Value (T LitterBoxItem Gzipped Bytes)
+            </summary>
+        </member>
+        <member name="F:LitterBox.Memory.Models.CacheStore._cache">
+            <summary>
+            Private Storage
+            </summary>
+        </member>
+        <member name="M:LitterBox.Memory.Models.CacheStore.#ctor(LitterBox.Memory.Models.Config)">
+            <summary>
+            Create New CacheStore
+            </summary>
+            <param name="config"></param>
+        </member>
+        <member name="P:LitterBox.Memory.Models.CacheStore._config">
+            <summary>
+            Cache Configuration
+            </summary>
+        </member>
+        <member name="P:LitterBox.Memory.Models.CacheStore._expirationTimer">
+            <summary>
+            Private Scan Timer
+            </summary>
+        </member>
+        <member name="M:LitterBox.Memory.Models.CacheStore.Dispose">
+            <summary>
+            Dispose Object
+            </summary>
+        </member>
+        <member name="M:LitterBox.Memory.Models.CacheStore.Finalize">
+            <summary>
+            Call Dispose
+            </summary>
+        </member>
+        <member name="M:LitterBox.Memory.Models.CacheStore.ExpirationTimerOnElapsed(System.Object,System.Timers.ElapsedEventArgs)">
+            <summary>
+            Expiration Timer Tick
+            </summary>
+            <param name="sender">Event Sender</param>
+            <param name="elapsedEventArgs">Event Arguments</param>
+        </member>
+        <member name="M:LitterBox.Memory.Models.CacheStore.Flush">
+            <summary>
+            Flush Cache
+            </summary>
+        </member>
+        <member name="M:LitterBox.Memory.Models.CacheStore.TryGetValue(System.String,System.Byte[]@)">
+            <summary>
+            TryGet Value
+            </summary>
+            <param name="key">Cache Key</param>
+            <param name="bytes">Out Cache Value</param>
+            <returns>Success True|False</returns>
+        </member>
+        <member name="M:LitterBox.Memory.Models.CacheStore.Set(System.String,System.Byte[],System.Nullable{System.TimeSpan})">
+            <summary>
+            Set Value
+            </summary>
+            <param name="key">Cache Key</param>
+            <param name="value">Cache Value</param>
+            <param name="expiry"></param>
+        </member>
         <member name="T:LitterBox.Memory.Models.Config">
             <summary>
             Configuration For Connection
-            </summary>
-        </member>
-        <member name="P:LitterBox.Memory.Models.Config.CompactionPercentage">
-            <summary>
-            CompactionPercentage
             </summary>
         </member>
         <member name="P:LitterBox.Memory.Models.Config.ExpirationScanFrequency">
@@ -182,11 +256,6 @@
         <member name="P:LitterBox.Memory.Models.Config.DefaultTimeToRefresh">
             <summary>
             DefaultTimeToRefresh (5 Minutes)
-            </summary>
-        </member>
-        <member name="F:LitterBox.Memory.Models.Connection.StorageKeys">
-            <summary>
-            Keep Track Of Cached Keys; Used For Flushing
             </summary>
         </member>
         <member name="M:LitterBox.Memory.Models.Connection.#ctor(LitterBox.Memory.Models.Config)">
