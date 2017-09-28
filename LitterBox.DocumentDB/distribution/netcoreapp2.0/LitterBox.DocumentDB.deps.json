@@ -6,9 +6,9 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.0": {
-      "LitterBox.DocumentDB/2.0.1": {
+      "LitterBox.DocumentDB/2.0.2": {
         "dependencies": {
-          "LitterBox": "5.0.1",
+          "LitterBox": "5.0.2",
           "Microsoft.Azure.DocumentDB.Core": "1.5.0",
           "Newtonsoft.Json": "10.0.3"
         },
@@ -957,7 +957,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "LitterBox/5.0.1": {
+      "LitterBox/5.0.2": {
         "dependencies": {
           "Newtonsoft.Json": "10.0.3"
         },
@@ -968,7 +968,7 @@
     }
   },
   "libraries": {
-    "LitterBox.DocumentDB/2.0.1": {
+    "LitterBox.DocumentDB/2.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -1498,7 +1498,7 @@
       "path": "system.xml.xmldocument/4.3.0",
       "hashPath": "system.xml.xmldocument.4.3.0.nupkg.sha512"
     },
-    "LitterBox/5.0.1": {
+    "LitterBox/5.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

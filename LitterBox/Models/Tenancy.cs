@@ -161,7 +161,7 @@ namespace LitterBox.Models {
 
             for (var i = 0; i < this._caches.Length; i++) {
                 var cache = this._caches[i];
-                value = await cache.GetItem<T>(key, generator, timeToRefresh, timeToLive).ConfigureAwait(false);
+                value = await cache.GetItem<T>(key).ConfigureAwait(false);
                 if (value != null) {
                     foundIndex = i;
                     result = new TenancyResult<LitterBoxItem<T>> {
@@ -169,6 +169,9 @@ namespace LitterBox.Models {
                         Type = cache.GetType(),
                         Value = value
                     };
+                    if (value.IsExpired() || value.IsStale()) {
+                        cache.SetItemFireAndForget(key, generator, timeToRefresh, timeToLive);
+                    }
                     break;
                 }
             }
