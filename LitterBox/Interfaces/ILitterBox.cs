@@ -1,64 +1,107 @@
-// MIT License
-// 
-// Copyright(c) 2017 Ryan Wilson <syndicated.life@gmail.com> (http://syndicated.life/)
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ILitterBox.cs" company="SyndicatedLife">
+//   Copyright(c) 2017 Ryan Wilson &amp;lt;syndicated.life@gmail.com&amp;gt; (http://syndicated.life/)
+//   Licensed under the MIT license. See LICENSE.md in the solution root for full license information.
+// </copyright>
+// <summary>
+//   ILitterBox.cs Implementation
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace LitterBox.Interfaces {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
+
     using LitterBox.Models;
 
+    /// <summary>
+    ///     The LitterBox interface.
+    /// </summary>
     public interface ILitterBox {
         #region Events
 
+        /// <summary>
+        ///     ExceptionEvent Invoker
+        /// </summary>
         event EventHandler<ExceptionEvent> ExceptionEvent;
-
-        #endregion
-
-        #region Connection Based
-
-        Task<bool> Reconnect();
-        Task<bool> Flush();
 
         #endregion
 
         #region Getters
 
+        /// <summary>
+        ///     GetItem T By Key
+        /// </summary>
+        /// <typeparam name="T">Type Of Cached Value</typeparam>
+        /// <param name="key">Key Lookup</param>
+        /// <returns>LitterBoxItem T</returns>
         Task<LitterBoxItem<T>> GetItem<T>(string key);
-        Task<LitterBoxItem<T>> GetItem<T>(string key, Func<Task<T>> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null);
-        Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys);
-        Task<List<LitterBoxItem<T>>> GetItems<T>(List<string> keys, List<Func<Task<T>>> generators, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null);
+
+        #endregion
+
+        #region Connection Pools
+
+        /// <summary>
+        ///     Connection Objects
+        /// </summary>
+        ConnectionPool Pool { get; set; }
+
+        /// <summary>
+        ///     Get Pooled Connection Of Type T
+        /// </summary>
+        /// <typeparam name="T">Type T</typeparam>
+        /// <returns>T IConnection</returns>
+        T GetPooledConnection<T>();
 
         #endregion
 
         #region Setters
 
+        /// <summary>
+        ///     SetItem T By Key
+        /// </summary>
+        /// <typeparam name="T">Type Of Cached Value</typeparam>
+        /// <param name="key">Key Lookup</param>
+        /// <param name="litter">Item T To Be Cached</param>
+        /// <returns>Success True|False</returns>
         Task<bool> SetItem<T>(string key, LitterBoxItem<T> litter);
-        Task<List<bool>> SetItems<T>(List<string> keys, List<LitterBoxItem<T>> litters);
+
+        #endregion
+
+        #region Connection Based
+
+        /// <summary>
+        ///     Close/Dispose Connection And Reconnect With Existing Properties
+        /// </summary>
+        /// <returns>Success True|False</returns>
+        Task<bool> Reconnect();
+
+        /// <summary>
+        ///     Flush Cache
+        /// </summary>
+        /// <returns>Success True|False</returns>
+        Task<bool> Flush();
 
         #endregion
 
         #region Fire Forget
 
+        /// <summary>
+        ///     SetItem T (Fire Forget) By Key, LitterBoxItem T
+        /// </summary>
+        /// <typeparam name="T">Type Of Cached Value</typeparam>
+        /// <param name="key">Key Lookup</param>
+        /// <param name="litter">Item T To Be Cached</param>
         void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter);
+
+        /// <summary>
+        ///     SetItem T (Fire Forget) By Key, Generator, TimeToRefresh, TimeToLive
+        /// </summary>
+        /// <typeparam name="T">Type Of Cached Value</typeparam>
+        /// <param name="key">Key Lookup</param>
+        /// <param name="generator">Generator Action</param>
+        /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
+        /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null);
 
         #endregion

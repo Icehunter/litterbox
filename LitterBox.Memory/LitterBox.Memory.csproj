@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp2.0;net452;net462</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <CodeAnalysisRuleSet>$(SolutionDir)StyleCop.ruleset</CodeAnalysisRuleSet>
         <Authors>Ryan Wilson</Authors>
         <PackageLicenseUrl>https://github.com/Icehunter/litterbox/blob/master/LitterBox.Memory/LICENSE.md</PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/Icehunter/litterbox</PackageProjectUrl>
@@ -10,34 +11,41 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageTags>csharp memory caching litterbox memory</PackageTags>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <Version>5.0.2</Version>
+        <Version>6.0.0</Version>
         <Company>SyndicatedLife</Company>
         <Product>LitterBox.Memory</Product>
         <Description>Memory Adaptor For LitterBox Caching</Description>
         <Copyright>Copyright © 2017 Ryan Wilson</Copyright>
-        <AssemblyVersion>5.0.0.0</AssemblyVersion>
-        <FileVersion>5.0.2.0</FileVersion>
+        <AssemblyVersion>6.0.0.0</AssemblyVersion>
+        <FileVersion>6.0.0.0</FileVersion>
     </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="distribution\**" />
+      <EmbeddedResource Remove="distribution\**" />
+      <None Remove="distribution\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="$(SolutionDir)stylecop.json" Link="stylecop.json" />
+    </ItemGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <OutputPath>distribution</OutputPath>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
-        <DocumentationFile>distribution\netcoreapp2.0\LitterBox.Memory.xml</DocumentationFile>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+        <DocumentationFile>distribution\netstandard2.0\LitterBox.Memory.xml</DocumentationFile>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
-        <DocumentationFile>distribution\net452\LitterBox.Memory.xml</DocumentationFile>
-    </PropertyGroup>
-    
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
-        <DocumentationFile>distribution\net462\LitterBox.Memory.xml</DocumentationFile>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+      <DocumentationFile>bin\Debug\netstandard2.0\LitterBox.Memory.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="LitterBox" Version="5.0.2" />
-        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+        <PackageReference Include="LitterBox" Version="6.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+        <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     </ItemGroup>
 
     <ItemGroup>

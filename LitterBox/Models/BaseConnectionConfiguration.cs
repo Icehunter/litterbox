@@ -1,10 +1,10 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ExceptionEvent.cs" company="SyndicatedLife">
+// <copyright file="BaseConnectionConfiguration.cs" company="SyndicatedLife">
 //   Copyright(c) 2017 Ryan Wilson &amp;lt;syndicated.life@gmail.com&amp;gt; (http://syndicated.life/)
 //   Licensed under the MIT license. See LICENSE.md in the solution root for full license information.
 // </copyright>
 // <summary>
-//   ExceptionEvent.cs Implementation
+//   BaseConnectionConfiguration.cs Implementation
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -12,27 +12,22 @@ namespace LitterBox.Models {
     using System;
 
     /// <summary>
-    ///     ExceptionEvent Instance
+    ///     Base Connection Configuration
     /// </summary>
-    public class ExceptionEvent : EventArgs {
+    public class BaseConnectionConfiguration {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ExceptionEvent" /> class.
+        ///     DefaultTimeToLive (1 Day)
         /// </summary>
-        /// <param name="sender">sender</param>
-        /// <param name="exception">exception</param>
-        public ExceptionEvent(object sender, Exception exception) {
-            this.Sender = sender;
-            this.Exception = exception;
-        }
+        public TimeSpan DefaultTimeToLive { get; set; } = new TimeSpan(1, 0, 0, 0);
 
         /// <summary>
-        ///     Exception
+        ///     DefaultTimeToRefresh (5 Minutes)
         /// </summary>
-        public Exception Exception { get; set; }
+        public TimeSpan DefaultTimeToRefresh { get; set; } = new TimeSpan(0, 0, 5, 0);
 
         /// <summary>
-        ///     Sender
+        ///     Connection PoolSize
         /// </summary>
-        public object Sender { get; set; }
+        public int PoolSize { get; set; } = 5;
     }
 }
