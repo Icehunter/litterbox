@@ -1,24 +1,12 @@
-﻿// MIT License
-// 
-// Copyright(c) 2017 Ryan Wilson <syndicated.life@gmail.com> (http://syndicated.life/)
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Compression.cs" company="SyndicatedLife">
+//   Copyright(c) 2017 Ryan Wilson &amp;lt;syndicated.life@gmail.com&amp;gt; (http://syndicated.life/)
+//   Licensed under the MIT license. See LICENSE.md in the solution root for full license information.
+// </copyright>
+// <summary>
+//   Compression.cs Implementation
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace LitterBox {
     using System.IO;
@@ -26,11 +14,28 @@ namespace LitterBox {
     using System.Text;
 
     /// <summary>
-    /// Compression Class
+    ///     Compression Class
     /// </summary>
     public static class Compression {
         /// <summary>
-        /// Zip String => Byte[] (Compressed)
+        ///     Unzip Byte[] => String (Uncompressed)
+        /// </summary>
+        /// <param name="value">Byte[] Data</param>
+        /// <returns>String</returns>
+        public static string Unzip(byte[] value) {
+            using (var input = new MemoryStream(value)) {
+                using (var output = new MemoryStream()) {
+                    using (var gZipStream = new GZipStream(input, CompressionMode.Decompress)) {
+                        gZipStream.CopyTo(output);
+                    }
+
+                    return Encoding.UTF8.GetString(output.ToArray());
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Zip String => Byte[] (Compressed)
         /// </summary>
         /// <param name="value">String Data</param>
         /// <returns>Byte[]</returns>
@@ -41,23 +46,8 @@ namespace LitterBox {
                     using (var gZipStream = new GZipStream(output, CompressionMode.Compress)) {
                         input.CopyTo(gZipStream);
                     }
-                    return output.ToArray();
-                }
-            }
-        }
 
-        /// <summary>
-        /// Unzip Byte[] => String (Uncompressed)
-        /// </summary>
-        /// <param name="value">Byte[] Data</param>
-        /// <returns>String</returns>
-        public static string Unzip(byte[] value) {
-            using (var input = new MemoryStream(value)) {
-                using (var output = new MemoryStream()) {
-                    using (var gZipStream = new GZipStream(input, CompressionMode.Decompress)) {
-                        gZipStream.CopyTo(output);
-                    }
-                    return Encoding.UTF8.GetString(output.ToArray());
+                    return output.ToArray();
                 }
             }
         }
