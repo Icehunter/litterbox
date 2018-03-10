@@ -14,8 +14,6 @@ namespace LitterBox.Memory {
     using System.Threading.Tasks;
     using System.Timers;
 
-    using LitterBox.Memory.Models;
-
     /// <summary>
     ///     The CacheStore
     /// </summary>

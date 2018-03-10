@@ -8,7 +8,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LitterBox.Memory.Models {
+namespace LitterBox.Memory {
     using System;
 
     using LitterBox.Models;

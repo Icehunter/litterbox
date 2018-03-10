@@ -15,7 +15,6 @@ namespace LitterBox.Memory {
     using System.Threading.Tasks;
 
     using LitterBox.Interfaces;
-    using LitterBox.Memory.Models;
     using LitterBox.Models;
 
     /// <summary>
