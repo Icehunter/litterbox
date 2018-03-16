@@ -154,8 +154,16 @@ namespace LitterBox {
                     foundIndex = i;
                     result.Key = key;
                     result.CacheType = cache.GetType();
-                    if (result.IsExpired() || result.IsStale()) {
+
+                    // if only stale then refresh this cache and any cache UP the chain
+                    // present stale data to caller
+                    if (result.IsStale() && !result.IsExpired()) {
                         cache.SetItemFireAndForget(key, generator, timeToRefresh, timeToLive);
+                    }
+
+                    // if the result is expired, move on to the next cache and set current to null
+                    if (result.IsExpired()) {
+                        result = null;
                     }
 
                     break;
