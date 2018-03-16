@@ -16,7 +16,6 @@ namespace Bootstrapper {
     using LitterBox.DocumentDB;
     using LitterBox.Interfaces;
     using LitterBox.Memory;
-    using LitterBox.Memory.Models;
     using LitterBox.Models;
     using LitterBox.Redis;
 
