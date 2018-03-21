@@ -13,7 +13,6 @@ namespace LitterBox.DocumentDB {
 
     using LitterBox.Models;
 
-    using Microsoft.Azure.Documents;
     using Microsoft.Azure.Documents.Client;
 
     /// <summary>

@@ -39,6 +39,19 @@ namespace LitterBox.Interfaces {
 
         #endregion
 
+        #region Setters
+
+        /// <summary>
+        ///     SetItem T By Key
+        /// </summary>
+        /// <typeparam name="T">Type Of Cached Value</typeparam>
+        /// <param name="key">Key Lookup</param>
+        /// <param name="litter">Item T To Be Cached</param>
+        /// <returns>Success True|False</returns>
+        Task<bool> SetItem<T>(string key, LitterBoxItem<T> litter);
+
+        #endregion
+
         #region Connection Pools
 
         /// <summary>
@@ -52,19 +65,6 @@ namespace LitterBox.Interfaces {
         /// <typeparam name="T">Type T</typeparam>
         /// <returns>T IConnection</returns>
         T GetPooledConnection<T>();
-
-        #endregion
-
-        #region Setters
-
-        /// <summary>
-        ///     SetItem T By Key
-        /// </summary>
-        /// <typeparam name="T">Type Of Cached Value</typeparam>
-        /// <param name="key">Key Lookup</param>
-        /// <param name="litter">Item T To Be Cached</param>
-        /// <returns>Success True|False</returns>
-        Task<bool> SetItem<T>(string key, LitterBoxItem<T> litter);
 
         #endregion
 

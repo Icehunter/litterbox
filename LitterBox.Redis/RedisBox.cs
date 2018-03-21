@@ -11,7 +11,6 @@
 namespace LitterBox.Redis {
     using System;
     using System.Collections.Concurrent;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using LitterBox.Interfaces;
@@ -71,7 +70,7 @@ namespace LitterBox.Redis {
         #endregion
 
         #region Redis Properties
-        
+
         /// <summary>
         ///     RedisCache Config
         /// </summary>
@@ -189,10 +188,14 @@ namespace LitterBox.Redis {
         /// </summary>
         /// <typeparam name="T">Type Of Cached Value</typeparam>
         /// <param name="key">Key Lookup</param>
-        /// <param name="litter">Item T To Be Cached</param>
+        /// <param name="original">Item T To Be Cached</param>
         /// <returns>Success True|False</returns>
-        public async Task<bool> SetItem<T>(string key, LitterBoxItem<T> litter) {
+        public async Task<bool> SetItem<T>(string key, LitterBoxItem<T> original) {
             var success = false;
+
+            // when using multi-caching; modifying the TTR and TTL on the object collides with other caches
+            // clone using JsonConvert
+            var litter = Utilities.Clone(original);
 
             litter.TimeToRefresh = litter.TimeToRefresh ?? (int) this._configuration.DefaultTimeToRefresh.TotalSeconds;
             litter.TimeToLive = litter.TimeToLive ?? (int) this._configuration.DefaultTimeToLive.TotalSeconds;

@@ -52,6 +52,16 @@ namespace LitterBox {
                 });
         }
 
+        /// <summary>
+        /// Clone Object Using JsonConvert
+        /// </summary>
+        /// <typeparam name="T">Type Of Value</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>T Value</returns>
+        public static T Clone<T>(T value) {
+            return Deserialize<T>(Serialize(value));
+        }
+
         #endregion
     }
 }
