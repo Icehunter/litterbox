@@ -235,13 +235,11 @@ namespace LitterBox.Memory {
                 return;
             }
 
-            if (this._inProcess.ContainsKey(key)) {
+            if (!this._inProcess.TryAdd(key, true)) {
                 return;
             }
 
-            this._inProcess.TryAdd(key, true);
-
-            Task.Run(async () => await this.SetItem(key, litter).ConfigureAwait(false)).ConfigureAwait(false);
+            Task.Run(() => this.SetItem(key, litter)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -263,11 +261,9 @@ namespace LitterBox.Memory {
                 return;
             }
 
-            if (this._inProcess.ContainsKey(key)) {
+            if (!this._inProcess.TryAdd(key, true)) {
                 return;
             }
-
-            this._inProcess.TryAdd(key, true);
 
             Task.Run(
                 async () => {
