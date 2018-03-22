@@ -122,7 +122,13 @@ namespace LitterBox {
         /// <param name="key">Key Lookup</param>
         /// <returns>TenancyItem => LitterBoxItem T</returns>
         public async Task<LitterBoxItem<T>> GetItem<T>(string key) {
-            foreach (var cache in this._caches) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.GetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return null;
+            }
+
+            for (var i = 0; i < this._caches.Length; i++) {
+                var cache = this._caches[i];
                 var result = await cache.GetItem<T>(key).ConfigureAwait(false);
                 if (result != null) {
                     result.Key = key;
@@ -144,6 +150,16 @@ namespace LitterBox {
         /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         /// <returns>TenancyItem => LitterBoxItem T</returns>
         public async Task<LitterBoxItem<T>> GetItem<T>(string key, Func<Task<T>> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.GetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return null;
+            }
+
+            if (generator == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.GetItem)}=>{nameof(generator)} Cannot Be Null"));
+                return null;
+            }
+
             var foundIndex = 0;
             LitterBoxItem<T> result = null;
 
@@ -183,7 +199,7 @@ namespace LitterBox {
             if (result == null) {
                 foundIndex = this._caches.Length;
                 result = new LitterBoxItem<T> {
-                    Value = await Task.Run(generator).ConfigureAwait(false),
+                    Value = await generator().ConfigureAwait(false),
                     TimeToLive = toLive,
                     TimeToRefresh = toRefresh
                 };
@@ -203,10 +219,18 @@ namespace LitterBox {
         /// <typeparam name="T">Type Of Cached Values</typeparam>
         /// <param name="keys">Key Lookups</param>
         /// <returns>List TenancyItem => LitterBoxItem T</returns>
-        public async Task<LitterBoxItem<T>[]> GetItems<T>(string[] keys) {
-            var tasks = keys.Select(key => Task.Run(async () => await this.GetItem<T>(key).ConfigureAwait(false)));
+        public Task<LitterBoxItem<T>[]> GetItems<T>(string[] keys) {
+            if (keys == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)} Cannot Be Null"));
+                return null;
+            }
 
-            return await Task.WhenAll(tasks).ConfigureAwait(false);
+            if (keys.Length == 0) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)}.Length Must Be Greater Than 0"));
+                return null;
+            }
+
+            return Task.WhenAll(keys.Select(this.GetItem<T>));
         }
 
         /// <summary>
@@ -218,9 +242,29 @@ namespace LitterBox {
         /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
         /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         /// <returns>List TenancyItem => LitterBoxItem T</returns>
-        public async Task<LitterBoxItem<T>[]> GetItems<T>(string[] keys, Func<Task<T>>[] generators, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+        public Task<LitterBoxItem<T>[]> GetItems<T>(string[] keys, Func<Task<T>>[] generators, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            if (keys == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)} Cannot Be Null"));
+                return null;
+            }
+
+            if (generators == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(generators)} Cannot Be Null"));
+                return null;
+            }
+
+            if (keys.Length == 0) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)}.Length Must Be Greater Than 0"));
+                return null;
+            }
+
+            if (generators.Length == 0) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(generators)}.Length Must Be Greater Than 0"));
+                return null;
+            }
+
             if (keys.Length != generators.Length) {
-                this.RaiseException(new ArgumentException("Keys.Count/Generators.Count Must Be Equal"));
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)}.Length/{nameof(generators)}.Length Must Be Equal"));
                 return null;
             }
 
@@ -229,10 +273,15 @@ namespace LitterBox {
             for (var i = 0; i < keys.Length; i++) {
                 var key = keys[i];
                 var generator = generators[i];
-                tasks.Add(Task.Run(async () => await this.GetItem(key, generator, timeToRefresh, timeToLive).ConfigureAwait(false)));
+                if (string.IsNullOrWhiteSpace(key) || generator == null) {
+                    tasks.Add(Task.FromResult<LitterBoxItem<T>>(null));
+                }
+                else {
+                    tasks.Add(this.GetItem(key, generator, timeToRefresh, timeToLive));
+                }
             }
 
-            return await Task.WhenAll(tasks).ConfigureAwait(false);
+            return Task.WhenAll(tasks);
         }
 
         #endregion
@@ -247,6 +296,16 @@ namespace LitterBox {
         /// <param name="litter">Item T To Be Cached</param>
         /// <returns>Success True|False (For Each Cache)</returns>
         public async Task<StorageResult[]> SetItem<T>(string key, LitterBoxItem<T> litter) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return null;
+            }
+
+            if (litter == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(litter)} Cannot Be Null"));
+                return null;
+            }
+
             var results = new StorageResult[this._caches.Length];
 
             for (var i = 0; i < this._caches.Length; i++) {
@@ -268,9 +327,29 @@ namespace LitterBox {
         /// <param name="keys">Key Lookups</param>
         /// <param name="litters">Items T To Be Cached</param>
         /// <returns>Success True|False (For Each Cache)</returns>
-        public async Task<StorageResult[][]> SetItems<T>(string[] keys, LitterBoxItem<T>[] litters) {
+        public Task<StorageResult[][]> SetItems<T>(string[] keys, LitterBoxItem<T>[] litters) {
+            if (keys == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)} Cannot Be Null"));
+                return null;
+            }
+
+            if (litters == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(litters)} Cannot Be Null"));
+                return null;
+            }
+
+            if (keys.Length == 0) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)}.Length Must Be Greater Than 0"));
+                return null;
+            }
+
+            if (litters.Length == 0) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(litters)}.Length Must Be Greater Than 0"));
+                return null;
+            }
+
             if (keys.Length != litters.Length) {
-                this.RaiseException(new ArgumentException("Keys.Count/LitterBoxItems.Count Must Be Equal"));
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)}.Length/{nameof(litters)}.Length Must Be Equal"));
                 return null;
             }
 
@@ -279,10 +358,15 @@ namespace LitterBox {
             for (var i = 0; i < keys.Length; i++) {
                 var key = keys[i];
                 var litter = litters[i];
-                tasks.Add(Task.Run(async () => await this.SetItem(key, litter).ConfigureAwait(false)));
+                if (string.IsNullOrWhiteSpace(key) || litter == null) {
+                    tasks.Add(Task.FromResult<StorageResult[]>(null));
+                }
+                else {
+                    tasks.Add(this.SetItem(key, litter));
+                }
             }
 
-            return await Task.WhenAll(tasks).ConfigureAwait(false);
+            return Task.WhenAll(tasks);
         }
 
         #endregion
@@ -296,6 +380,16 @@ namespace LitterBox {
         /// <param name="key">Key Lookup</param>
         /// <param name="litter">Item T To Be Cached</param>
         public void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return;
+            }
+
+            if (litter == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(litter)} Cannot Be Null"));
+                return;
+            }
+
             Task.Run(
                 () => {
                     foreach (var cache in this._caches) {
@@ -313,6 +407,16 @@ namespace LitterBox {
         /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
         /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         public void SetItemFireAndForget<T>(string key, Func<T> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return;
+            }
+
+            if (generator == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(generator)} Cannot Be Null"));
+                return;
+            }
+
             Task.Run(() => this.SetItemFireAndForget(key, () => Task.Run(generator), timeToRefresh, timeToLive)).ConfigureAwait(false);
         }
 
@@ -325,6 +429,16 @@ namespace LitterBox {
         /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
         /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         public void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return;
+            }
+
+            if (generator == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(generator)} Cannot Be Null"));
+                return;
+            }
+
             Task.Run(
                 () => {
                     foreach (var cache in this._caches) {

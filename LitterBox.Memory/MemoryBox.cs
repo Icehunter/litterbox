@@ -31,10 +31,7 @@ namespace LitterBox.Memory {
                 PoolSize = 1
             };
 
-            var connection = new MemoryConnection(this._configuration);
-
-            // connect on a seperate thread; relative to poolSize
-            Task.Run(async () => await this.Pool.Initialize(connection).ConfigureAwait(false)).Wait();
+            this.Pool.Initialize(new MemoryConnection(this._configuration)).Wait();
         }
 
         #region Event Handlers
@@ -131,24 +128,23 @@ namespace LitterBox.Memory {
         /// <typeparam name="T">Type Of Cached Value</typeparam>
         /// <param name="key">Key Lookup</param>
         /// <returns>LitterBoxItem T</returns>
-        public async Task<LitterBoxItem<T>> GetItem<T>(string key) {
-            LitterBoxItem<T> result = null;
+        public Task<LitterBoxItem<T>> GetItem<T>(string key) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.GetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return null;
+            }
 
             try {
-                result = await Task.Run(
-                             () => {
-                                 if (this.GetPooledConnection<MemoryConnection>().Cache.TryGetValue(key, out var bytes)) {
-                                     return Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
-                                 }
-
-                                 return null;
-                             }).ConfigureAwait(false);
+                if (this.GetPooledConnection<MemoryConnection>().Cache.TryGetValue(key, out var bytes)) {
+                    var item = Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
+                    return Task.FromResult(item);
+                }
             }
             catch (Exception ex) {
                 this.RaiseException(ex);
             }
 
-            return result;
+            return null;
         }
 
         #endregion
@@ -183,12 +179,21 @@ namespace LitterBox.Memory {
         /// <param name="key">Key Lookup</param>
         /// <param name="original">Item T To Be Cached</param>
         /// <returns>Success True|False</returns>
-        public async Task<bool> SetItem<T>(string key, LitterBoxItem<T> original) {
+        public Task<bool> SetItem<T>(string key, LitterBoxItem<T> original) {
             var success = false;
 
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return Task.FromResult(success);
+            }
+
+            if (original == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(original)} Cannot Be Null"));
+                return Task.FromResult(success);
+            }
+
             // when using multi-caching; modifying the TTR and TTL on the object collides with other caches
-            // clone using JsonConvert
-            var litter = Utilities.Clone(original);
+            var litter = original.Clone();
 
             litter.TimeToRefresh = litter.TimeToRefresh ?? (int) this._configuration.DefaultTimeToRefresh.TotalSeconds;
             litter.TimeToLive = litter.TimeToLive ?? (int) this._configuration.DefaultTimeToLive.TotalSeconds;
@@ -196,7 +201,7 @@ namespace LitterBox.Memory {
             try {
                 var json = Utilities.Serialize(litter);
                 if (!string.IsNullOrWhiteSpace(json)) {
-                    await Task.Run(() => this.GetPooledConnection<MemoryConnection>().Cache.Set(key, Compression.Zip(json), TimeSpan.FromSeconds((double) litter.TimeToLive))).ConfigureAwait(false);
+                    this.GetPooledConnection<MemoryConnection>().Cache.Set(key, Compression.Zip(json), TimeSpan.FromSeconds((double) litter.TimeToLive));
                     success = true;
                 }
             }
@@ -206,7 +211,7 @@ namespace LitterBox.Memory {
 
             this._inProcess.TryRemove(key, out var removed);
 
-            return success;
+            return Task.FromResult(success);
         }
 
         #endregion
@@ -220,7 +225,13 @@ namespace LitterBox.Memory {
         /// <param name="key">Key Lookup</param>
         /// <param name="litter">Item T To Be Cached</param>
         public void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return;
+            }
+
             if (litter == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(litter)} Cannot Be Null"));
                 return;
             }
 
@@ -244,6 +255,16 @@ namespace LitterBox.Memory {
         /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
         /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         public void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return;
+            }
+
+            if (generator == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(generator)} Cannot Be Null"));
+                return;
+            }
+
             Task.Run(
                 async () => {
                     if (this._inProcess.ContainsKey(key)) {
@@ -263,7 +284,7 @@ namespace LitterBox.Memory {
                     }
 
                     try {
-                        var item = await Task.Run(generator).ConfigureAwait(false);
+                        var item = await generator().ConfigureAwait(false);
                         if (item != null) {
                             var litter = new LitterBoxItem<T> {
                                 Value = item,
