@@ -31,10 +31,7 @@ namespace LitterBox.Memory {
                 PoolSize = 1
             };
 
-            var connection = new MemoryConnection(this._configuration);
-
-            // connect on a seperate thread; relative to poolSize
-            Task.Run(async () => await this.Pool.Initialize(connection).ConfigureAwait(false)).Wait();
+            this.Pool.Initialize(new MemoryConnection(this._configuration)).Wait();
         }
 
         #region Event Handlers
@@ -132,23 +129,22 @@ namespace LitterBox.Memory {
         /// <param name="key">Key Lookup</param>
         /// <returns>LitterBoxItem T</returns>
         public async Task<LitterBoxItem<T>> GetItem<T>(string key) {
-            LitterBoxItem<T> result = null;
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.GetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return null;
+            }
 
             try {
-                result = await Task.Run(
-                             () => {
-                                 if (this.GetPooledConnection<MemoryConnection>().Cache.TryGetValue(key, out var bytes)) {
-                                     return Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
-                                 }
-
-                                 return null;
-                             }).ConfigureAwait(false);
+                if (this.GetPooledConnection<MemoryConnection>().Cache.TryGetValue(key, out var bytes)) {
+                    var item = Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
+                    return item;
+                }
             }
             catch (Exception ex) {
                 this.RaiseException(ex);
             }
 
-            return result;
+            return null;
         }
 
         #endregion
@@ -186,9 +182,18 @@ namespace LitterBox.Memory {
         public async Task<bool> SetItem<T>(string key, LitterBoxItem<T> original) {
             var success = false;
 
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return success;
+            }
+
+            if (original == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(original)} Cannot Be Null"));
+                return success;
+            }
+
             // when using multi-caching; modifying the TTR and TTL on the object collides with other caches
-            // clone using JsonConvert
-            var litter = Utilities.Clone(original);
+            var litter = original.Clone();
 
             litter.TimeToRefresh = litter.TimeToRefresh ?? (int) this._configuration.DefaultTimeToRefresh.TotalSeconds;
             litter.TimeToLive = litter.TimeToLive ?? (int) this._configuration.DefaultTimeToLive.TotalSeconds;
@@ -220,19 +225,21 @@ namespace LitterBox.Memory {
         /// <param name="key">Key Lookup</param>
         /// <param name="litter">Item T To Be Cached</param>
         public void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter) {
-            if (litter == null) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
                 return;
             }
 
-            Task.Run(
-                async () => {
-                    if (this._inProcess.ContainsKey(key)) {
-                        return;
-                    }
+            if (litter == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(litter)} Cannot Be Null"));
+                return;
+            }
 
-                    this._inProcess.TryAdd(key, true);
-                    await this.SetItem(key, litter).ConfigureAwait(false);
-                }).ConfigureAwait(false);
+            if (!this._inProcess.TryAdd(key, true)) {
+                return;
+            }
+
+            Task.Run(() => this.SetItem(key, litter)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -244,14 +251,22 @@ namespace LitterBox.Memory {
         /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
         /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         public void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return;
+            }
+
+            if (generator == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(generator)} Cannot Be Null"));
+                return;
+            }
+
+            if (!this._inProcess.TryAdd(key, true)) {
+                return;
+            }
+
             Task.Run(
                 async () => {
-                    if (this._inProcess.ContainsKey(key)) {
-                        return;
-                    }
-
-                    this._inProcess.TryAdd(key, true);
-
                     int? toLive = null;
                     int? toRefresh = null;
                     if (timeToLive != null) {
@@ -263,7 +278,7 @@ namespace LitterBox.Memory {
                     }
 
                     try {
-                        var item = await Task.Run(generator).ConfigureAwait(false);
+                        var item = await generator().ConfigureAwait(false);
                         if (item != null) {
                             var litter = new LitterBoxItem<T> {
                                 Value = item,

@@ -34,10 +34,7 @@ namespace LitterBox.DocumentDB {
                 PoolSize = this._configuration.PoolSize
             };
 
-            var connection = new DocumentDBConnection(this._configuration);
-
-            // connect on a seperate thread; relative to poolSize
-            Task.Run(async () => await this.Pool.Initialize(connection).ConfigureAwait(false)).Wait();
+            this.Pool.Initialize(new DocumentDBConnection(this._configuration)).Wait();
         }
 
         #region Event Handlers
@@ -146,7 +143,10 @@ namespace LitterBox.DocumentDB {
         /// <param name="key">Key Lookup</param>
         /// <returns>LitterBoxItem T</returns>
         public async Task<LitterBoxItem<T>> GetItem<T>(string key) {
-            LitterBoxItem<T> result = null;
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.GetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return null;
+            }
 
             try {
                 var uri = UriFactory.CreateDocumentUri(this._configuration.Database, this._configuration.Collection, key);
@@ -155,13 +155,13 @@ namespace LitterBox.DocumentDB {
                     DisableRUPerMinuteUsage = true,
                     PartitionKey = new PartitionKey(this._configuration.PartitionKey)
                 };
-                result = await this.GetPooledConnection<DocumentDBConnection>().Cache.ReadDocumentAsync<LitterBoxItem<T>>(uri, requestOptions).ConfigureAwait(false);
+                return await this.GetPooledConnection<DocumentDBConnection>().Cache.ReadDocumentAsync<LitterBoxItem<T>>(uri, requestOptions).ConfigureAwait(false);
             }
             catch (Exception ex) {
                 this.RaiseException(ex);
             }
 
-            return result;
+            return null;
         }
 
         #endregion
@@ -197,11 +197,20 @@ namespace LitterBox.DocumentDB {
         /// <param name="original">Item T To Be Cached</param>
         /// <returns>Success True|False</returns>
         public async Task<bool> SetItem<T>(string key, LitterBoxItem<T> original) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return false;
+            }
+
+            if (original == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(original)} Cannot Be Null"));
+                return false;
+            }
+
             var success = false;
 
             // when using multi-caching; modifying the TTR and TTL on the object collides with other caches
-            // clone using JsonConvert
-            var litter = Utilities.Clone(original);
+            var litter = original.Clone();
 
             litter.TimeToRefresh = litter.TimeToRefresh ?? (int) this._configuration.DefaultTimeToRefresh.TotalSeconds;
             litter.TimeToLive = litter.TimeToLive ?? (int) this._configuration.DefaultTimeToLive.TotalSeconds;
@@ -239,19 +248,21 @@ namespace LitterBox.DocumentDB {
         /// <param name="key">Key Lookup</param>
         /// <param name="litter">Item T To Be Cached</param>
         public void SetItemFireAndForget<T>(string key, LitterBoxItem<T> litter) {
-            if (litter == null) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
                 return;
             }
 
-            Task.Run(
-                async () => {
-                    if (this._inProcess.ContainsKey(key)) {
-                        return;
-                    }
+            if (litter == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(litter)} Cannot Be Null"));
+                return;
+            }
 
-                    this._inProcess.TryAdd(key, true);
-                    await this.SetItem(key, litter).ConfigureAwait(false);
-                }).ConfigureAwait(false);
+            if (!this._inProcess.TryAdd(key, true)) {
+                return;
+            }
+
+            Task.Run(() => this.SetItem(key, litter)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -263,14 +274,22 @@ namespace LitterBox.DocumentDB {
         /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
         /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         public void SetItemFireAndForget<T>(string key, Func<Task<T>> generator, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+            if (string.IsNullOrWhiteSpace(key)) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
+                return;
+            }
+
+            if (generator == null) {
+                this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(generator)} Cannot Be Null"));
+                return;
+            }
+
+            if (!this._inProcess.TryAdd(key, true)) {
+                return;
+            }
+
             Task.Run(
                 async () => {
-                    if (this._inProcess.ContainsKey(key)) {
-                        return;
-                    }
-
-                    this._inProcess.TryAdd(key, true);
-
                     int? toLive = null;
                     int? toRefresh = null;
                     if (timeToLive != null) {
@@ -282,7 +301,7 @@ namespace LitterBox.DocumentDB {
                     }
 
                     try {
-                        var item = await Task.Run(generator).ConfigureAwait(false);
+                        var item = await generator().ConfigureAwait(false);
                         if (item != null) {
                             var litter = new LitterBoxItem<T> {
                                 Value = item,

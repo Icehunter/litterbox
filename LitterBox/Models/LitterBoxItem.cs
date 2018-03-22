@@ -54,6 +54,21 @@ namespace LitterBox.Models {
         [JsonProperty(PropertyName = "value")]
         public T Value { get; set; }
 
+        #region ICloneable Implementation
+
+        public LitterBoxItem<T> Clone() {
+            return new LitterBoxItem<T> {
+                CacheType = this.CacheType,
+                Created = this.Created,
+                Key = this.Key,
+                TimeToLive = this.TimeToLive,
+                TimeToRefresh = this.TimeToRefresh,
+                Value = this.Value
+            };
+        }
+
+        #endregion
+
         /// <summary>
         ///     Helper Function For Expiration
         /// </summary>

@@ -11,12 +11,12 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageTags>csharp memory caching litterbox</PackageTags>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <Version>6.1.0</Version>
+        <Version>6.2.0</Version>
         <Company>SyndicatedLife</Company>
         <Product>LitterBox</Product>
         <Description>LitterBox Caching Base</Description>
         <Copyright>Copyright © 2017 Ryan Wilson</Copyright>
-        <FileVersion>6.1.0.0</FileVersion>
+        <FileVersion>6.2.0.0</FileVersion>
         <AssemblyVersion>6.0.0.0</AssemblyVersion>
     </PropertyGroup>
 
