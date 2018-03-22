@@ -128,7 +128,7 @@ namespace LitterBox.Memory {
         /// <typeparam name="T">Type Of Cached Value</typeparam>
         /// <param name="key">Key Lookup</param>
         /// <returns>LitterBoxItem T</returns>
-        public Task<LitterBoxItem<T>> GetItem<T>(string key) {
+        public async Task<LitterBoxItem<T>> GetItem<T>(string key) {
             if (string.IsNullOrWhiteSpace(key)) {
                 this.RaiseException(new ArgumentException($"{nameof(this.GetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
                 return null;
@@ -137,7 +137,7 @@ namespace LitterBox.Memory {
             try {
                 if (this.GetPooledConnection<MemoryConnection>().Cache.TryGetValue(key, out var bytes)) {
                     var item = Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
-                    return Task.FromResult(item);
+                    return item;
                 }
             }
             catch (Exception ex) {
@@ -179,17 +179,17 @@ namespace LitterBox.Memory {
         /// <param name="key">Key Lookup</param>
         /// <param name="original">Item T To Be Cached</param>
         /// <returns>Success True|False</returns>
-        public Task<bool> SetItem<T>(string key, LitterBoxItem<T> original) {
+        public async Task<bool> SetItem<T>(string key, LitterBoxItem<T> original) {
             var success = false;
 
             if (string.IsNullOrWhiteSpace(key)) {
                 this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
-                return Task.FromResult(success);
+                return success;
             }
 
             if (original == null) {
                 this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(original)} Cannot Be Null"));
-                return Task.FromResult(success);
+                return success;
             }
 
             // when using multi-caching; modifying the TTR and TTL on the object collides with other caches
@@ -201,7 +201,7 @@ namespace LitterBox.Memory {
             try {
                 var json = Utilities.Serialize(litter);
                 if (!string.IsNullOrWhiteSpace(json)) {
-                    this.GetPooledConnection<MemoryConnection>().Cache.Set(key, Compression.Zip(json), TimeSpan.FromSeconds((double) litter.TimeToLive));
+                    await Task.Run(() => this.GetPooledConnection<MemoryConnection>().Cache.Set(key, Compression.Zip(json), TimeSpan.FromSeconds((double) litter.TimeToLive))).ConfigureAwait(false);
                     success = true;
                 }
             }
@@ -211,7 +211,7 @@ namespace LitterBox.Memory {
 
             this._inProcess.TryRemove(key, out var removed);
 
-            return Task.FromResult(success);
+            return success;
         }
 
         #endregion
@@ -235,15 +235,13 @@ namespace LitterBox.Memory {
                 return;
             }
 
-            Task.Run(
-                async () => {
-                    if (this._inProcess.ContainsKey(key)) {
-                        return;
-                    }
+            if (this._inProcess.ContainsKey(key)) {
+                return;
+            }
 
-                    this._inProcess.TryAdd(key, true);
-                    await this.SetItem(key, litter).ConfigureAwait(false);
-                }).ConfigureAwait(false);
+            this._inProcess.TryAdd(key, true);
+
+            Task.Run(async () => await this.SetItem(key, litter).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -265,14 +263,14 @@ namespace LitterBox.Memory {
                 return;
             }
 
+            if (this._inProcess.ContainsKey(key)) {
+                return;
+            }
+
+            this._inProcess.TryAdd(key, true);
+
             Task.Run(
                 async () => {
-                    if (this._inProcess.ContainsKey(key)) {
-                        return;
-                    }
-
-                    this._inProcess.TryAdd(key, true);
-
                     int? toLive = null;
                     int? toRefresh = null;
                     if (timeToLive != null) {

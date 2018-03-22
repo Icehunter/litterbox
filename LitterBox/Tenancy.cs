@@ -219,7 +219,7 @@ namespace LitterBox {
         /// <typeparam name="T">Type Of Cached Values</typeparam>
         /// <param name="keys">Key Lookups</param>
         /// <returns>List TenancyItem => LitterBoxItem T</returns>
-        public Task<LitterBoxItem<T>[]> GetItems<T>(string[] keys) {
+        public async Task<LitterBoxItem<T>[]> GetItems<T>(string[] keys) {
             if (keys == null) {
                 this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)} Cannot Be Null"));
                 return null;
@@ -230,7 +230,7 @@ namespace LitterBox {
                 return null;
             }
 
-            return Task.WhenAll(keys.Select(this.GetItem<T>));
+            return await Task.WhenAll(keys.Select(this.GetItem<T>)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace LitterBox {
         /// <param name="timeToRefresh">How Long After Creation To Be Considered "Good"</param>
         /// <param name="timeToLive">How Long After Creation To Auto-Delete</param>
         /// <returns>List TenancyItem => LitterBoxItem T</returns>
-        public Task<LitterBoxItem<T>[]> GetItems<T>(string[] keys, Func<Task<T>>[] generators, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
+        public async Task<LitterBoxItem<T>[]> GetItems<T>(string[] keys, Func<Task<T>>[] generators, TimeSpan? timeToRefresh = null, TimeSpan? timeToLive = null) {
             if (keys == null) {
                 this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)} Cannot Be Null"));
                 return null;
@@ -281,7 +281,7 @@ namespace LitterBox {
                 }
             }
 
-            return Task.WhenAll(tasks);
+            return await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         #endregion
@@ -327,7 +327,7 @@ namespace LitterBox {
         /// <param name="keys">Key Lookups</param>
         /// <param name="litters">Items T To Be Cached</param>
         /// <returns>Success True|False (For Each Cache)</returns>
-        public Task<StorageResult[][]> SetItems<T>(string[] keys, LitterBoxItem<T>[] litters) {
+        public async Task<StorageResult[][]> SetItems<T>(string[] keys, LitterBoxItem<T>[] litters) {
             if (keys == null) {
                 this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)} Cannot Be Null"));
                 return null;
@@ -366,7 +366,7 @@ namespace LitterBox {
                 }
             }
 
-            return Task.WhenAll(tasks);
+            return await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         #endregion

@@ -250,15 +250,13 @@ namespace LitterBox.Redis {
                 return;
             }
 
-            Task.Run(
-                async () => {
-                    if (this._inProcess.ContainsKey(key)) {
-                        return;
-                    }
+            if (this._inProcess.ContainsKey(key)) {
+                return;
+            }
 
-                    this._inProcess.TryAdd(key, true);
-                    await this.SetItem(key, litter).ConfigureAwait(false);
-                }).ConfigureAwait(false);
+            this._inProcess.TryAdd(key, true);
+
+            Task.Run(async () => await this.SetItem(key, litter).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -280,14 +278,14 @@ namespace LitterBox.Redis {
                 return;
             }
 
+            if (this._inProcess.ContainsKey(key)) {
+                return;
+            }
+
+            this._inProcess.TryAdd(key, true);
+
             Task.Run(
                 async () => {
-                    if (this._inProcess.ContainsKey(key)) {
-                        return;
-                    }
-
-                    this._inProcess.TryAdd(key, true);
-
                     int? toLive = null;
                     int? toRefresh = null;
                     if (timeToLive != null) {
