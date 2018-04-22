@@ -137,6 +137,13 @@ namespace LitterBox.Memory {
             try {
                 if (this.GetPooledConnection<MemoryConnection>().Cache.TryGetValue(key, out var bytes)) {
                     var item = Utilities.Deserialize<LitterBoxItem<T>>(Compression.Unzip(bytes));
+                    if (item.IsExpired()) {
+                        // it's possible that the expiration timer hasn't hit this key yet; but we should remove it now
+                        // in this way it acts like other datastores that have autoflushing
+                        this.GetPooledConnection<MemoryConnection>().Cache.Delete(key);
+                        return null;
+                    }
+
                     return item;
                 }
             }

@@ -171,15 +171,9 @@ namespace LitterBox {
                     result.Key = key;
                     result.CacheType = cache.GetType();
 
-                    // if only stale then refresh this cache and any cache UP the chain
-                    // present stale data to caller
-                    if (result.IsStale() && !result.IsExpired()) {
+                    // if the item is stale; refresh this cache only at this time
+                    if (result.IsStale()) {
                         cache.SetItemFireAndForget(key, generator, timeToRefresh, timeToLive);
-                    }
-
-                    // if the result is expired, move on to the next cache and set current to null
-                    if (result.IsExpired()) {
-                        result = null;
                     }
 
                     break;
@@ -198,16 +192,32 @@ namespace LitterBox {
 
             if (result == null) {
                 foundIndex = this._caches.Length;
-                result = new LitterBoxItem<T> {
-                    Value = await generator().ConfigureAwait(false),
-                    TimeToLive = toLive,
-                    TimeToRefresh = toRefresh
-                };
+                try {
+                    result = new LitterBoxItem<T> {
+                        Value = await generator().ConfigureAwait(false),
+                        TimeToLive = toLive,
+                        TimeToRefresh = toRefresh
+                    };
+                }
+                catch (Exception ex) {
+                    this.RaiseException(ex);
+                }
             }
 
-            for (var i = 0; i < foundIndex; i++) {
-                var cache = this._caches[i];
-                cache.SetItemFireAndForget(key, result);
+            if (result != null) {
+                for (var i = 0; i < foundIndex; i++) {
+                    var cache = this._caches[i];
+
+                    // if the result was stale and was also found in a cache
+                    // refresh all caches from until the cache it was found in
+                    if (result.IsStale() && result.CacheType != null) {
+                        cache.SetItemFireAndForget(key, generator, timeToRefresh, timeToLive);
+                    }
+                    else {
+                        // else we can just save the item into the cache and not regenerate
+                        cache.SetItemFireAndForget(key, result);
+                    }
+                }
             }
 
             return result;

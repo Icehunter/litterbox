@@ -51,6 +51,15 @@ namespace LitterBox.Memory {
         /// </summary>
         private Timer _expirationTimer { get; }
 
+        /// <summary>
+        ///     Delete Value
+        /// </summary>
+        /// <param name="key">Cache Key</param>
+        /// <returns>Success True|False</returns>
+        public bool Delete(string key) {
+            return this._cache.TryRemove(key, out var removed);
+        }
+
         #region IDisposable Implementation
 
         /// <summary>
