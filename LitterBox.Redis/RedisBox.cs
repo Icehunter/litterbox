@@ -285,11 +285,11 @@ namespace LitterBox.Redis {
                     int? toLive = null;
                     int? toRefresh = null;
                     if (timeToLive != null) {
-                        toLive = ((TimeSpan) timeToLive).Seconds;
+                        toLive = (int) ((TimeSpan) timeToLive).TotalSeconds;
                     }
 
                     if (timeToRefresh != null) {
-                        toRefresh = ((TimeSpan) timeToRefresh).Seconds;
+                        toRefresh = (int) ((TimeSpan) timeToRefresh).TotalSeconds;
                     }
 
                     try {

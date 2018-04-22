@@ -11,13 +11,13 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageTags>csharp memory caching litterbox documentdb</PackageTags>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <Version>3.2.1</Version>
+        <Version>3.2.2</Version>
         <Company>SyndicatedLife</Company>
         <Product>LitterBox.DocumentDB</Product>
         <Description>DocumentDB Adaptor For LitterBox Caching</Description>
         <Copyright>Copyright © 2017 Ryan Wilson</Copyright>
         <AssemblyVersion>3.0.0.0</AssemblyVersion>
-        <FileVersion>3.2.1.0</FileVersion>
+        <FileVersion>3.2.2.0</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -43,7 +43,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="LitterBox" Version="6.2.1" />
+        <PackageReference Include="LitterBox" Version="6.2.2" />
         <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.10.0" />
         <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     </ItemGroup>
