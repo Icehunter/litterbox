@@ -1,0 +1,21 @@
+# editors
+.idea/
+.vscode/
+
+# dependencies
+flow-typed/
+node_modules/
+
+# testing
+coverage/
+
+# production
+lib/
+
+# misc
+.DS_Store
+.env*
+
+# logs
+*.log*
+package-lock.json
