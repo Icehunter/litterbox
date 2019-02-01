@@ -55,7 +55,8 @@ export class MemoryBox implements ILitterBox {
     try {
       const item = this.GetPooledConnection().Cache.Get(key);
       if (item) {
-        const litter = new LitterBoxItem(Compression.UnZip(item));
+        const value = this._configuration.UseGZIPCompression ? Compression.UnZip(item) : JSON.parse(item);
+        const litter = new LitterBoxItem(value);
         if (litter.IsExpired()) {
           this.GetPooledConnection().Cache.Delete(key);
           return null;
@@ -91,12 +92,14 @@ export class MemoryBox implements ILitterBox {
     litter.TimeToLive = litter.TimeToLive || this._configuration.DefaultTimeToLive;
 
     try {
-      const item = Compression.Zip(litter);
+      const item = this._configuration.UseGZIPCompression ? Compression.Zip(litter) : JSON.stringify(litter);
       this.GetPooledConnection().Cache.Set(key, item);
       success = true;
     } catch (err) {
       this.RaiseException(err);
     }
+
+    Reflect.deleteProperty(this._inProcess, key);
 
     return success;
   };
@@ -107,6 +110,10 @@ export class MemoryBox implements ILitterBox {
     }
     if (!litter) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(litter)} Cannot Be Null"));
+      return;
+    }
+
+    if (this._inProcess[key]) {
       return;
     }
 
@@ -128,6 +135,10 @@ export class MemoryBox implements ILitterBox {
     }
     if (!generator) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForgetGenerated)}=>{nameof(generator)} Cannot Be Null"));
+      return;
+    }
+
+    if (this._inProcess[key]) {
       return;
     }
 

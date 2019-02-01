@@ -64,12 +64,13 @@ export class RedisBox implements ILitterBox {
     try {
       const get = () =>
         new Promise((resolve, reject) => {
-          this.GetPooledConnection().Cache.hget(key, 'litter', (err, value) => {
+          this.GetPooledConnection().Cache.hget(key, 'litter', (err, item) => {
             if (err) {
               return reject(err);
             }
-            if (value) {
-              resolve(new LitterBoxItem(Compression.UnZip(value)));
+            if (item) {
+              const value = this._configuration.UseGZIPCompression ? Compression.UnZip(item) : JSON.parse(item);
+              return resolve(new LitterBoxItem(value));
             }
             resolve(null);
           });
@@ -104,13 +105,15 @@ export class RedisBox implements ILitterBox {
     litter.TimeToLive = litter.TimeToLive || this._configuration.DefaultTimeToLive;
 
     try {
-      const item = Compression.Zip(litter);
+      const item = this._configuration.UseGZIPCompression ? Compression.Zip(litter) : JSON.stringify(litter);
       this.GetPooledConnection().Cache.hset(key, 'litter', item);
       this.GetPooledConnection().Cache.expire(key, litter.TimeToLive);
       success = true;
     } catch (err) {
       this.RaiseException(err);
     }
+
+    Reflect.deleteProperty(this._inProcess, key);
 
     return success;
   };
@@ -121,6 +124,10 @@ export class RedisBox implements ILitterBox {
     }
     if (!litter) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(litter)} Cannot Be Null"));
+      return;
+    }
+
+    if (this._inProcess[key]) {
       return;
     }
 
@@ -142,6 +149,10 @@ export class RedisBox implements ILitterBox {
     }
     if (!generator) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForgetGenerated)}=>{nameof(generator)} Cannot Be Null"));
+      return;
+    }
+
+    if (this._inProcess[key]) {
       return;
     }
 
