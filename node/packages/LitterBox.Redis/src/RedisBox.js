@@ -75,7 +75,9 @@ export class RedisBox implements ILitterBox {
             resolve(null);
           });
         });
-      return await get();
+      return await get().catch((err) => {
+        throw err;
+      });
     } catch (err) {
       this.RaiseException(err);
     }
@@ -106,9 +108,37 @@ export class RedisBox implements ILitterBox {
 
     try {
       const item = this._configuration.UseGZIPCompression ? Compression.Zip(litter) : JSON.stringify(litter);
-      this.GetPooledConnection().Cache.hset(key, 'litter', item);
-      this.GetPooledConnection().Cache.expire(key, litter.TimeToLive);
-      success = true;
+      const set = () =>
+        Promise.resolve(item)
+          .then(
+            (item) =>
+              new Promise((resolve, reject) => {
+                this.GetPooledConnection().Cache.hset(key, 'litter', item, (err) => {
+                  if (err) {
+                    return reject(err);
+                  }
+                  resolve();
+                });
+              })
+          )
+          .then(
+            () =>
+              new Promise((resolve, reject) => {
+                this.GetPooledConnection().Cache.expire(key, litter.TimeToLive, (err) => {
+                  if (err) {
+                    return reject(err);
+                  }
+                  resolve();
+                });
+              })
+          );
+      await set()
+        .then(() => {
+          success = true;
+        })
+        .catch((err) => {
+          throw err;
+        });
     } catch (err) {
       this.RaiseException(err);
     }
