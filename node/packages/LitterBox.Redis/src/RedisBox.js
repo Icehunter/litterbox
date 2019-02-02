@@ -1,6 +1,6 @@
 // @flow
 
-import { Compression, ConnectionPool, ILitterBox, LitterBoxItem } from 'litterbox';
+import { Compression, ConnectionPool, ILitterBox, LitterBoxItem } from '@icehunter/litterbox';
 import { RedisConfiguration } from './RedisConfiguration';
 import { RedisConnection } from './RedisConnection';
 
@@ -147,7 +147,7 @@ export class RedisBox implements ILitterBox {
 
     return success;
   };
-  SetItemFireAndForget = async (key: string, litter: LitterBoxItem): void => {
+  SetItemFireAndForget = async (key: string, litter: LitterBoxItem) => {
     if (!key) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
       return;
@@ -172,7 +172,7 @@ export class RedisBox implements ILitterBox {
     generator: () => Promise<any>,
     timeToRefresh: number,
     timeToLive: number
-  ): void => {
+  ) => {
     if (!key) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForgetGenerated)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
       return;

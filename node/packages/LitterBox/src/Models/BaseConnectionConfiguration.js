@@ -8,11 +8,18 @@ export type BaseConnectionConfigurationProps = {
 };
 
 export class BaseConnectionConfiguration {
-  constructor(props: BaseConnectionConfigurationProps = {}) {
-    this.DefaultTimeToLive = props.DefaultTimeToLive || 1 * 60 * 60 * 1000;
-    this.DefaultTimeToRefresh = props.DefaultTimeToRefresh || 5 * 1000;
-    this.PoolSize = props.PoolSize || 5;
-    this.UseGZIPCompression = props.UseGZIPCompression || false;
+  constructor(
+    props: BaseConnectionConfigurationProps = {
+      DefaultTimeToLive: 1 * 60 * 60 * 1000,
+      DefaultTimeToRefresh: 5 * 1000,
+      PoolSize: 5,
+      UseGZIPCompression: false
+    }
+  ) {
+    this.DefaultTimeToLive = props.DefaultTimeToLive;
+    this.DefaultTimeToRefresh = props.DefaultTimeToRefresh;
+    this.PoolSize = props.PoolSize;
+    this.UseGZIPCompression = props.UseGZIPCompression;
   }
   DefaultTimeToLive: number;
   DefaultTimeToRefresh: number;

@@ -17,7 +17,7 @@ export class LitterBoxItem {
         this.Created = props.Created;
       }
       if (props.Created instanceof String) {
-        this.Created = new Date(props.Created);
+        this.Created = new Date(props.Created.toString());
       }
     }
     this.Key = props.Key || 'UNKNOWN_KEY';
@@ -32,7 +32,13 @@ export class LitterBoxItem {
   TimeToRefresh: ?number;
   Value: any;
   Clone = (): LitterBoxItem => {
-    return new LitterBoxItem(this);
+    return new LitterBoxItem({
+      CacheType: this.CacheType,
+      Created: this.Created,
+      Key: this.Key,
+      TimeToLive: this.TimeToLive,
+      TimeToRefresh: this.TimeToRefresh
+    });
   };
   IsExpired = (): boolean => {
     if (this.TimeToLive === null) {

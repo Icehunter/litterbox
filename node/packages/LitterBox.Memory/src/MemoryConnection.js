@@ -1,6 +1,6 @@
 // @flow
 
-import { IConnection } from 'litterbox';
+import { IConnection } from '@icehunter/litterbox';
 import { CacheStore } from './CacheStore';
 import { MemoryConfiguration } from './MemoryConfiguration';
 

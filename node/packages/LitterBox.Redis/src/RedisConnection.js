@@ -1,6 +1,6 @@
 // @flow
 
-import { IConnection } from 'litterbox';
+import { IConnection } from '@icehunter/litterbox';
 import redis from 'redis';
 import { RedisConfiguration } from './RedisConfiguration';
 
@@ -8,7 +8,7 @@ export class RedisConnection implements IConnection {
   constructor(configuration: RedisConfiguration) {
     this._configuration = configuration;
   }
-  Cache;
+  Cache: redis.RedisClient;
   _configuration: RedisConfiguration;
   Connect = async () => {
     const options = {

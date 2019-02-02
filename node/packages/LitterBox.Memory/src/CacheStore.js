@@ -1,27 +1,28 @@
 // @flow
 
-import { LitterBoxItem } from 'litterbox';
+import { LitterBoxItem } from '@icehunter/litterbox';
 import { CacheItem } from './CacheItem';
 import { MemoryConfiguration } from './MemoryConfiguration';
 
 type Cache = {
-  [index: string]: CacheItem
+  [key: string]: CacheItem
 };
 
 export class CacheStore {
   constructor(configuration: MemoryConfiguration) {
     this._configuration = configuration;
     this._expirationTimer = setInterval(() => {
-      Object.entries(this._cache).forEach(([k, v]) => {
-        if (v.IsExpired) {
-          Reflect.deleteProperty(this._cache, k);
+      Object.keys(this._cache).forEach((key) => {
+        const item = this._cache[key];
+        if (item.IsExpired()) {
+          Reflect.deleteProperty(this._cache, key);
         }
       });
     }, configuration.ExpirationScanFrequency);
   }
   _cache: Cache = {};
   _configuration: MemoryConfiguration;
-  _expirationTimer: number;
+  _expirationTimer: IntervalID;
   Flush = () => {
     this._cache = {};
   };

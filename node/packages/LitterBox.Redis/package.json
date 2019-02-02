@@ -50,11 +50,13 @@
     "eslint-plugin-jsx-a11y": "6.1.2",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "7.11.1",
+    "flow": "^0.2.3",
+    "flow-bin": "^0.92.0",
+    "flow-typed": "^2.5.1",
+    "husky": "^1.3.1",
+    "lint-staged": "^8.1.1",
     "npm-check": "^5.9.0",
     "prettier": "^1.16.3"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "lint-staged": {
     "src/**/*.{js,json}": [
@@ -69,5 +71,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

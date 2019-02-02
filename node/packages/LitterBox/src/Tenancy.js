@@ -148,7 +148,7 @@ export class Tenancy implements ITenancy {
 
     return result;
   };
-  GetItems = async (keys: string[]): Promise<(?LitterBoxItem)[]> => {
+  GetItems = async (keys: string[]): Promise<?((?LitterBoxItem)[])> => {
     if (!keys) {
       // this.RaiseException(new ArgumentException($"{nameof(this.GetItems)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
       return null;
@@ -173,7 +173,7 @@ export class Tenancy implements ITenancy {
     generators: (() => Promise<any>)[],
     timeToRefresh: number,
     timeToLive: number
-  ): Promise<Array<LitterBoxItem | null> | null> => {
+  ): Promise<?((?LitterBoxItem)[])> => {
     if (!keys) {
       // this.RaiseException(new ArgumentException($"{nameof(this.GetItemsGenerated)}=>{nameof(keys)} Cannot Be Null"));
       return null;
@@ -211,7 +211,7 @@ export class Tenancy implements ITenancy {
 
     return results;
   };
-  SetItem = async (key: string, litter: LitterBoxItem): Promise<(?StorageResult)[]> => {
+  SetItem = async (key: string, litter: LitterBoxItem): Promise<?((?StorageResult)[])> => {
     if (!key) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItem)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
       return null;
@@ -236,7 +236,7 @@ export class Tenancy implements ITenancy {
 
     return results;
   };
-  SetItems = async (keys: string[], litters: LitterBoxItem[]): Promise<(?StorageResult)[][]> => {
+  SetItems = async (keys: string[], litters: LitterBoxItem[]): Promise<?((?((?StorageResult)[]))[])> => {
     if (!keys) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItems)}=>{nameof(keys)} Cannot Be Null"));
       return null;

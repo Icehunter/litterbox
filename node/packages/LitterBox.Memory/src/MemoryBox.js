@@ -1,11 +1,11 @@
 // @flow
 
-import { Compression, ConnectionPool, ILitterBox, LitterBoxItem } from 'litterbox';
+import { Compression, ConnectionPool, ILitterBox, LitterBoxItem } from '@icehunter/litterbox';
 import { MemoryConfiguration } from './MemoryConfiguration';
 import { MemoryConnection } from './MemoryConnection';
 
 type InProcess = {
-  [index: string]: boolean
+  [key: string]: boolean
 };
 
 export class MemoryBox implements ILitterBox {
@@ -103,7 +103,7 @@ export class MemoryBox implements ILitterBox {
 
     return success;
   };
-  SetItemFireAndForget = async (key: string, litter: LitterBoxItem): void => {
+  SetItemFireAndForget = async (key: string, litter: LitterBoxItem) => {
     if (!key) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForget)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
       return;
@@ -128,7 +128,7 @@ export class MemoryBox implements ILitterBox {
     generator: () => Promise<any>,
     timeToRefresh: number,
     timeToLive: number
-  ): void => {
+  ) => {
     if (!key) {
       // this.RaiseException(new ArgumentException($"{nameof(this.SetItemFireAndForgetGenerated)}=>{nameof(key)} Cannot Be NullOrWhiteSpace"));
       return;

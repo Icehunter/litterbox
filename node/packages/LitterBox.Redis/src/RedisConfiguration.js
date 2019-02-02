@@ -1,6 +1,6 @@
 // @flow
 
-import { BaseConnectionConfiguration } from 'litterbox';
+import { BaseConnectionConfiguration } from '@icehunter/litterbox';
 
 export type RedisConfigurationProps = {
   DataBaseID?: number,

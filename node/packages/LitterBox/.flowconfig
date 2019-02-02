@@ -1,10 +1,11 @@
 [ignore]
-/build/.*
-/coverage/.*
-/flow-typed/.*
-/lib/.*
+.*/build/.*
+.*/coverage/.*
+.*/flow-typed/.*
+.*/lib/.*
 
 [include]
+.*/src
 
 [libs]
 flow-typed
