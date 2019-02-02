@@ -1,6 +1,6 @@
 {
   "name": "@icehunter/litterbox-memory",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "> TODO: description",
   "author": "Ryan Wilson <syndicated.life@gmail.com>",
   "homepage": "https://github.com/Icehunter/litterbox#readme",
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.3.1",
-    "@icehunter/litterbox": "^1.2.1"
+    "@icehunter/litterbox": "^1.2.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
