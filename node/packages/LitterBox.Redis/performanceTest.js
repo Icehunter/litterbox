@@ -17,11 +17,7 @@ const MSToTime = (duration) => {
 };
 
 const init = async () => {
-  const redis = await RedisBox.GetInstance(
-    new RedisConfiguration({
-      Port: 6379
-    })
-  );
+  const redis = await RedisBox.GetInstance(new RedisConfiguration());
   const caching = new Tenancy([redis]);
 
   await caching.SetItem('s', new LitterBoxItem({ Value: { testing: 123 } }));

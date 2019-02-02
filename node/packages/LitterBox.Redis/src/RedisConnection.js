@@ -4,11 +4,13 @@ import { IConnection } from '@icehunter/litterbox';
 import redis from 'redis';
 import { RedisConfiguration } from './RedisConfiguration';
 
+import type { RedisClient } from 'redis';
+
 export class RedisConnection implements IConnection {
   constructor(configuration: RedisConfiguration) {
     this._configuration = configuration;
   }
-  Cache: redis.RedisClient;
+  Cache: RedisClient;
   _configuration: RedisConfiguration;
   Connect = async () => {
     const options = {
@@ -30,7 +32,13 @@ export class RedisConnection implements IConnection {
     await this.Connect();
   };
   Flush = async (): Promise<boolean> => {
-    this.Cache.flushdb();
-    return true;
+    return new Promise((resolve, reject) => {
+      this.Cache.flushall((err) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(true);
+      });
+    });
   };
 }
