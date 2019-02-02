@@ -9,7 +9,7 @@ export type MemoryConfigurationProps = {
 export class MemoryConfiguration extends BaseConnectionConfiguration {
   constructor(
     props: MemoryConfigurationProps = {
-      ExpirationScanFrequency: 1 * 60 * 60 * 1000
+      ExpirationScanFrequency: 30 * 1000
     }
   ) {
     super(props);
