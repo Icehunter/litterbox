@@ -1,22 +1,18 @@
-// @flow
+import { IConnection, IConnectionPool } from './Interfaces';
 
-import { IConnection } from './Interfaces';
+interface Props extends IConnectionPool {}
 
-export type ConnectionPoolProps = {
-  PoolSize: number
-};
-
-export class ConnectionPool {
-  constructor(props: ConnectionPoolProps) {
-    this.PoolSize = props.PoolSize;
+export class ConnectionPool implements IConnectionPool {
+  constructor({ PoolSize = 5 }: Props) {
+    this.PoolSize = PoolSize;
   }
-  _roundRobinCounter: number = 0;
-  Connections: IConnection[] = [];
-  PoolSize: number = 5;
+  private _roundRobinCounter: number = 0;
+  readonly Connections: IConnection[] = [];
+  readonly PoolSize: number;
   GetPooledConnection = (): IConnection => {
     return this.Connections[this.IncrementCount()];
   };
-  Initialize = async (connection: IConnection) => {
+  Initialize = async (connection: IConnection): Promise<void> => {
     for (let i = 0; i < this.PoolSize; i++) {
       await connection.Connect();
       this.Connections.push(connection);

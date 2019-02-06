@@ -7,6 +7,7 @@ module.exports = (api) => {
   // use the default create from create-react-app but extend it for local use with our own webpack
   const config = preset(api, {
     flow: true,
+    typescript: true,
     helpers: false,
     absoluteRuntime: false
   });

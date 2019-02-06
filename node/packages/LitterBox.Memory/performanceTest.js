@@ -1,7 +1,7 @@
 require('@babel/register');
 
-const { LitterBoxItem, Tenancy } = require('litterbox');
-const { MemoryBox, MemoryConfiguration } = require('./src');
+const { Tenancy } = require('@icehunter/litterbox');
+const { MemoryBox, MemoryConfiguration } = require('./lib');
 
 const MSToTime = (duration) => {
   var milliseconds = parseInt((duration % 1000) / 100),
@@ -17,22 +17,30 @@ const MSToTime = (duration) => {
 };
 
 const init = async () => {
-  const memory = await MemoryBox.GetInstance(new MemoryConfiguration());
-  const caching = new Tenancy([memory]);
+  try {
+    const memory = await MemoryBox.GetInstance(new MemoryConfiguration());
+    const caching = new Tenancy([memory]);
 
-  await caching.SetItem('s', new LitterBoxItem({ Value: { testing: 123 } }));
+    console.log('setting item: ', { testing: 123 });
 
-  const start = Date.now();
+    await caching.SetItem('s', { testing: 123 });
 
-  for (let i = 0; i < 1000000; i++) {
-    await caching.GetItem('s');
+    const start = Date.now();
+
+    console.log('getting item: ', await caching.GetItem('s'));
+
+    for (let i = 0; i < 1000000; i++) {
+      await caching.GetItem('s');
+    }
+
+    const end = Date.now();
+    const duration = end - start;
+
+    console.log(`1,000,000 GetItem Ops Took: ${MSToTime(duration)}`);
+    console.log(`${Math.floor(1000000 / (duration / 1000))} Ops/second`);
+  } catch (err) {
+    console.log(err);
   }
-
-  const end = Date.now();
-  const duration = end - start;
-
-  console.log(`1,000,000 GetItem Ops Took: ${MSToTime(duration)}`);
-  console.log(`${Math.floor(1000000 / (duration / 1000))} Ops/second`);
 };
 
 init().then(() => process.exit(0));
