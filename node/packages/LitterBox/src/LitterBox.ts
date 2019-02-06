@@ -58,6 +58,9 @@ export class LitterBox implements ILitterBox {
     return true;
   };
   GetItem = async (key: string): Promise<LitterBoxItem | null> => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
     try {
       const item = await this._getPooledConnection().GetItem(key);
       if (item) {
@@ -67,6 +70,12 @@ export class LitterBox implements ILitterBox {
     return null;
   };
   SetItem = async (key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean> => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
+    if (!item) {
+      throw new Error(`ArgumentException: (null | undefined) => item`);
+    }
     let success = false;
     try {
       success = await this._getPooledConnection().SetItem(
@@ -84,6 +93,12 @@ export class LitterBox implements ILitterBox {
     return success;
   };
   SetItemFireAndForget = (key: string, item: any, timeToLive?: number, timeToRefresh?: number) => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
+    if (!item) {
+      throw new Error(`ArgumentException: (null | undefined) => item`);
+    }
     if (this._processingCache[key]) {
       return;
     }
@@ -98,6 +113,12 @@ export class LitterBox implements ILitterBox {
     timeToLive?: number,
     timeToRefresh?: number
   ) => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
+    if (!generator) {
+      throw new Error(`ArgumentException: (null | undefined) => generator`);
+    }
     if (this._processingCache[key]) {
       return;
     }

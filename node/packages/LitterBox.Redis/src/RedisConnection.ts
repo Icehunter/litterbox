@@ -22,6 +22,9 @@ export class RedisConnection implements IConnection {
   _cache: RedisClient;
   _configuration: RedisConfiguration;
   GetItem = async (key: string): Promise<LitterBoxItem | null> => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
     return new Promise((resolve, reject) => {
       try {
         this._cache.HGET(key, 'litter', (err, item) => {
@@ -45,6 +48,12 @@ export class RedisConnection implements IConnection {
     });
   };
   SetItem = async (key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean> => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
+    if (!item) {
+      throw new Error(`ArgumentException: (null | undefined) => item`);
+    }
     return new Promise((resolve, reject) => {
       try {
         const litter = item.Clone();
@@ -65,6 +74,21 @@ export class RedisConnection implements IConnection {
     });
   };
   RemoveItem = async (key: string): Promise<boolean> => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
+    return new Promise((resolve, reject) => {
+      try {
+        this._cache.DEL(key, (err) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(true);
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
     return true;
   };
   Connect = async () => {};

@@ -20,6 +20,9 @@ export class MemoryConnection implements IConnection {
   _configuration: MemoryConfiguration;
   _expirationTimer: NodeJS.Timer;
   GetItem = async (key: string): Promise<LitterBoxItem | null> => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
     const item = this._cache[key];
     if (item) {
       let litter;
@@ -43,6 +46,12 @@ export class MemoryConnection implements IConnection {
     return null;
   };
   SetItem = async (key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean> => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
+    if (!item) {
+      throw new Error(`ArgumentException: (null | undefined) => item`);
+    }
     const litter = item.Clone();
     litter.TimeToLive = timeToLive || item.TimeToLive;
     const cacheItem = this._configuration.UseGZIPCompression ? litter.ToBuffer() : litter;
@@ -50,6 +59,9 @@ export class MemoryConnection implements IConnection {
     return true;
   };
   RemoveItem = async (key: string): Promise<boolean> => {
+    if (!key) {
+      throw new Error(`ArgumentException: (null | undefined) => key`);
+    }
     Reflect.deleteProperty(this._cache, key);
     return true;
   };
