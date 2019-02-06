@@ -1,6 +1,6 @@
 {
   "name": "@icehunter/litterbox-redis",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "> TODO: description",
   "author": "Ryan Wilson <syndicated.life@gmail.com>",
   "homepage": "https://github.com/Icehunter/litterbox#readme",
@@ -33,7 +33,7 @@
     "url": "https://github.com/Icehunter/litterbox/issues"
   },
   "dependencies": {
-    "@icehunter/litterbox": "^2.0.0",
+    "@icehunter/litterbox": "^2.0.1",
     "bluebird": "^3.5.3",
     "hoek": "^6.1.2",
     "redis": "^2.8.0"
