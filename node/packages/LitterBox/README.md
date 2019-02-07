@@ -90,7 +90,7 @@ const init = async () => {
 
   // get item(s) from the cache by key, but if missing generate new data
   // imagine that your generator promise is actually a DB call to go fetch the data, or another type of DB
-  const generatedItem = await tenancy.GetItemGenerated(
+  const generatedItem = await tenancy.GetItemUsingGenerator(
     'a',
     async () => {
       return { testing: 123 };
@@ -98,7 +98,7 @@ const init = async () => {
     360000,
     30
   );
-  const generatedItems = await tenancy.GetItemsGenerated(
+  const generatedItems = await tenancy.GetItemsUsingGenerator(
     ['a', 'b', 'c'],
     [
       async () => {
@@ -131,21 +131,27 @@ The response of gets and the item passed to set commands that are not generators
 Additionally the following properties are set by default when making a new item:
 
 ```javascript
-  constructor(props: LitterBoxItemProps = {}) {
-    this.CacheType = props.CacheType || 'UNKNOWN_CACHE';
-    if (props.Created) {
-      if (props.Created instanceof Date) {
-        this.Created = props.Created;
-      }
-      if (props.Created instanceof String) {
-        this.Created = new Date(props.Created.toString());
-      }
+  constructor({
+    CacheType = 'UNKNOWN_CACHE',
+    Created,
+    Key = 'UNKNOWN_KEY',
+    TimeToLive,
+    TimeToRefresh,
+    Value = null
+  }: Props) {
+    this.CacheType = CacheType;
+    this.Created = new Date();
+    if (Created instanceof Date) {
+      this.Created = Created;
     }
-    this.Key = props.Key || 'UNKNOWN_KEY';
-    this.TimeToLive = props.TimeToLive;
-    this.TimeToRefresh = props.TimeToRefresh;
-    this.Value = props.Value;
-  }
+    if (typeof Created === 'string') {
+      this.Created = new Date(Created);
+    }
+    this.Key = Key;
+    this.TimeToLive = TimeToLive;
+    this.TimeToRefresh = TimeToRefresh;
+    this.Value = Value;
+}
 ```
 
 When the actual item is saved in the appropriate cache and when it comes out (depending on which cache was hit) it will set CacheType and Key if they aren't already set.
