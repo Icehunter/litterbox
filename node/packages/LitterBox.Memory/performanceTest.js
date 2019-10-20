@@ -1,5 +1,3 @@
-require('@babel/register');
-
 const { Tenancy } = require('@icehunter/litterbox');
 const { MemoryBox, MemoryConfiguration } = require('./lib');
 

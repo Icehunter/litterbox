@@ -1,6 +1,4 @@
-require('@babel/register');
-
-const { Tenancy } = require('litterbox');
+const { Tenancy } = require('@icehunter/litterbox');
 const { RedisBox, RedisConfiguration } = require('./lib');
 
 const MSToTime = (duration) => {
