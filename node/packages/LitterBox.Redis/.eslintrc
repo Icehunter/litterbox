@@ -1,11 +1,19 @@
 {
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier", "prettier/@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "prettier"],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["prettier", "@typescript-eslint"],
-  "rules": {
-    "prettier/prettier": "error"
+  "parserOptions": {
+    "ecmaFeatures": {},
+    "ecmaVersion": 2020,
+    "sourceType": "module"
   },
   "env": {
+    "es6": true,
     "node": true
+  },
+  "rules": {
+    "prettier/prettier": "error",
+    "@typescript-eslint/interface-name-prefix": ["error", { "prefixWithI": "always" }],
+    "@typescript-eslint/no-empty-interface": "warn"
   }
 }

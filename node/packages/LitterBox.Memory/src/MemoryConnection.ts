@@ -54,6 +54,7 @@ export class MemoryConnection implements IConnection {
     }
     const litter = item.Clone();
     litter.TimeToLive = timeToLive || item.TimeToLive;
+    litter.TimeToRefresh = timeToRefresh || item.TimeToRefresh;
     const cacheItem = this._configuration.UseGZIPCompression ? litter.ToBuffer() : litter;
     this._cache[key] = cacheItem;
     return true;

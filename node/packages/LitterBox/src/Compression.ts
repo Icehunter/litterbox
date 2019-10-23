@@ -6,7 +6,6 @@ export class Compression {
     return new LitterBoxItem(JSON.parse(zlib.inflateSync(input).toString('utf8')));
   };
   static Zip = (litter: LitterBoxItem): Buffer => {
-    const input = Buffer.from(JSON.stringify(litter), 'utf8');
-    return zlib.deflateSync(input);
+    return zlib.deflateSync(Buffer.from(JSON.stringify(litter)));
   };
 }

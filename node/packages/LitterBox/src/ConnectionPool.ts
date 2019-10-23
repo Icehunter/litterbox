@@ -1,12 +1,13 @@
 import { IConnection, IConnectionPool } from './Interfaces';
 
-interface Props extends IConnectionPool {}
+interface IConnectionPoolProps extends IConnectionPool {}
 
 export class ConnectionPool implements IConnectionPool {
-  constructor({ PoolSize = 5 }: Props) {
+  constructor(props: IConnectionPoolProps) {
+    const { PoolSize = 5 } = props;
     this.PoolSize = PoolSize;
   }
-  private _roundRobinCounter: number = 0;
+  private _roundRobinCounter = 0;
   readonly Connections: IConnection[] = [];
   readonly PoolSize: number;
   GetPooledConnection = (): IConnection => {

@@ -1,8 +1,8 @@
 import { IMemoryConfiguration } from './IMemoryConfiguration';
 
-interface Props extends IMemoryConfiguration {}
+interface IMemoryConfigurationProps extends IMemoryConfiguration {}
 export class MemoryConfiguration implements IMemoryConfiguration {
-  constructor(props: Props = {}) {
+  constructor(props: IMemoryConfigurationProps = {}) {
     const {
       DefaultTimeToLive = 1 * 60 * 60 * 1000,
       DefaultTimeToRefresh = 60 * 1000,

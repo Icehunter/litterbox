@@ -12,6 +12,8 @@ export class RedisConnection implements IConnection {
       port: Port,
       password: Password,
       db: DataBaseID,
+      // variable is option and must be snake_case
+      // eslint-disable-next-line @typescript-eslint/camelcase
       return_buffers: this._configuration.UseGZIPCompression
     };
     if (!options.password) {
@@ -36,7 +38,7 @@ export class RedisConnection implements IConnection {
           }
           let litter = null;
           if (this._configuration.UseGZIPCompression) {
-            litter = LitterBoxItem.FromBuffer((item as unknown) as Buffer);
+            litter = LitterBoxItem.FromBuffer(Buffer.from(item, 'utf8'));
           } else {
             litter = LitterBoxItem.FromJSONString(item.toString());
           }
@@ -58,8 +60,12 @@ export class RedisConnection implements IConnection {
       try {
         const litter = item.Clone();
         litter.TimeToLive = timeToLive || item.TimeToLive;
+        litter.TimeToRefresh = timeToRefresh || item.TimeToRefresh;
         const cacheItem = this._configuration.UseGZIPCompression ? litter.ToBuffer() : litter.ToJSONString();
-        this._cache.HSET(key, 'litter', cacheItem.toString(), (err) => {
+        // we ignore the next line as the types for redis don't allow buffer BUT redis itself does
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        this._cache.HSET(key, 'litter', cacheItem, (err) => {
           if (err) {
             return reject(err);
           }
@@ -89,10 +95,9 @@ export class RedisConnection implements IConnection {
         reject(err);
       }
     });
-    return true;
   };
-  Connect = async () => {};
-  Reconnect = async () => {
+  Connect = async (): Promise<void> => {};
+  Reconnect = async (): Promise<void> => {
     if (this._cache) {
       this._cache.quit();
     }

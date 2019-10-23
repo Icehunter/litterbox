@@ -1,9 +1,9 @@
 import { IActionResult } from '../Interfaces';
 
-interface Props extends IActionResult {}
+interface IActionResultProps extends IActionResult {}
 
 export class ActionResult implements IActionResult {
-  constructor(props: Props) {
+  constructor(props: IActionResultProps) {
     if (props === null) {
       throw new Error('ArgumentException: (props === null) => props');
     }
@@ -29,5 +29,6 @@ export class ActionResult implements IActionResult {
   }
   CacheType: string;
   IsSuccessful: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Error: any;
 }

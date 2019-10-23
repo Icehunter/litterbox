@@ -2,18 +2,17 @@ import { ConnectionPool } from './ConnectionPool';
 import { IBaseConnectionConfiguration, IConnection, ILitterBox, IProcessingCache } from './Interfaces';
 import { LitterBoxItem } from './Models';
 
+interface ILitterBoxProps {
+  type: string;
+  pool: ConnectionPool;
+  configuration: IBaseConnectionConfiguration;
+  connection: IConnection;
+}
+
 export class LitterBox implements ILitterBox {
-  constructor({
-    type,
-    pool,
-    configuration,
-    connection
-  }: {
-    type: string;
-    pool: ConnectionPool;
-    configuration: IBaseConnectionConfiguration;
-    connection: IConnection;
-  }) {
+  constructor(props: ILitterBoxProps) {
+    const { type, pool, configuration, connection } = props;
+
     if (!type) {
       throw new Error(`ArgumentException: (null | undefined) => type`);
     }
@@ -36,7 +35,7 @@ export class LitterBox implements ILitterBox {
   _pool: ConnectionPool;
   _configuration: IBaseConnectionConfiguration;
   _connection: IConnection;
-  _getPooledConnection = () => {
+  _getPooledConnection = (): IConnection => {
     return this._pool.GetPooledConnection();
   };
   Initialize = async (): Promise<LitterBox> => {
@@ -66,10 +65,13 @@ export class LitterBox implements ILitterBox {
       if (item) {
         return item;
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error('GetItem', { key }, err);
+    }
     return null;
   };
-  SetItem = async (key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  SetItem = async (key: string, item: any, timeToLive?: number, timeToRefresh?: number): Promise<boolean> => {
     if (!key) {
       throw new Error(`ArgumentException: (null | undefined) => key`);
     }
@@ -88,11 +90,14 @@ export class LitterBox implements ILitterBox {
           Value: item
         })
       );
-    } catch (err) {}
+    } catch (err) {
+      console.error('SetItem', { key, item, timeToLive, timeToRefresh }, err);
+    }
     Reflect.deleteProperty(this._processingCache, key);
     return success;
   };
-  SetItemFireAndForget = (key: string, item: any, timeToLive?: number, timeToRefresh?: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  SetItemFireAndForget = (key: string, item: any, timeToLive?: number, timeToRefresh?: number): void => {
     if (!key) {
       throw new Error(`ArgumentException: (null | undefined) => key`);
     }
@@ -103,16 +108,17 @@ export class LitterBox implements ILitterBox {
       return;
     }
     this._processingCache[key] = true;
-    (async () => {
+    (async (): Promise<void> => {
       await this.SetItem(key, item, timeToLive, timeToRefresh);
     })();
   };
   SetItemFireAndForgetUsingGenerator = (
     key: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     generator: () => Promise<any>,
     timeToLive?: number,
     timeToRefresh?: number
-  ) => {
+  ): void => {
     if (!key) {
       throw new Error(`ArgumentException: (null | undefined) => key`);
     }
@@ -123,7 +129,7 @@ export class LitterBox implements ILitterBox {
       return;
     }
     this._processingCache[key] = true;
-    (async () => {
+    (async (): Promise<void> => {
       const item = await generator();
       if (item != null) {
         await this.SetItem(

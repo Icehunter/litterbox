@@ -1,17 +1,18 @@
 import { Compression } from '../Compression';
 import { ILitterBoxItem } from '../Interfaces';
 
-interface Props extends ILitterBoxItem {}
+interface ILitterBoxItemProps extends ILitterBoxItem {}
 
 export class LitterBoxItem {
-  constructor({
-    CacheType = 'UNKNOWN_CACHE',
-    Created,
-    Key = 'UNKNOWN_KEY',
-    TimeToLive,
-    TimeToRefresh,
-    Value = null
-  }: Props) {
+  constructor(props: ILitterBoxItemProps) {
+    const {
+      CacheType = 'UNKNOWN_CACHE',
+      Created,
+      Key = 'UNKNOWN_KEY',
+      TimeToLive,
+      TimeToRefresh,
+      Value = null
+    } = props;
     this.CacheType = CacheType;
     this.Created = new Date();
     if (Created instanceof Date) {
@@ -30,6 +31,7 @@ export class LitterBoxItem {
   Key: string;
   TimeToLive?: number;
   TimeToRefresh?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Value: any;
   static FromBuffer = (value: Buffer): LitterBoxItem => Compression.UnZip(value);
   static FromJSONString = (value: string): LitterBoxItem => new LitterBoxItem(JSON.parse(value));

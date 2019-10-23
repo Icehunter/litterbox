@@ -53,7 +53,7 @@ export class Tenancy implements ITenancy {
   };
   GetItemUsingGenerator = async (
     key: string,
-    generator: () => Promise<any>,
+    generator: () => Promise<LitterBoxItem>,
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<LitterBoxItem | null> => {
@@ -117,7 +117,7 @@ export class Tenancy implements ITenancy {
   };
   GetItemsUsingGenerator = async (
     keys: string[],
-    generators: (() => Promise<any>)[],
+    generators: (() => Promise<LitterBoxItem>)[],
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<(LitterBoxItem | null)[]> => {
@@ -145,6 +145,7 @@ export class Tenancy implements ITenancy {
     }
     return results;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   SetItem = async (key: string, item: any, timeToLive?: number, timeToRefresh?: number): Promise<ActionResult[]> => {
     if (!key) {
       throw new Error(`ArgumentException: (null | undefined) => key`);
@@ -169,6 +170,7 @@ export class Tenancy implements ITenancy {
   };
   SetItems = async (
     keys: string[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     items: any[],
     timeToLive?: number,
     timeToRefresh?: number
@@ -205,7 +207,8 @@ export class Tenancy implements ITenancy {
     }
     return results;
   };
-  SetItemFireAndForget = (key: string, item: any, timeToLive?: number, timeToRefresh?: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  SetItemFireAndForget = (key: string, item: any, timeToLive?: number, timeToRefresh?: number): void => {
     if (!key) {
       throw new Error(`ArgumentException: (null | undefined) => key`);
     }
@@ -218,10 +221,11 @@ export class Tenancy implements ITenancy {
   };
   SetItemFireAndForgetUsingGenerator = (
     key: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     generator: () => Promise<any>,
     timeToLive?: number,
     timeToRefresh?: number
-  ) => {
+  ): void => {
     if (!key) {
       throw new Error(`ArgumentException: (null | undefined) => key`);
     }

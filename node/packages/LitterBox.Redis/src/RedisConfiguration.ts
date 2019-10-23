@@ -1,9 +1,9 @@
 import { IRedisConfiguration } from './IRedisConfiguration';
 
-interface Props extends IRedisConfiguration {}
+interface IRedisConfigurationProps extends IRedisConfiguration {}
 
 export class RedisConfiguration implements IRedisConfiguration {
-  constructor(props: Props = {}) {
+  constructor(props: IRedisConfigurationProps = {}) {
     const {
       DefaultTimeToLive = 1 * 60 * 60 * 1000,
       DefaultTimeToRefresh = 5 * 60 * 1000,
