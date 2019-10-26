@@ -1,9 +1,9 @@
 export interface ILitterBoxItem {
-  CacheType?: string;
-  Created?: Date | string;
-  Key: string;
-  TimeToLive?: number;
-  TimeToRefresh?: number;
+  cacheType?: string;
+  created?: Date | string;
+  key: string;
+  timeToLive?: number;
+  timeToRefresh?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Value: any;
+  value: any;
 }

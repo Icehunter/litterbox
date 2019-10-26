@@ -4,31 +4,22 @@ interface IActionResultProps extends IActionResult {}
 
 export class ActionResult implements IActionResult {
   constructor(props: IActionResultProps) {
-    if (props === null) {
-      throw new Error('ArgumentException: (props === null) => props');
-    }
-    const { CacheType, IsSuccessful, Error: ResultError } = props;
-    if (!CacheType) {
-      throw new Error('ArgumentException: (!CacheType) => CacheType');
-    }
-    if (typeof CacheType !== 'string') {
-      throw new Error("ArgumentException: (typeof CacheType !== 'string') => CacheType");
-    }
-    this.CacheType = CacheType;
-    if (IsSuccessful) {
-      if (typeof IsSuccessful !== 'boolean') {
-        throw new Error("ArgumentException: (typeof IsSuccessful !== 'boolean') => IsSuccessful");
+    const { cacheType, isSuccessful, error: ResultError } = props;
+    this.cacheType = cacheType;
+    if (isSuccessful) {
+      if (typeof isSuccessful !== 'boolean') {
+        throw new Error("ArgumentException: (typeof isSuccessful !== 'boolean') => isSuccessful");
       }
-      this.IsSuccessful = IsSuccessful;
+      this.isSuccessful = isSuccessful;
     } else {
-      this.IsSuccessful = false;
+      this.isSuccessful = false;
     }
     if (ResultError) {
-      this.Error = ResultError;
+      this.error = ResultError;
     }
   }
-  CacheType: string;
-  IsSuccessful: boolean;
+  cacheType: string;
+  isSuccessful: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Error: any;
+  error: any;
 }

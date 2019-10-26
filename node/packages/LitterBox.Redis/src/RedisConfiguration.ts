@@ -5,30 +5,30 @@ interface IRedisConfigurationProps extends IRedisConfiguration {}
 export class RedisConfiguration implements IRedisConfiguration {
   constructor(props: IRedisConfigurationProps = {}) {
     const {
-      DefaultTimeToLive = 1 * 60 * 60 * 1000,
-      DefaultTimeToRefresh = 5 * 60 * 1000,
-      PoolSize = 5,
-      UseGZIPCompression = false,
-      DataBaseID = 0,
-      Host = '127.0.0.1',
-      Password = '',
-      Port = 6379
+      defaultTimeToLive = 1 * 60 * 60 * 1000,
+      defaultTimeToRefresh = 5 * 60 * 1000,
+      poolSize = 5,
+      useGZIPCompression = false,
+      dataBaseID = 0,
+      host = '127.0.0.1',
+      password = '',
+      port = 6379
     } = props;
-    this.DefaultTimeToLive = DefaultTimeToLive;
-    this.DefaultTimeToRefresh = DefaultTimeToRefresh;
-    this.PoolSize = PoolSize;
-    this.UseGZIPCompression = UseGZIPCompression;
-    this.DataBaseID = DataBaseID;
-    this.Host = Host;
-    this.Password = Password;
-    this.Port = Port;
+    this.defaultTimeToLive = defaultTimeToLive;
+    this.defaultTimeToRefresh = defaultTimeToRefresh;
+    this.poolSize = poolSize;
+    this.useGZIPCompression = useGZIPCompression;
+    this.dataBaseID = dataBaseID;
+    this.host = host;
+    this.password = password;
+    this.port = port;
   }
-  DefaultTimeToLive: number;
-  DefaultTimeToRefresh: number;
-  PoolSize: number;
-  UseGZIPCompression: boolean;
-  DataBaseID: number;
-  Host: string;
-  Password: string;
-  Port: number;
+  defaultTimeToLive: number;
+  defaultTimeToRefresh: number;
+  poolSize: number;
+  useGZIPCompression: boolean;
+  dataBaseID: number;
+  host: string;
+  password: string;
+  port: number;
 }

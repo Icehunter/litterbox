@@ -5,30 +5,36 @@ import { MemoryConfiguration } from './MemoryConfiguration';
 export class MemoryConnection implements IConnection {
   constructor(configuration: MemoryConfiguration) {
     this._configuration = configuration;
-    this._expirationTimer = setInterval(() => {
-      Object.keys(this._cache).forEach(async (key) => {
-        const item = await this.GetItem(key);
-        if (item) {
-          if (item.IsExpired()) {
-            await this.RemoveItem(key);
+
+    const scanner = (): void => {
+      clearInterval(this._expirationTimer);
+      Promise.resolve(async () => {
+        const keys = Object.keys(this._cache);
+        for (const key of keys) {
+          const item = await this.getItem(key);
+          if (item) {
+            if (item.isExpired()) {
+              await this.removeItem(key);
+            }
           }
         }
+      }).then(() => {
+        this._expirationTimer = setInterval(scanner, configuration.expirationScanFrequency);
       });
-    }, configuration.ExpirationScanFrequency);
+    };
+
+    this._expirationTimer = setInterval(scanner, configuration.expirationScanFrequency);
   }
-  _cache: ICache = {};
-  _configuration: MemoryConfiguration;
-  _expirationTimer: NodeJS.Timer;
-  GetItem = async (key: string): Promise<LitterBoxItem | null> => {
-    if (!key) {
-      throw new Error(`ArgumentException: (null | undefined) => key`);
-    }
+  private _cache: ICache = {};
+  private _configuration: MemoryConfiguration;
+  private _expirationTimer: NodeJS.Timer;
+  getItem = async (key: string): Promise<LitterBoxItem | null> => {
     const item = this._cache[key];
     if (item) {
       let litter;
-      if (this._configuration.UseGZIPCompression) {
+      if (this._configuration.useGZIPCompression) {
         if (item instanceof Buffer) {
-          litter = LitterBoxItem.FromBuffer(item);
+          litter = LitterBoxItem.fromBuffer(item);
         }
       } else {
         if (item instanceof LitterBoxItem) {
@@ -36,8 +42,8 @@ export class MemoryConnection implements IConnection {
         }
       }
       if (litter) {
-        if (litter.IsExpired()) {
-          await this.RemoveItem(key);
+        if (litter.isExpired()) {
+          await this.removeItem(key);
           return null;
         }
         return litter;
@@ -45,34 +51,25 @@ export class MemoryConnection implements IConnection {
     }
     return null;
   };
-  SetItem = async (key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean> => {
-    if (!key) {
-      throw new Error(`ArgumentException: (null | undefined) => key`);
-    }
-    if (!item) {
-      throw new Error(`ArgumentException: (null | undefined) => item`);
-    }
-    const litter = item.Clone();
-    litter.TimeToLive = timeToLive || item.TimeToLive;
-    litter.TimeToRefresh = timeToRefresh || item.TimeToRefresh;
-    const cacheItem = this._configuration.UseGZIPCompression ? litter.ToBuffer() : litter;
+  setItem = async (key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean> => {
+    const litter = item.clone();
+    litter.timeToLive = timeToLive || item.timeToLive;
+    litter.timeToRefresh = timeToRefresh || item.timeToRefresh;
+    const cacheItem = this._configuration.useGZIPCompression ? litter.toBuffer() : litter;
     this._cache[key] = cacheItem;
     return true;
   };
-  RemoveItem = async (key: string): Promise<boolean> => {
-    if (!key) {
-      throw new Error(`ArgumentException: (null | undefined) => key`);
-    }
+  removeItem = async (key: string): Promise<boolean> => {
     Reflect.deleteProperty(this._cache, key);
     return true;
   };
-  Connect = async (): Promise<void> => {
+  connect = async (): Promise<void> => {
     this._cache = {};
   };
-  Reconnect = async (): Promise<void> => {
+  reconnect = async (): Promise<void> => {
     this._cache = {};
   };
-  Flush = async (): Promise<boolean> => {
+  flush = async (): Promise<boolean> => {
     this._cache = {};
     return true;
   };
