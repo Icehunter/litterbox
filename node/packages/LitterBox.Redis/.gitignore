@@ -19,4 +19,3 @@ lib/
 
 # logs
 *.log*
-package-lock.json
