@@ -1,3 +1,7 @@
+import { IConnection } from './IConnection';
+
 export interface IConnectionPool {
-  PoolSize: number;
+  getPooledConnection(): IConnection;
+  initialize(connection: IConnection): Promise<void>;
+  incrementCount(): number;
 }

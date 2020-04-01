@@ -1,24 +1,25 @@
 import { IMemoryConfiguration } from './IMemoryConfiguration';
 
-interface Props extends IMemoryConfiguration {}
+interface IMemoryConfigurationProps extends IMemoryConfiguration {}
+
 export class MemoryConfiguration implements IMemoryConfiguration {
-  constructor(props: Props = {}) {
+  constructor(props: IMemoryConfigurationProps = {}) {
     const {
-      DefaultTimeToLive = 1 * 60 * 60 * 1000,
-      DefaultTimeToRefresh = 60 * 1000,
-      PoolSize = 1,
-      UseGZIPCompression = false,
-      ExpirationScanFrequency = 30 * 1000
+      defaultTimeToLive = 1 * 60 * 60 * 1000,
+      defaultTimeToRefresh = 60 * 1000,
+      poolSize = 1,
+      useGZIPCompression = false,
+      expirationScanFrequency = 30 * 1000
     } = props;
-    this.DefaultTimeToLive = DefaultTimeToLive;
-    this.DefaultTimeToRefresh = DefaultTimeToRefresh;
-    this.PoolSize = PoolSize;
-    this.UseGZIPCompression = UseGZIPCompression;
-    this.ExpirationScanFrequency = ExpirationScanFrequency;
+    this.defaultTimeToLive = defaultTimeToLive;
+    this.defaultTimeToRefresh = defaultTimeToRefresh;
+    this.poolSize = poolSize;
+    this.useGZIPCompression = useGZIPCompression;
+    this.expirationScanFrequency = expirationScanFrequency;
   }
-  DefaultTimeToLive: number;
-  DefaultTimeToRefresh: number;
-  PoolSize: number;
-  UseGZIPCompression: boolean;
-  ExpirationScanFrequency: number;
+  defaultTimeToLive: number;
+  defaultTimeToRefresh: number;
+  poolSize: number;
+  useGZIPCompression: boolean;
+  expirationScanFrequency: number;
 }

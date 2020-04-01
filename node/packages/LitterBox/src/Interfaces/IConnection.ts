@@ -1,10 +1,10 @@
 import { LitterBoxItem } from '../Models';
 
 export interface IConnection {
-  GetItem(key: string): Promise<LitterBoxItem | null>;
-  SetItem(key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean>;
-  RemoveItem(key: string): Promise<boolean>;
-  Connect(): Promise<void>;
-  Flush(): Promise<boolean>;
-  Reconnect(): Promise<void>;
+  getItem(key: string): Promise<LitterBoxItem | null>;
+  setItem(key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean>;
+  removeItem(key: string): Promise<boolean>;
+  connect(): Promise<void>;
+  flush(): Promise<boolean>;
+  reconnect(): Promise<void>;
 }

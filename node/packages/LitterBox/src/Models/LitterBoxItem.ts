@@ -1,63 +1,65 @@
 import { Compression } from '../Compression';
 import { ILitterBoxItem } from '../Interfaces';
 
-interface Props extends ILitterBoxItem {}
+interface ILitterBoxItemProps extends ILitterBoxItem {}
 
-export class LitterBoxItem {
-  constructor({
-    CacheType = 'UNKNOWN_CACHE',
-    Created,
-    Key = 'UNKNOWN_KEY',
-    TimeToLive,
-    TimeToRefresh,
-    Value = null
-  }: Props) {
-    this.CacheType = CacheType;
-    this.Created = new Date();
-    if (Created instanceof Date) {
-      this.Created = Created;
+export class LitterBoxItem implements ILitterBoxItem {
+  constructor(props: ILitterBoxItemProps) {
+    const {
+      cacheType = 'UNKNOWN_CACHE',
+      created,
+      key = 'UNKNOWN_KEY',
+      timeToLive,
+      timeToRefresh,
+      value = null
+    } = props;
+    this.cacheType = cacheType;
+    this.created = new Date();
+    if (created instanceof Date) {
+      this.created = created;
     }
-    if (typeof Created === 'string') {
-      this.Created = new Date(Created);
+    if (typeof created === 'string') {
+      this.created = new Date(created);
     }
-    this.Key = Key;
-    this.TimeToLive = TimeToLive;
-    this.TimeToRefresh = TimeToRefresh;
-    this.Value = Value;
+    this.key = key;
+    this.timeToLive = timeToLive;
+    this.timeToRefresh = timeToRefresh;
+    this.value = value;
   }
-  CacheType: string;
-  Created: Date;
-  Key: string;
-  TimeToLive?: number;
-  TimeToRefresh?: number;
-  Value: any;
-  static FromBuffer = (value: Buffer): LitterBoxItem => Compression.UnZip(value);
-  static FromJSONString = (value: string): LitterBoxItem => new LitterBoxItem(JSON.parse(value));
-  ToBuffer = (): Buffer => Compression.Zip(this);
-  ToJSONString = (): string => JSON.stringify(this);
-  Clone = (): LitterBoxItem => {
-    const { CacheType, Created, Key, TimeToLive, TimeToRefresh, Value } = this;
+  cacheType: string;
+  created: Date;
+  key: string;
+  timeToLive?: number;
+  timeToRefresh?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+  static fromBuffer = (value: Buffer): LitterBoxItem => Compression.inflate(value);
+  static fromJSONString = (value: string): LitterBoxItem => new LitterBoxItem(JSON.parse(value));
+  toBuffer = (): Buffer => Compression.deflate(this);
+  toJSONString = (): string => JSON.stringify(this);
+  clone = (): LitterBoxItem => {
+    const { cacheType, created, key, timeToLive, timeToRefresh, value } = this;
     return new LitterBoxItem({
-      CacheType,
-      Created,
-      Key,
-      TimeToLive,
-      TimeToRefresh,
-      Value
+      cacheType,
+      created,
+      key,
+      timeToLive,
+      timeToRefresh,
+      value
     });
   };
-  IsExpired = (): boolean => {
-    const { Created, TimeToLive } = this;
-    if (TimeToLive === null) {
+  isExpired = (): boolean => {
+    const { created, timeToLive } = this;
+    if (timeToLive === null) {
       return false;
     }
-    return new Date().getTime() > Created.setSeconds(Created.getSeconds() + (TimeToLive || 0));
+    return new Date().getTime() > created.setSeconds(created.getSeconds() + (timeToLive || 0));
   };
-  IsStale = (): boolean => {
-    const { Created, TimeToRefresh } = this;
-    if (TimeToRefresh === null) {
+  isStale = (): boolean => {
+    const { created, timeToRefresh } = this;
+    if (timeToRefresh === null) {
       return false;
     }
-    return new Date().getTime() > Created.setSeconds(Created.getSeconds() + (TimeToRefresh || 0));
+    return new Date().getTime() > created.setSeconds(created.getSeconds() + (timeToRefresh || 0));
   };
 }

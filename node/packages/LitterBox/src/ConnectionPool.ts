@@ -1,25 +1,28 @@
 import { IConnection, IConnectionPool } from './Interfaces';
 
-interface Props extends IConnectionPool {}
+interface IConnectionPoolProps {
+  poolSize: number;
+}
 
 export class ConnectionPool implements IConnectionPool {
-  constructor({ PoolSize = 5 }: Props) {
-    this.PoolSize = PoolSize;
+  constructor(props: IConnectionPoolProps) {
+    const { poolSize = 5 } = props;
+    this.poolSize = poolSize;
   }
-  private _roundRobinCounter: number = 0;
-  readonly Connections: IConnection[] = [];
-  readonly PoolSize: number;
-  GetPooledConnection = (): IConnection => {
-    return this.Connections[this.IncrementCount()];
+  private _roundRobinCounter = 0;
+  readonly connections: IConnection[] = [];
+  readonly poolSize: number;
+  getPooledConnection = (): IConnection => {
+    return this.connections[this.incrementCount()];
   };
-  Initialize = async (connection: IConnection): Promise<void> => {
-    for (let i = 0; i < this.PoolSize; i++) {
-      await connection.Connect();
-      this.Connections.push(connection);
+  initialize = async (connection: IConnection): Promise<void> => {
+    for (let i = 0; i < this.poolSize; i++) {
+      await connection.connect();
+      this.connections.push(connection);
     }
   };
-  IncrementCount = (): number => {
-    if (this._roundRobinCounter + 1 >= this.PoolSize) {
+  incrementCount = (): number => {
+    if (this._roundRobinCounter + 1 >= this.poolSize) {
       this._roundRobinCounter = 0;
     } else {
       this._roundRobinCounter++;

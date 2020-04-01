@@ -5,74 +5,65 @@ export class Tenancy implements ITenancy {
   constructor(caches: ILitterBox[]) {
     this._caches = caches;
   }
-  _caches: ILitterBox[] = [];
-  Reconnect = async (): Promise<ActionResult[]> => {
+  private _caches: ILitterBox[] = [];
+  reconnect = async (): Promise<ActionResult[]> => {
     const results: ActionResult[] = [];
     for (let index = 0; index < this._caches.length; index++) {
       const cache = this._caches[index];
-      const CacheType = cache.GetType();
+      const cacheType = cache.getType();
       const result = new ActionResult({
-        CacheType
+        cacheType
       });
       try {
-        result.IsSuccessful = await cache.Reconnect();
+        result.isSuccessful = await cache.reconnect();
       } catch (err) {
-        result.Error = err;
+        result.error = err;
       }
     }
     return results;
   };
-  Flush = async (): Promise<ActionResult[]> => {
+  flush = async (): Promise<ActionResult[]> => {
     const results: ActionResult[] = [];
     for (let index = 0; index < this._caches.length; index++) {
       const cache = this._caches[index];
-      const CacheType = cache.GetType();
+      const cacheType = cache.getType();
       const result = new ActionResult({
-        CacheType
+        cacheType
       });
       try {
-        result.IsSuccessful = await cache.Flush();
+        result.isSuccessful = await cache.flush();
       } catch (err) {
-        result.Error = err;
+        result.error = err;
       }
     }
     return results;
   };
-  GetItem = async (key: string): Promise<LitterBoxItem | null> => {
-    if (!key) {
-      throw new Error(`ArgumentException: (null | undefined) => key`);
-    }
+  getItem = async (key: string): Promise<LitterBoxItem | null> => {
     let result: LitterBoxItem | null = null;
     for (let index = 0; index < this._caches.length; index++) {
-      result = await this._caches[index].GetItem(key);
+      result = await this._caches[index].getItem(key);
       if (result) {
         break;
       }
     }
     return result;
   };
-  GetItemUsingGenerator = async (
+  getItemUsingGenerator = async (
     key: string,
-    generator: () => Promise<any>,
+    generator: () => Promise<LitterBoxItem>,
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<LitterBoxItem | null> => {
-    if (!key) {
-      throw new Error(`ArgumentException: (null | undefined) => key`);
-    }
-    if (!generator) {
-      throw new Error(`ArgumentException: (null | undefined) => generator`);
-    }
     let result: LitterBoxItem | null = null;
     let foundIndex = 0;
     for (let index = 0; index < this._caches.length; index++) {
       const cache = this._caches[index];
-      result = await cache.GetItem(key);
+      result = await cache.getItem(key);
       if (result != null) {
         foundIndex = index;
         // if the result is stale; refresh this cache only at this time
-        if (result.IsStale()) {
-          cache.SetItemFireAndForgetUsingGenerator(key, generator, timeToLive, timeToRefresh);
+        if (result.isStale()) {
+          cache.setItemFireAndForgetUsingGenerator(key, generator, timeToLive, timeToRefresh);
         }
         break;
       }
@@ -80,10 +71,10 @@ export class Tenancy implements ITenancy {
     if (result === null) {
       foundIndex = this._caches.length;
       result = new LitterBoxItem({
-        Key: key,
-        TimeToLive: timeToLive,
-        TimeToRefresh: timeToRefresh,
-        Value: await generator()
+        key,
+        timeToLive: timeToLive,
+        timeToRefresh: timeToRefresh,
+        value: await generator()
       });
     }
     if (result !== null) {
@@ -91,183 +82,124 @@ export class Tenancy implements ITenancy {
         const cache = this._caches[index];
         // if the result was stale and was also found in a cache
         // refresh all caches from until the cache it was found in
-        if (result.IsStale() && result.CacheType != null) {
-          cache.SetItemFireAndForgetUsingGenerator(key, generator, timeToLive, timeToRefresh);
+        if (result.isStale() && result.cacheType != null) {
+          cache.setItemFireAndForgetUsingGenerator(key, generator, timeToLive, timeToRefresh);
         } else {
           // else we can just save the result into the cache and not regenerate
-          cache.SetItemFireAndForget(key, result, timeToLive, timeToRefresh);
+          cache.setItemFireAndForget(key, result, timeToLive, timeToRefresh);
         }
       }
     }
     return result;
   };
-  GetItems = async (keys: string[]): Promise<(LitterBoxItem | null)[]> => {
-    if (!keys) {
-      throw new Error(`ArgumentException: (null | undefined) => keys`);
-    }
-    if (!keys.length) {
-      throw new Error(`ArgumentException: (Length < 1) => keys.length`);
-    }
+  getItems = async (keys: string[]): Promise<(LitterBoxItem | null)[]> => {
     const results: (LitterBoxItem | null)[] = [];
     for (let index = 0; index < keys.length; index++) {
-      const result = await this.GetItem(keys[index]);
+      const result = await this.getItem(keys[index]);
       results.push(result);
     }
     return results;
   };
-  GetItemsUsingGenerator = async (
+  getItemsUsingGenerator = async (
     keys: string[],
-    generators: (() => Promise<any>)[],
+    generators: (() => Promise<LitterBoxItem>)[],
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<(LitterBoxItem | null)[]> => {
-    if (!keys) {
-      throw new Error(`ArgumentException: (null | undefined) => keys`);
-    }
-    if (!generators) {
-      throw new Error(`ArgumentException: (null | undefined) => generators`);
-    }
-    if (!keys.length) {
-      throw new Error(`ArgumentException: (Length < 1) => keys.length`);
-    }
-    if (!generators.length) {
-      throw new Error(`ArgumentException: (Length < 1) => generators.length`);
-    }
-    if (keys.length !== generators.length) {
-      throw new Error(`ArgumentException: (Length < 1) => eys.length !== generators.length`);
-    }
     const results: (LitterBoxItem | null)[] = [];
     for (let index = 0; index < keys.length; index++) {
       const key = keys[index];
       const generator = generators[index];
-      const result = await this.GetItemUsingGenerator(key, generator, timeToLive, timeToRefresh);
+      const result = await this.getItemUsingGenerator(key, generator, timeToLive, timeToRefresh);
       results.push(result);
     }
     return results;
   };
-  SetItem = async (key: string, item: any, timeToLive?: number, timeToRefresh?: number): Promise<ActionResult[]> => {
-    if (!key) {
-      throw new Error(`ArgumentException: (null | undefined) => key`);
-    }
-    if (!item) {
-      throw new Error(`ArgumentException: (null | undefined) => item`);
-    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setItem = async (key: string, item: any, timeToLive?: number, timeToRefresh?: number): Promise<ActionResult[]> => {
     const results: ActionResult[] = [];
     for (let index = 0; index < this._caches.length; index++) {
       const cache = this._caches[index];
-      const CacheType = cache.GetType();
+      const cacheType = cache.getType();
       const result = new ActionResult({
-        CacheType
+        cacheType
       });
       try {
-        result.IsSuccessful = await cache.SetItem(key, item, timeToLive, timeToRefresh);
+        result.isSuccessful = await cache.setItem(key, item, timeToLive, timeToRefresh);
       } catch (err) {
-        result.Error = err;
+        result.error = err;
       }
     }
     return results;
   };
-  SetItems = async (
+  setItems = async (
     keys: string[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     items: any[],
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<ActionResult[][]> => {
-    if (!keys) {
-      throw new Error(`ArgumentException: (null | undefined) => keys`);
-    }
-    if (!items) {
-      throw new Error(`ArgumentException: (null | undefined) => items`);
-    }
-    if (!keys.length) {
-      throw new Error(`ArgumentException: (Length < 1) => keys.length`);
-    }
-    if (!items.length) {
-      throw new Error(`ArgumentException: (Length < 1) => items.length`);
-    }
-    if (keys.length !== items.length) {
-      throw new Error(`ArgumentException: (Length < 1) => eys.length !== items.length`);
-    }
     const results: ActionResult[][] = [];
     for (let index = 0; index < keys.length; index++) {
       const key = keys[index];
       const item = items[index];
       try {
-        const result = await this.SetItem(key, item, timeToLive, timeToRefresh);
+        const result = await this.setItem(key, item, timeToLive, timeToRefresh);
         results.push(result);
       } catch (err) {
         const result = new ActionResult({
-          CacheType: err.message,
-          Error: err
+          cacheType: err.message,
+          error: err
         });
         results.push([result]);
       }
     }
     return results;
   };
-  SetItemFireAndForget = (key: string, item: any, timeToLive?: number, timeToRefresh?: number) => {
-    if (!key) {
-      throw new Error(`ArgumentException: (null | undefined) => key`);
-    }
-    if (!item) {
-      throw new Error(`ArgumentException: (null | undefined) => item`);
-    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setItemFireAndForget = (key: string, item: any, timeToLive?: number, timeToRefresh?: number): void => {
     for (let index = 0; index < this._caches.length; index++) {
-      this._caches[index].SetItemFireAndForget(key, item, timeToLive, timeToRefresh);
+      this._caches[index].setItemFireAndForget(key, item, timeToLive, timeToRefresh);
     }
   };
-  SetItemFireAndForgetUsingGenerator = (
+  setItemFireAndForgetUsingGenerator = (
     key: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     generator: () => Promise<any>,
     timeToLive?: number,
     timeToRefresh?: number
-  ) => {
-    if (!key) {
-      throw new Error(`ArgumentException: (null | undefined) => key`);
-    }
-    if (!generator) {
-      throw new Error(`ArgumentException: (null | undefined) => generator`);
-    }
+  ): void => {
     for (let index = 0; index < this._caches.length; index++) {
-      this._caches[index].SetItemFireAndForgetUsingGenerator(key, generator, timeToLive, timeToRefresh);
+      this._caches[index].setItemFireAndForgetUsingGenerator(key, generator, timeToLive, timeToRefresh);
     }
   };
-  RemoveItem = async (key: string): Promise<ActionResult[]> => {
-    if (!key) {
-      throw new Error(`ArgumentException: (null | undefined) => key`);
-    }
+  removeItem = async (key: string): Promise<ActionResult[]> => {
     const results: ActionResult[] = [];
     for (let index = 0; index < this._caches.length; index++) {
       const cache = this._caches[index];
-      const CacheType = cache.GetType();
+      const cacheType = cache.getType();
       const result = new ActionResult({
-        CacheType
+        cacheType
       });
       try {
-        result.IsSuccessful = await cache.RemoveItem(key);
+        result.isSuccessful = await cache.removeItem(key);
       } catch (err) {
-        result.Error = err;
+        result.error = err;
       }
     }
     return results;
   };
-  RemoveItems = async (keys: string[]): Promise<ActionResult[][]> => {
-    if (!keys) {
-      throw new Error(`ArgumentException: (null | undefined) => keys`);
-    }
-    if (!keys.length) {
-      throw new Error(`ArgumentException: (Length < 1) => keys.length`);
-    }
+  removeItems = async (keys: string[]): Promise<ActionResult[][]> => {
     const results: ActionResult[][] = [];
     for (let index = 0; index < keys.length; index++) {
       const key = keys[index];
       try {
-        const result = await this.RemoveItem(key);
+        const result = await this.removeItem(key);
         results.push(result);
       } catch (err) {
         const result = new ActionResult({
-          CacheType: err.message,
-          Error: err
+          cacheType: err.message,
+          error: err
         });
         results.push([result]);
       }

@@ -1,5 +1,6 @@
 export interface IActionResult {
-  CacheType: string;
-  IsSuccessful?: boolean;
-  Error?: any;
+  cacheType: string;
+  isSuccessful?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error?: any;
 }

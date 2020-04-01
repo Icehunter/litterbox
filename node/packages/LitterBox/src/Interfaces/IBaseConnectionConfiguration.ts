@@ -1,6 +1,6 @@
 export interface IBaseConnectionConfiguration {
-  DefaultTimeToLive?: number;
-  DefaultTimeToRefresh?: number;
-  PoolSize?: number;
-  UseGZIPCompression?: boolean;
+  defaultTimeToLive?: number;
+  defaultTimeToRefresh?: number;
+  poolSize?: number;
+  useGZIPCompression?: boolean;
 }

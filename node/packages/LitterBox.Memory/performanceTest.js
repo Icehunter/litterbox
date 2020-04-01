@@ -1,36 +1,35 @@
-require('@babel/register');
-
 const { Tenancy } = require('@icehunter/litterbox');
 const { MemoryBox, MemoryConfiguration } = require('./lib');
 
 const MSToTime = (duration) => {
-  var milliseconds = parseInt((duration % 1000) / 100),
-    seconds = parseInt((duration / 1000) % 60),
-    minutes = parseInt((duration / (1000 * 60)) % 60),
-    hours = parseInt((duration / (1000 * 60 * 60)) % 24);
+  const milliseconds = (duration % 1000) / 100;
+  const seconds = Math.floor((duration / 1000) % 60);
+  const minutes = Math.floor((duration / (1000 * 60)) % 60);
+  const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
 
-  hours = hours < 10 ? '0' + hours : hours;
-  minutes = minutes < 10 ? '0' + minutes : minutes;
-  seconds = seconds < 10 ? '0' + seconds : seconds;
+  const formattedHours = `${hours < 10 ? '0' + hours : hours}h`;
+  const formattedMinutes = `${minutes < 10 ? '0' + minutes : minutes}m`;
+  const formattedSeconds = `${seconds < 10 ? '0' + seconds : seconds}s`;
+  const formattedMilliseconds = `${milliseconds}ms`;
 
-  return hours + 'h: ' + minutes + 'm: ' + seconds + 's: ' + milliseconds + 'ms';
+  return [formattedHours, formattedMinutes, formattedSeconds, formattedMilliseconds].join(':');
 };
 
 const init = async () => {
   try {
-    const memory = await MemoryBox.GetInstance(new MemoryConfiguration());
+    const memory = await MemoryBox.getInstance(new MemoryConfiguration());
     const caching = new Tenancy([memory]);
 
     console.log('setting item: ', { testing: 123 });
 
-    await caching.SetItem('s', { testing: 123 });
+    await caching.setItem('s', { testing: 123 });
 
     const start = Date.now();
 
-    console.log('getting item: ', await caching.GetItem('s'));
+    console.log('getting item: ', await caching.getItem('s'));
 
     for (let i = 0; i < 1000000; i++) {
-      await caching.GetItem('s');
+      await caching.getItem('s');
     }
 
     const end = Date.now();

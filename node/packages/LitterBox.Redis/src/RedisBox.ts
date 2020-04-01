@@ -6,14 +6,14 @@ export class RedisBox {
   constructor(configuration: RedisConfiguration) {
     this._configuration = configuration;
   }
-  static GetInstance = async (configuration: RedisConfiguration): Promise<LitterBox> => {
+  static getInstance = async (configuration: RedisConfiguration): Promise<LitterBox> => {
     const instance = new LitterBox({
       type: 'LitterBox.Redis',
       pool: new ConnectionPool(configuration),
       configuration,
       connection: new RedisConnection(configuration)
     });
-    return await instance.Initialize();
+    return await instance.initialize();
   };
-  _configuration: RedisConfiguration;
+  private _configuration: RedisConfiguration;
 }
