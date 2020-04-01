@@ -42,16 +42,16 @@ const init = async () => {
   const memoryBox = await MemoryBox.GetInstance(
     new MemoryConfiguration({
       // how many seconds until it's deleted
-      DefaultTimeToLive: 1 * 60 * 60 * 1000,
+      defaultTimeToLive: 1 * 60 * 60 * 1000,
       // how many seconds until it's stale
-      DefaultTimeToRefresh: 5 * 1000,
+      defaultTimeToRefresh: 5 * 1000,
       // how many connections to pool up
-      PoolSize: 1,
+      poolSize: 1,
       // use gzip compression/buffers to save space
       // this drops performance in the node app
-      UseGZIPCompression: false,
+      useGZIPCompression: false,
       // how often to scan for expired items
-      ExpirationScanFrequency: 30 * 1000
+      expirationScanFrequency: 30 * 1000
     })
   );
 
@@ -59,22 +59,22 @@ const init = async () => {
   const redisBox = await RedisBox.GetInstance(
     new RedisConfiguration({
       // how many seconds until it's deleted
-      DefaultTimeToLive: 1 * 60 * 60 * 1000,
+      defaultTimeToLive: 1 * 60 * 60 * 1000,
       // how many seconds until it's stale
-      DefaultTimeToRefresh: 5 * 1000,
+      defaultTimeToRefresh: 5 * 1000,
       // how many connections to pool up
-      PoolSize: 1,
+      poolSize: 1,
       // use gzip compression/buffers to save space
       // this drops performance in the node app
-      UseGZIPCompression: false,
+      useGZIPCompression: false,
       // default database to store data
-      DataBaseID: 0,
+      dataBaseID: 0,
       // host of redis server
-      Host: '127.0.0.1',
+      host: '127.0.0.1',
       // password if using authentication
       Password: '',
       // port of redis server
-      Port: 6379
+      port: 6379
     })
   );
 
