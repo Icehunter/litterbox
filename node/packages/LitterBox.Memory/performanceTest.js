@@ -1,4 +1,4 @@
-const { Tenancy } = require('@icehunter/litterbox');
+const { Tenancy, LitterBoxItem } = require('@icehunter/litterbox');
 const { MemoryBox, MemoryConfiguration } = require('./lib');
 
 const MSToTime = (duration) => {
@@ -22,7 +22,7 @@ const init = async () => {
 
     console.log('setting item: ', { testing: 123 });
 
-    await caching.setItem('s', { testing: 123 });
+    await caching.setItem('s', new LitterBoxItem({ value: { testing: 123 } }));
 
     const start = Date.now();
 

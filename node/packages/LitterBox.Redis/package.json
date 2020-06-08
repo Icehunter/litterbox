@@ -23,6 +23,8 @@
   },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1",
+    "link": "yarn link",
+    "unlink": "yarn unlink",
     "lint": "eslint ./src --ext .ts",
     "lint:fix": "eslint ./src --ext .ts --fix",
     "perf": "yarn build && node performanceTest.js",

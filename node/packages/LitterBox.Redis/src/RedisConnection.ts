@@ -1,7 +1,8 @@
 import { IConnection, LitterBoxItem } from '@icehunter/litterbox';
-import { promisifyAll } from 'bluebird';
-import { createClient, RedisClient } from 'redis';
+import { RedisClient, createClient } from 'redis';
+
 import { RedisConfiguration } from './RedisConfiguration';
+import { promisifyAll } from 'bluebird';
 
 export class RedisConnection implements IConnection {
   constructor(configuration: RedisConfiguration) {
@@ -23,7 +24,7 @@ export class RedisConnection implements IConnection {
   }
   private _cache: RedisClient;
   private _configuration: RedisConfiguration;
-  getItem = async (key: string): Promise<LitterBoxItem | null> => {
+  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | null> => {
     return new Promise((resolve, reject) => {
       try {
         this._cache.HGET(key, 'litter', (err, item) => {
@@ -46,7 +47,12 @@ export class RedisConnection implements IConnection {
       }
     });
   };
-  setItem = async (key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean> => {
+  setItem = async <T>(
+    key: string,
+    item: LitterBoxItem<T>,
+    timeToLive?: number,
+    timeToRefresh?: number
+  ): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       try {
         const litter = item.clone();
@@ -84,6 +90,7 @@ export class RedisConnection implements IConnection {
       }
     });
   };
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   connect = async (): Promise<void> => {};
   reconnect = async (): Promise<void> => {
     if (this._cache) {

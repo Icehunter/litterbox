@@ -1,4 +1,5 @@
 import { IConnection, LitterBoxItem } from '@icehunter/litterbox';
+
 import { ICache } from './ICache';
 import { MemoryConfiguration } from './MemoryConfiguration';
 
@@ -28,7 +29,7 @@ export class MemoryConnection implements IConnection {
   private _cache: ICache = {};
   private _configuration: MemoryConfiguration;
   private _expirationTimer: NodeJS.Timer;
-  getItem = async (key: string): Promise<LitterBoxItem | null> => {
+  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | null> => {
     const item = this._cache[key];
     if (item) {
       let litter;
@@ -51,7 +52,12 @@ export class MemoryConnection implements IConnection {
     }
     return null;
   };
-  setItem = async (key: string, item: LitterBoxItem, timeToLive?: number, timeToRefresh?: number): Promise<boolean> => {
+  setItem = async <T>(
+    key: string,
+    item: LitterBoxItem<T>,
+    timeToLive?: number,
+    timeToRefresh?: number
+  ): Promise<boolean> => {
     const litter = item.clone();
     litter.timeToLive = timeToLive || item.timeToLive;
     litter.timeToRefresh = timeToRefresh || item.timeToRefresh;

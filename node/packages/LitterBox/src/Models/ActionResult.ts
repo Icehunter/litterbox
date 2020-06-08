@@ -1,6 +1,6 @@
 import { IActionResult } from '../Interfaces';
 
-interface IActionResultProps extends IActionResult {}
+type IActionResultProps = IActionResult;
 
 export class ActionResult implements IActionResult {
   constructor(props: IActionResultProps) {

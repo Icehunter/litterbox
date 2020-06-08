@@ -2,15 +2,15 @@ import { LitterBoxItem } from '../Models';
 
 export interface ILitterBox {
   getType(): string;
-  getItem(key: string): Promise<LitterBoxItem | null>;
+  getItem<T>(key: string): Promise<LitterBoxItem<T> | null>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setItem(key: string, item: any, timeToLive?: number, timeToRefresh?: number): Promise<boolean>;
+  setItem<T>(key: string, item: LitterBoxItem<T>, timeToLive?: number, timeToRefresh?: number): Promise<boolean>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setItemFireAndForget(key: string, item: any, timeToLive?: number, timeToRefresh?: number): void;
-  setItemFireAndForgetUsingGenerator(
+  setItemFireAndForget<T>(key: string, item: LitterBoxItem<T>, timeToLive?: number, timeToRefresh?: number): void;
+  setItemFireAndForgetUsingGenerator<T>(
     key: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    generator: () => Promise<any>,
+    generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number
   ): void;

@@ -1,10 +1,8 @@
 import { Compression } from '../Compression';
 import { ILitterBoxItem } from '../Interfaces';
 
-interface ILitterBoxItemProps extends ILitterBoxItem {}
-
-export class LitterBoxItem implements ILitterBoxItem {
-  constructor(props: ILitterBoxItemProps) {
+export class LitterBoxItem<T> implements ILitterBoxItem<T> {
+  constructor(props: ILitterBoxItem<T>) {
     const {
       cacheType = 'UNKNOWN_CACHE',
       created,
@@ -33,13 +31,13 @@ export class LitterBoxItem implements ILitterBoxItem {
   timeToRefresh?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
-  static fromBuffer = (value: Buffer): LitterBoxItem => Compression.inflate(value);
-  static fromJSONString = (value: string): LitterBoxItem => new LitterBoxItem(JSON.parse(value));
+  static fromBuffer = <T>(value: Buffer): LitterBoxItem<T> => Compression.inflate(value);
+  static fromJSONString = <T>(value: string): LitterBoxItem<T> => new LitterBoxItem(JSON.parse(value));
   toBuffer = (): Buffer => Compression.deflate(this);
   toJSONString = (): string => JSON.stringify(this);
-  clone = (): LitterBoxItem => {
+  clone = (): LitterBoxItem<T> => {
     const { cacheType, created, key, timeToLive, timeToRefresh, value } = this;
-    return new LitterBoxItem({
+    return new LitterBoxItem<T>({
       cacheType,
       created,
       key,
@@ -53,13 +51,15 @@ export class LitterBoxItem implements ILitterBoxItem {
     if (timeToLive === null) {
       return false;
     }
-    return new Date().getTime() > created.setSeconds(created.getSeconds() + (timeToLive || 0));
+    const comparisonDate = new Date(created.getTime());
+    return new Date().getTime() > comparisonDate.setSeconds(comparisonDate.getSeconds() + (timeToLive || 0));
   };
   isStale = (): boolean => {
     const { created, timeToRefresh } = this;
     if (timeToRefresh === null) {
       return false;
     }
-    return new Date().getTime() > created.setSeconds(created.getSeconds() + (timeToRefresh || 0));
+    const comparisonDate = new Date(created.getTime());
+    return new Date().getTime() > comparisonDate.setSeconds(comparisonDate.getSeconds() + (timeToRefresh || 0));
   };
 }

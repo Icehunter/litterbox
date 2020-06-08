@@ -3,32 +3,37 @@ import { ActionResult, LitterBoxItem } from '../Models';
 export interface ITenancy {
   flush(): Promise<ActionResult[]>;
   reconnect(): Promise<ActionResult[]>;
-  getItem(key: string): Promise<LitterBoxItem | null>;
-  getItemUsingGenerator(
+  getItem<T>(key: string): Promise<LitterBoxItem<T> | null>;
+  getItemUsingGenerator<T>(
     key: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    generator: () => Promise<any>,
+    generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number
-  ): Promise<LitterBoxItem | null>;
-  getItems(keys: string[]): Promise<(LitterBoxItem | null)[]>;
-  getItemsUsingGenerator(
+  ): Promise<LitterBoxItem<T> | null>;
+  getItems<T>(keys: string[]): Promise<(LitterBoxItem<T> | null)[]>;
+  getItemsUsingGenerator<T>(
     keys: string[],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    generators: (() => Promise<any>)[],
+    generators: (() => Promise<T>)[],
     timeToLive?: number,
     timeToRefresh?: number
-  ): Promise<(LitterBoxItem | null)[]>;
+  ): Promise<(LitterBoxItem<T> | null)[]>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setItem(key: string, item: any, timeToLive?: number, timeToRefresh?: number): Promise<ActionResult[]>;
+  setItem<T>(key: string, item: LitterBoxItem<T>, timeToLive?: number, timeToRefresh?: number): Promise<ActionResult[]>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setItems(keys: string[], items: any, timeToLive?: number, timeToRefresh?: number): Promise<ActionResult[][]>;
+  setItems<T>(
+    keys: string[],
+    items: LitterBoxItem<T>[],
+    timeToLive?: number,
+    timeToRefresh?: number
+  ): Promise<ActionResult[][]>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setItemFireAndForget(key: string, item: any, timeToLive?: number, timeToRefresh?: number): void;
-  setItemFireAndForgetUsingGenerator(
+  setItemFireAndForget<T>(key: string, item: LitterBoxItem<T>, timeToLive?: number, timeToRefresh?: number): void;
+  setItemFireAndForgetUsingGenerator<T>(
     key: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    generator: () => Promise<any>,
+    generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number
   ): void;

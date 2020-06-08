@@ -1,5 +1,5 @@
-import { ILitterBox, ITenancy } from './Interfaces';
 import { ActionResult, LitterBoxItem } from './Models';
+import { ILitterBox, ITenancy } from './Interfaces';
 
 export class Tenancy implements ITenancy {
   constructor(caches: ILitterBox[]) {
@@ -38,8 +38,8 @@ export class Tenancy implements ITenancy {
     }
     return results;
   };
-  getItem = async (key: string): Promise<LitterBoxItem | null> => {
-    let result: LitterBoxItem | null = null;
+  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | null> => {
+    let result: LitterBoxItem<T> | null = null;
     for (let index = 0; index < this._caches.length; index++) {
       result = await this._caches[index].getItem(key);
       if (result) {
@@ -48,13 +48,13 @@ export class Tenancy implements ITenancy {
     }
     return result;
   };
-  getItemUsingGenerator = async (
+  getItemUsingGenerator = async <T>(
     key: string,
-    generator: () => Promise<LitterBoxItem>,
+    generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number
-  ): Promise<LitterBoxItem | null> => {
-    let result: LitterBoxItem | null = null;
+  ): Promise<LitterBoxItem<T> | null> => {
+    let result: LitterBoxItem<T> | null = null;
     let foundIndex = 0;
     for (let index = 0; index < this._caches.length; index++) {
       const cache = this._caches[index];
@@ -70,7 +70,7 @@ export class Tenancy implements ITenancy {
     }
     if (result === null) {
       foundIndex = this._caches.length;
-      result = new LitterBoxItem({
+      result = new LitterBoxItem<T>({
         key,
         timeToLive: timeToLive,
         timeToRefresh: timeToRefresh,
@@ -92,21 +92,21 @@ export class Tenancy implements ITenancy {
     }
     return result;
   };
-  getItems = async (keys: string[]): Promise<(LitterBoxItem | null)[]> => {
-    const results: (LitterBoxItem | null)[] = [];
+  getItems = async <T>(keys: string[]): Promise<(LitterBoxItem<T> | null)[]> => {
+    const results: (LitterBoxItem<T> | null)[] = [];
     for (let index = 0; index < keys.length; index++) {
       const result = await this.getItem(keys[index]);
       results.push(result);
     }
     return results;
   };
-  getItemsUsingGenerator = async (
+  getItemsUsingGenerator = async <T>(
     keys: string[],
-    generators: (() => Promise<LitterBoxItem>)[],
+    generators: (() => Promise<T>)[],
     timeToLive?: number,
     timeToRefresh?: number
-  ): Promise<(LitterBoxItem | null)[]> => {
-    const results: (LitterBoxItem | null)[] = [];
+  ): Promise<(LitterBoxItem<T> | null)[]> => {
+    const results: (LitterBoxItem<T> | null)[] = [];
     for (let index = 0; index < keys.length; index++) {
       const key = keys[index];
       const generator = generators[index];
@@ -116,7 +116,12 @@ export class Tenancy implements ITenancy {
     return results;
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setItem = async (key: string, item: any, timeToLive?: number, timeToRefresh?: number): Promise<ActionResult[]> => {
+  setItem = async <T>(
+    key: string,
+    item: LitterBoxItem<T>,
+    timeToLive?: number,
+    timeToRefresh?: number
+  ): Promise<ActionResult[]> => {
     const results: ActionResult[] = [];
     for (let index = 0; index < this._caches.length; index++) {
       const cache = this._caches[index];
@@ -132,10 +137,10 @@ export class Tenancy implements ITenancy {
     }
     return results;
   };
-  setItems = async (
+  setItems = async <T>(
     keys: string[],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    items: any[],
+    items: LitterBoxItem<T>[],
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<ActionResult[][]> => {
@@ -157,15 +162,20 @@ export class Tenancy implements ITenancy {
     return results;
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setItemFireAndForget = (key: string, item: any, timeToLive?: number, timeToRefresh?: number): void => {
+  setItemFireAndForget = <T>(
+    key: string,
+    item: LitterBoxItem<T>,
+    timeToLive?: number,
+    timeToRefresh?: number
+  ): void => {
     for (let index = 0; index < this._caches.length; index++) {
       this._caches[index].setItemFireAndForget(key, item, timeToLive, timeToRefresh);
     }
   };
-  setItemFireAndForgetUsingGenerator = (
+  setItemFireAndForgetUsingGenerator = <T>(
     key: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    generator: () => Promise<any>,
+    generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number
   ): void => {
