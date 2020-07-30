@@ -41,9 +41,9 @@ const init = async () => {
   // get a memorybox instance
   const memoryBox = await MemoryBox.GetInstance(
     new MemoryConfiguration({
-      // how many seconds until it's deleted
+      // how many milliseconds until it's deleted
       defaultTimeToLive: 1 * 60 * 60 * 1000,
-      // how many seconds until it's stale
+      // how many milliseconds until it's stale
       defaultTimeToRefresh: 5 * 1000,
       // how many connections to pool up
       poolSize: 1,
@@ -58,9 +58,9 @@ const init = async () => {
   // get a redisbox instance
   const redisBox = await RedisBox.GetInstance(
     new RedisConfiguration({
-      // how many seconds until it's deleted
+      // how many milliseconds until it's deleted
       defaultTimeToLive: 1 * 60 * 60 * 1000,
-      // how many seconds until it's stale
+      // how many milliseconds until it's stale
       defaultTimeToRefresh: 5 * 1000,
       // how many connections to pool up
       poolSize: 1,
@@ -132,25 +132,22 @@ Additionally the following properties are set by default when making a new item:
 
 ```javascript
   constructor({
-    CacheType = 'UNKNOWN_CACHE',
+    CacheType = 'INITIAL',
     Created,
-    Key = 'UNKNOWN_KEY',
+    Key,
     TimeToLive,
     TimeToRefresh,
-    Value = null
+    Value
   }: Props) {
-    this.CacheType = CacheType;
-    this.Created = new Date();
-    if (Created instanceof Date) {
-      this.Created = Created;
+    this.cacheType = cacheType;
+    this.created = new Date(created);
+    if (this.created.toString() === 'Invalid Date') {
+      this.created = new Date();
     }
-    if (typeof Created === 'string') {
-      this.Created = new Date(Created);
-    }
-    this.Key = Key;
-    this.TimeToLive = TimeToLive;
-    this.TimeToRefresh = TimeToRefresh;
-    this.Value = Value;
+    this.key = key;
+    this.timeToLive = timeToLive;
+    this.timeToRefresh = timeToRefresh;
+    this.value = value;
 }
 ```
 
@@ -158,6 +155,4 @@ When the actual item is saved in the appropriate cache and when it comes out (de
 
 # `known thingies`
 
-- I havne't figured out a way to on GetItemGenerated to call the generator only once when mass spamming the same key/generator to the call.
 - There's probably some bugs I don't know about...
-- redis isn't locked; I'd like to implement locks so multi-server deployments don't spam the same key/request.

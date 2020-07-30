@@ -1,23 +1,14 @@
 import { Compression } from '../Compression';
 import { ILitterBoxItem } from '../Interfaces';
+import { add } from 'date-fns';
 
 export class LitterBoxItem<T> implements ILitterBoxItem<T> {
   constructor(props: ILitterBoxItem<T>) {
-    const {
-      cacheType = 'UNKNOWN_CACHE',
-      created,
-      key = 'UNKNOWN_KEY',
-      timeToLive,
-      timeToRefresh,
-      value = null
-    } = props;
+    const { cacheType = 'INITIAL', created = new Date(), key, timeToLive, timeToRefresh, value } = props;
     this.cacheType = cacheType;
-    this.created = new Date();
-    if (created instanceof Date) {
-      this.created = created;
-    }
-    if (typeof created === 'string') {
-      this.created = new Date(created);
+    this.created = new Date(created);
+    if (this.created.toString() === 'Invalid Date') {
+      this.created = new Date();
     }
     this.key = key;
     this.timeToLive = timeToLive;
@@ -29,37 +20,55 @@ export class LitterBoxItem<T> implements ILitterBoxItem<T> {
   key: string;
   timeToLive?: number;
   timeToRefresh?: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
+  value: T;
   static fromBuffer = <T>(value: Buffer): LitterBoxItem<T> => Compression.inflate(value);
   static fromJSONString = <T>(value: string): LitterBoxItem<T> => new LitterBoxItem(JSON.parse(value));
-  toBuffer = (): Buffer => Compression.deflate(this);
-  toJSONString = (): string => JSON.stringify(this);
-  clone = (): LitterBoxItem<T> => {
+  raw = (): ILitterBoxItem<T> => {
     const { cacheType, created, key, timeToLive, timeToRefresh, value } = this;
-    return new LitterBoxItem<T>({
+    return {
       cacheType,
       created,
       key,
       timeToLive,
       timeToRefresh,
       value
-    });
+    };
+  };
+  toBuffer = (): Buffer => Compression.deflate(this.raw());
+  toJSONString = (): string => JSON.stringify(this.raw());
+  clone = (): LitterBoxItem<T> => {
+    return new LitterBoxItem<T>(this.raw());
   };
   isExpired = (): boolean => {
     const { created, timeToLive } = this;
-    if (timeToLive === null) {
+    if (timeToLive === undefined) {
       return false;
     }
+    if (timeToLive === 0) {
+      return true;
+    }
     const comparisonDate = new Date(created.getTime());
-    return new Date().getTime() > comparisonDate.setSeconds(comparisonDate.getSeconds() + (timeToLive || 0));
+    return (
+      new Date().getTime() >
+      add(comparisonDate, {
+        seconds: timeToLive / 1000
+      }).getTime()
+    );
   };
   isStale = (): boolean => {
     const { created, timeToRefresh } = this;
-    if (timeToRefresh === null) {
+    if (timeToRefresh === undefined) {
       return false;
     }
+    if (timeToRefresh === 0) {
+      return true;
+    }
     const comparisonDate = new Date(created.getTime());
-    return new Date().getTime() > comparisonDate.setSeconds(comparisonDate.getSeconds() + (timeToRefresh || 0));
+    return (
+      new Date().getTime() >
+      add(comparisonDate, {
+        seconds: timeToRefresh / 1000
+      }).getTime()
+    );
   };
 }

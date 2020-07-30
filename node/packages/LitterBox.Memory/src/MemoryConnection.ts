@@ -29,28 +29,26 @@ export class MemoryConnection implements IConnection {
   private _cache: ICache = {};
   private _configuration: MemoryConfiguration;
   private _expirationTimer: NodeJS.Timer;
-  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | null> => {
+  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | undefined> => {
     const item = this._cache[key];
     if (item) {
-      let litter;
+      let litter: LitterBoxItem<T> | undefined;
       if (this._configuration.useGZIPCompression) {
         if (item instanceof Buffer) {
-          litter = LitterBoxItem.fromBuffer(item);
+          litter = LitterBoxItem.fromBuffer<T>(item);
         }
       } else {
-        if (item instanceof LitterBoxItem) {
-          litter = item;
-        }
+        litter = item as LitterBoxItem<T>;
       }
       if (litter) {
         if (litter.isExpired()) {
           await this.removeItem(key);
-          return null;
+          return;
         }
         return litter;
       }
     }
-    return null;
+    return;
   };
   setItem = async <T>(
     key: string,
@@ -58,9 +56,11 @@ export class MemoryConnection implements IConnection {
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<boolean> => {
-    const litter = item.clone();
-    litter.timeToLive = timeToLive || item.timeToLive;
-    litter.timeToRefresh = timeToRefresh || item.timeToRefresh;
+    const litter = {
+      ...item.clone(),
+      timeToLive: timeToLive ?? item.timeToLive ?? this._configuration.defaultTimeToLive,
+      timeToRefresh: timeToRefresh ?? item.timeToRefresh ?? this._configuration.defaultTimeToRefresh
+    };
     const cacheItem = this._configuration.useGZIPCompression ? litter.toBuffer() : litter;
     this._cache[key] = cacheItem;
     return true;

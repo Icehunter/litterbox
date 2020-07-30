@@ -14,7 +14,6 @@ export class RedisConnection implements IConnection {
       password,
       db: dataBaseID,
       // variable is option and must be snake_case
-      // eslint-disable-next-line @typescript-eslint/camelcase
       return_buffers: this._configuration.useGZIPCompression
     };
     if (!options.password) {
@@ -24,7 +23,7 @@ export class RedisConnection implements IConnection {
   }
   private _cache: RedisClient;
   private _configuration: RedisConfiguration;
-  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | null> => {
+  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | undefined> => {
     return new Promise((resolve, reject) => {
       try {
         this._cache.HGET(key, 'litter', (err, item) => {
@@ -32,9 +31,9 @@ export class RedisConnection implements IConnection {
             return reject(err);
           }
           if (!item) {
-            return resolve(null);
+            return resolve();
           }
-          let litter = null;
+          let litter: LitterBoxItem<T> | undefined;
           if (this._configuration.useGZIPCompression) {
             litter = LitterBoxItem.fromBuffer(Buffer.from(item, 'utf8'));
           } else {
@@ -55,12 +54,14 @@ export class RedisConnection implements IConnection {
   ): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       try {
-        const litter = item.clone();
-        litter.timeToLive = timeToLive || item.timeToLive;
-        litter.timeToRefresh = timeToRefresh || item.timeToRefresh;
+        const litter = {
+          ...item.clone(),
+          timeToLive: timeToLive ?? item.timeToLive ?? this._configuration.defaultTimeToLive,
+          timeToRefresh: timeToRefresh ?? item.timeToRefresh ?? this._configuration.defaultTimeToRefresh
+        };
         const cacheItem = this._configuration.useGZIPCompression ? litter.toBuffer() : litter.toJSONString();
         // we ignore the next line as the types for redis don't allow buffer BUT redis itself does
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         this._cache.HSET(key, 'litter', cacheItem, (err) => {
           if (err) {

@@ -1,3 +1,1 @@
-export interface IProcessingCache {
-  [key: string]: boolean;
-}
+export type IProcessingCache = Record<string, boolean>;

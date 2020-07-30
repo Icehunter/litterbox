@@ -28,15 +28,15 @@ const init = async () => {
 
     console.log('getting item: ', await caching.getItem('s'));
 
-    for (let i = 0; i < 1000000; i++) {
+    for (let i = 0; i < 100; i++) {
       await caching.getItem('s');
     }
 
     const end = Date.now();
     const duration = end - start;
 
-    console.log(`1,000,000 GetItem Ops Took: ${MSToTime(duration)}`);
-    console.log(`${Math.floor(1000000 / (duration / 1000))} Ops/second`);
+    console.log(`100 GetItem Ops Took: ${MSToTime(duration)}`);
+    console.log(`${Math.floor(100 / (duration / 1000))} Ops/second`);
   } catch (err) {
     console.log(err);
   }

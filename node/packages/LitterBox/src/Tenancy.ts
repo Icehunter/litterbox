@@ -1,11 +1,17 @@
 import { ActionResult, LitterBoxItem } from './Models';
 import { ILitterBox, ITenancy } from './Interfaces';
 
+import { TenancyEvents } from './events';
+import events from 'events';
+
 export class Tenancy implements ITenancy {
   constructor(caches: ILitterBox[]) {
     this._caches = caches;
+    this._emitter = new events.EventEmitter();
   }
   private _caches: ILitterBox[] = [];
+  private _emitter: events.EventEmitter;
+  emitter = (): events.EventEmitter => this._emitter;
   reconnect = async (): Promise<ActionResult[]> => {
     const results: ActionResult[] = [];
     for (let index = 0; index < this._caches.length; index++) {
@@ -17,6 +23,10 @@ export class Tenancy implements ITenancy {
       try {
         result.isSuccessful = await cache.reconnect();
       } catch (err) {
+        this._emitter.emit(TenancyEvents.errors.RECONNECT, {
+          type: cacheType,
+          err
+        });
         result.error = err;
       }
     }
@@ -33,15 +43,19 @@ export class Tenancy implements ITenancy {
       try {
         result.isSuccessful = await cache.flush();
       } catch (err) {
+        this._emitter.emit(TenancyEvents.errors.FLUSH, {
+          type: cacheType,
+          err
+        });
         result.error = err;
       }
     }
     return results;
   };
-  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | null> => {
-    let result: LitterBoxItem<T> | null = null;
+  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | undefined> => {
+    let result: LitterBoxItem<T> | undefined;
     for (let index = 0; index < this._caches.length; index++) {
-      result = await this._caches[index].getItem(key);
+      result = await this._caches[index].getItem<T>(key);
       if (result) {
         break;
       }
@@ -53,49 +67,50 @@ export class Tenancy implements ITenancy {
     generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number
-  ): Promise<LitterBoxItem<T> | null> => {
-    let result: LitterBoxItem<T> | null = null;
+  ): Promise<LitterBoxItem<T> | undefined> => {
+    let result: LitterBoxItem<T> | undefined;
     let foundIndex = 0;
     for (let index = 0; index < this._caches.length; index++) {
       const cache = this._caches[index];
-      result = await cache.getItem(key);
-      if (result != null) {
+      result = await cache.getItem<T>(key);
+      if (result !== undefined) {
         foundIndex = index;
-        // if the result is stale; refresh this cache only at this time
+        // if the result is stale; refresh this cache
         if (result.isStale()) {
-          cache.setItemFireAndForgetUsingGenerator(key, generator, timeToLive, timeToRefresh);
+          cache.setItemFireAndForgetUsingGenerator<T>(key, generator, timeToLive, timeToRefresh);
         }
         break;
       }
     }
-    if (result === null) {
+    if (result === undefined) {
       foundIndex = this._caches.length;
+      const value = await generator();
       result = new LitterBoxItem<T>({
         key,
         timeToLive: timeToLive,
         timeToRefresh: timeToRefresh,
-        value: await generator()
+        value
       });
     }
-    if (result !== null) {
+    if (result !== undefined) {
       for (let index = 0; index < foundIndex; index++) {
         const cache = this._caches[index];
         // if the result was stale and was also found in a cache
         // refresh all caches from until the cache it was found in
-        if (result.isStale() && result.cacheType != null) {
-          cache.setItemFireAndForgetUsingGenerator(key, generator, timeToLive, timeToRefresh);
+        if (result.isStale() && foundIndex !== index) {
+          cache.setItemFireAndForgetUsingGenerator<T>(key, generator, timeToLive, timeToRefresh);
         } else {
           // else we can just save the result into the cache and not regenerate
-          cache.setItemFireAndForget(key, result, timeToLive, timeToRefresh);
+          cache.setItemFireAndForget<T>(key, result, timeToLive, timeToRefresh);
         }
       }
     }
     return result;
   };
-  getItems = async <T>(keys: string[]): Promise<(LitterBoxItem<T> | null)[]> => {
-    const results: (LitterBoxItem<T> | null)[] = [];
+  getItems = async <T>(keys: string[]): Promise<(LitterBoxItem<T> | undefined)[]> => {
+    const results: (LitterBoxItem<T> | undefined)[] = [];
     for (let index = 0; index < keys.length; index++) {
-      const result = await this.getItem(keys[index]);
+      const result = await this.getItem<T>(keys[index]);
       results.push(result);
     }
     return results;
@@ -105,17 +120,16 @@ export class Tenancy implements ITenancy {
     generators: (() => Promise<T>)[],
     timeToLive?: number,
     timeToRefresh?: number
-  ): Promise<(LitterBoxItem<T> | null)[]> => {
-    const results: (LitterBoxItem<T> | null)[] = [];
+  ): Promise<(LitterBoxItem<T> | undefined)[]> => {
+    const results: (LitterBoxItem<T> | undefined)[] = [];
     for (let index = 0; index < keys.length; index++) {
       const key = keys[index];
       const generator = generators[index];
-      const result = await this.getItemUsingGenerator(key, generator, timeToLive, timeToRefresh);
+      const result = await this.getItemUsingGenerator<T>(key, generator, timeToLive, timeToRefresh);
       results.push(result);
     }
     return results;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setItem = async <T>(
     key: string,
     item: LitterBoxItem<T>,
@@ -130,7 +144,7 @@ export class Tenancy implements ITenancy {
         cacheType
       });
       try {
-        result.isSuccessful = await cache.setItem(key, item, timeToLive, timeToRefresh);
+        result.isSuccessful = await cache.setItem<T>(key, item, timeToLive, timeToRefresh);
       } catch (err) {
         result.error = err;
       }
@@ -139,7 +153,6 @@ export class Tenancy implements ITenancy {
   };
   setItems = async <T>(
     keys: string[],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     items: LitterBoxItem<T>[],
     timeToLive?: number,
     timeToRefresh?: number
@@ -148,20 +161,11 @@ export class Tenancy implements ITenancy {
     for (let index = 0; index < keys.length; index++) {
       const key = keys[index];
       const item = items[index];
-      try {
-        const result = await this.setItem(key, item, timeToLive, timeToRefresh);
-        results.push(result);
-      } catch (err) {
-        const result = new ActionResult({
-          cacheType: err.message,
-          error: err
-        });
-        results.push([result]);
-      }
+      const result = await this.setItem<T>(key, item, timeToLive, timeToRefresh);
+      results.push(result);
     }
     return results;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setItemFireAndForget = <T>(
     key: string,
     item: LitterBoxItem<T>,
@@ -169,18 +173,17 @@ export class Tenancy implements ITenancy {
     timeToRefresh?: number
   ): void => {
     for (let index = 0; index < this._caches.length; index++) {
-      this._caches[index].setItemFireAndForget(key, item, timeToLive, timeToRefresh);
+      this._caches[index].setItemFireAndForget<T>(key, item, timeToLive, timeToRefresh);
     }
   };
   setItemFireAndForgetUsingGenerator = <T>(
     key: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number
   ): void => {
     for (let index = 0; index < this._caches.length; index++) {
-      this._caches[index].setItemFireAndForgetUsingGenerator(key, generator, timeToLive, timeToRefresh);
+      this._caches[index].setItemFireAndForgetUsingGenerator<T>(key, generator, timeToLive, timeToRefresh);
     }
   };
   removeItem = async (key: string): Promise<ActionResult[]> => {
@@ -203,16 +206,8 @@ export class Tenancy implements ITenancy {
     const results: ActionResult[][] = [];
     for (let index = 0; index < keys.length; index++) {
       const key = keys[index];
-      try {
-        const result = await this.removeItem(key);
-        results.push(result);
-      } catch (err) {
-        const result = new ActionResult({
-          cacheType: err.message,
-          error: err
-        });
-        results.push([result]);
-      }
+      const result = await this.removeItem(key);
+      results.push(result);
     }
     return results;
   };

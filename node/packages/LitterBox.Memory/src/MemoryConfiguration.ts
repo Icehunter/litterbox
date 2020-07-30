@@ -1,6 +1,6 @@
 import { IMemoryConfiguration } from './IMemoryConfiguration';
 
-interface IMemoryConfigurationProps extends IMemoryConfiguration {}
+type IMemoryConfigurationProps = IMemoryConfiguration;
 
 export class MemoryConfiguration implements IMemoryConfiguration {
   constructor(props: IMemoryConfigurationProps = {}) {

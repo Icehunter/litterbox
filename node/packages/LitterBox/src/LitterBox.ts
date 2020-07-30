@@ -1,7 +1,9 @@
 import { IBaseConnectionConfiguration, IConnection, IConnectionPool, ILitterBox, IProcessingCache } from './Interfaces';
 
 import { ConnectionPool } from './ConnectionPool';
+import { LitterBoxEvents } from './events';
 import { LitterBoxItem } from './Models';
+import events from 'events';
 
 interface ILitterBoxProps {
   type: string;
@@ -17,15 +19,18 @@ export class LitterBox implements ILitterBox {
     this._pool = pool;
     this._configuration = configuration;
     this._connection = connection;
+    this._emitter = new events.EventEmitter();
   }
   private _processingCache: IProcessingCache = {};
   private _type: string;
   private _pool: IConnectionPool;
   private _configuration: IBaseConnectionConfiguration;
   private _connection: IConnection;
+  private _emitter: events.EventEmitter;
   private _getPooledConnection = (): IConnection => {
     return this._pool.getPooledConnection();
   };
+  emitter = (): events.EventEmitter => this._emitter;
   initialize = async (): Promise<LitterBox> => {
     await this._pool.initialize(this._connection);
     return this;
@@ -33,51 +38,35 @@ export class LitterBox implements ILitterBox {
   getType = (): string => this._type;
   flush = async (): Promise<boolean> => {
     this._processingCache = {};
-    try {
-      this._getPooledConnection().flush();
-      return true;
-    } catch (err) {
-      return false;
-    }
+    this._getPooledConnection().flush();
+    return true;
   };
   reconnect = async (): Promise<boolean> => {
     this._processingCache = {};
     return true;
   };
-  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | null> => {
-    try {
-      const item = await this._getPooledConnection().getItem(key);
-      if (item) {
-        return item;
-      }
-    } catch (err) {
-      console.error('GetItem', { key }, err);
-    }
-    return null;
+  getItem = async <T>(key: string): Promise<LitterBoxItem<T> | undefined> => {
+    const item = await this._getPooledConnection().getItem<T>(key);
+    return item;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setItem = async <T>(
     key: string,
     item: LitterBoxItem<T>,
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<boolean> => {
-    let success = false;
-    try {
-      success = await this._getPooledConnection().setItem(key, {
-        ...item,
-        cacheType: this.getType(),
-        key,
-        timeToLive: timeToLive || this._configuration.defaultTimeToLive,
-        timeToRefresh: timeToRefresh || this._configuration.defaultTimeToRefresh
-      });
-    } catch (err) {
-      console.error('SetItem', { key, item, timeToLive, timeToRefresh }, err);
-    }
-    Reflect.deleteProperty(this._processingCache, key);
-    return success;
+    const { created, value } = item;
+    const litter = new LitterBoxItem<T>({
+      key,
+      created,
+      value,
+      cacheType: this.getType(),
+      timeToLive: timeToLive ?? item.timeToLive ?? this._configuration.defaultTimeToLive,
+      timeToRefresh: timeToRefresh ?? item.timeToRefresh ?? this._configuration.defaultTimeToRefresh
+    });
+    const wasSet = await this._getPooledConnection().setItem<T>(key, litter, timeToLive, timeToRefresh);
+    return wasSet;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setItemFireAndForget = <T>(
     key: string,
     item: LitterBoxItem<T>,
@@ -89,12 +78,21 @@ export class LitterBox implements ILitterBox {
     }
     this._processingCache[key] = true;
     (async (): Promise<void> => {
-      await this.setItem(key, item, timeToLive, timeToRefresh);
+      this.setItem(key, item, timeToLive, timeToRefresh)
+        .catch((err) => {
+          this._emitter.emit(LitterBoxEvents.errors.FIRE_FORGET, {
+            type: this._type,
+            key,
+            err
+          });
+        })
+        .finally(() => {
+          Reflect.deleteProperty(this._processingCache, key);
+        });
     })();
   };
   setItemFireAndForgetUsingGenerator = <T>(
     key: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number
@@ -104,24 +102,35 @@ export class LitterBox implements ILitterBox {
     }
     this._processingCache[key] = true;
     (async (): Promise<void> => {
-      const value = await generator();
-      if (value != null) {
-        await this.setItem(
-          key,
-          new LitterBoxItem({
-            cacheType: this.getType(),
+      generator()
+        .then((value) =>
+          this.setItem(
             key,
-            timeToLive: timeToLive,
-            timeToRefresh: timeToRefresh,
-            value
-          }),
-          timeToLive,
-          timeToRefresh
-        );
-      }
+            new LitterBoxItem({
+              cacheType: this.getType(),
+              key,
+              timeToLive: timeToLive,
+              timeToRefresh: timeToRefresh,
+              value
+            }),
+            timeToLive,
+            timeToRefresh
+          )
+        )
+        .catch((err) => {
+          this._emitter.emit(LitterBoxEvents.errors.FIRE_FORGET_USING_GENERATOR, {
+            type: this._type,
+            key,
+            err
+          });
+        })
+        .finally(() => {
+          Reflect.deleteProperty(this._processingCache, key);
+        });
     })();
   };
   removeItem = async (key: string): Promise<boolean> => {
-    return await this._getPooledConnection().removeItem(key);
+    const wasRemoved = await this._getPooledConnection().removeItem(key);
+    return wasRemoved;
   };
 }

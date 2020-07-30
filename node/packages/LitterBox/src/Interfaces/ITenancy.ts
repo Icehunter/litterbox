@@ -1,38 +1,35 @@
 import { ActionResult, LitterBoxItem } from '../Models';
 
+import events from 'events';
+
 export interface ITenancy {
+  emitter(): events.EventEmitter;
   flush(): Promise<ActionResult[]>;
   reconnect(): Promise<ActionResult[]>;
-  getItem<T>(key: string): Promise<LitterBoxItem<T> | null>;
+  getItem<T>(key: string): Promise<LitterBoxItem<T> | undefined>;
   getItemUsingGenerator<T>(
     key: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number
-  ): Promise<LitterBoxItem<T> | null>;
-  getItems<T>(keys: string[]): Promise<(LitterBoxItem<T> | null)[]>;
+  ): Promise<LitterBoxItem<T> | undefined>;
+  getItems<T>(keys: string[]): Promise<(LitterBoxItem<T> | undefined)[]>;
   getItemsUsingGenerator<T>(
     keys: string[],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     generators: (() => Promise<T>)[],
     timeToLive?: number,
     timeToRefresh?: number
-  ): Promise<(LitterBoxItem<T> | null)[]>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Promise<(LitterBoxItem<T> | undefined)[]>;
   setItem<T>(key: string, item: LitterBoxItem<T>, timeToLive?: number, timeToRefresh?: number): Promise<ActionResult[]>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setItems<T>(
     keys: string[],
     items: LitterBoxItem<T>[],
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<ActionResult[][]>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setItemFireAndForget<T>(key: string, item: LitterBoxItem<T>, timeToLive?: number, timeToRefresh?: number): void;
   setItemFireAndForgetUsingGenerator<T>(
     key: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     generator: () => Promise<T>,
     timeToLive?: number,
     timeToRefresh?: number

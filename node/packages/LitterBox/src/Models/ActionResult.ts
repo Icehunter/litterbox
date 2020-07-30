@@ -4,22 +4,12 @@ type IActionResultProps = IActionResult;
 
 export class ActionResult implements IActionResult {
   constructor(props: IActionResultProps) {
-    const { cacheType, isSuccessful, error: ResultError } = props;
+    const { cacheType, isSuccessful, error } = props;
     this.cacheType = cacheType;
-    if (isSuccessful) {
-      if (typeof isSuccessful !== 'boolean') {
-        throw new Error("ArgumentException: (typeof isSuccessful !== 'boolean') => isSuccessful");
-      }
-      this.isSuccessful = isSuccessful;
-    } else {
-      this.isSuccessful = false;
-    }
-    if (ResultError) {
-      this.error = ResultError;
-    }
+    this.isSuccessful = isSuccessful ?? false;
+    this.error = error ?? undefined;
   }
   cacheType: string;
   isSuccessful: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any;
+  error?: Error;
 }
