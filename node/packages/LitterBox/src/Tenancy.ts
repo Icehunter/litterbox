@@ -199,6 +199,7 @@ export class Tenancy implements ITenancy {
       } catch (err) {
         result.error = err;
       }
+      results.push(result);
     }
     return results;
   };

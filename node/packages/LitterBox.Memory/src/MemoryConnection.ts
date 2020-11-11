@@ -66,8 +66,7 @@ export class MemoryConnection implements IConnection {
     return true;
   };
   removeItem = async (key: string): Promise<boolean> => {
-    Reflect.deleteProperty(this._cache, key);
-    return true;
+    return Reflect.deleteProperty(this._cache, key);
   };
   connect = async (): Promise<void> => {
     this._cache = {};
