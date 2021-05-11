@@ -31,7 +31,7 @@ export class RedisConnection implements IConnection {
             return reject(err);
           }
           if (!item) {
-            return resolve();
+            return resolve(undefined);
           }
           let litter: LitterBoxItem<T> | undefined;
           if (this._configuration.useGZIPCompression) {

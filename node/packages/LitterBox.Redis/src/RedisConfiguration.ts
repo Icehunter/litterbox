@@ -1,6 +1,6 @@
 import { IRedisConfiguration } from './IRedisConfiguration';
 
-interface IRedisConfigurationProps extends IRedisConfiguration {}
+type IRedisConfigurationProps = IRedisConfiguration;
 
 export class RedisConfiguration implements IRedisConfiguration {
   constructor(props: IRedisConfigurationProps = {}) {

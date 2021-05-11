@@ -31,33 +31,25 @@
     "build": "rimraf lib && yarn build:ts && yarn build:types",
     "build:ts": "tsc",
     "build:types": "dts-bundle --name @icehunter/litterbox-redis --main types/index.d.ts --out ../lib/index.d.ts",
-    "update": "npx yarn-check -u"
+    "update": "npx npm-check -u"
   },
   "bugs": {
     "url": "https://github.com/Icehunter/litterbox/issues"
   },
   "dependencies": {
-    "@hapi/hoek": "9.0.4",
+    "@hapi/hoek": "^9.2.0",
     "@icehunter/litterbox": "^4.1.1",
     "bluebird": "^3.5.3",
-    "redis": "3.0.2"
+    "redis": "^3.1.2"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.32",
+    "@types/bluebird": "^3.5.34",
     "@types/hoek": "^4.1.3",
-    "@types/node": "^14.0.27",
-    "@types/redis": "^2.8.25",
-    "@typescript-eslint/eslint-plugin": "^3.7.1",
-    "@typescript-eslint/parser": "^3.7.1",
+    "@types/node": "^15.0.2",
+    "@types/redis": "^2.8.28",
     "dts-bundle": "^0.7.3",
-    "eslint": "^7.5.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "husky": "^4.2.5",
-    "lint-staged": "^10.2.11",
-    "prettier": "^2.0.5",
     "rimraf": "3.0.2",
-    "typescript": "^3.9.7"
+    "typescript": "^4.2.4"
   },
   "lint-staged": {
     "src/**/*.{ts,json}": [
