@@ -1,6 +1,6 @@
 {
   "name": "@icehunter/litterbox-memory",
-  "version": "4.1.2",
+  "version": "4.2.0",
   "description": "> TODO: description",
   "author": "Ryan Wilson <syndicated.life@gmail.com>",
   "homepage": "https://github.com/Icehunter/litterbox#readme",
@@ -37,7 +37,7 @@
     "url": "https://github.com/Icehunter/litterbox/issues"
   },
   "dependencies": {
-    "@icehunter/litterbox": "4.1.2",
+    "@icehunter/litterbox": "^4.2.0",
     "hoek": "6.1.3",
     "husky": "8.0.3",
     "lint-staged": "13.2.3"
