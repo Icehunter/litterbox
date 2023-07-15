@@ -7,7 +7,6 @@ export class RedisConfiguration implements IRedisConfiguration {
     const {
       defaultTimeToLive = 1 * 60 * 60 * 1000,
       defaultTimeToRefresh = 5 * 60 * 1000,
-      poolSize = 5,
       useGZIPCompression = false,
       dataBaseID = 0,
       host = '127.0.0.1',
@@ -16,7 +15,6 @@ export class RedisConfiguration implements IRedisConfiguration {
     } = props;
     this.defaultTimeToLive = defaultTimeToLive;
     this.defaultTimeToRefresh = defaultTimeToRefresh;
-    this.poolSize = poolSize;
     this.useGZIPCompression = useGZIPCompression;
     this.dataBaseID = dataBaseID;
     this.host = host;
@@ -25,7 +23,6 @@ export class RedisConfiguration implements IRedisConfiguration {
   }
   defaultTimeToLive: number;
   defaultTimeToRefresh: number;
-  poolSize: number;
   useGZIPCompression: boolean;
   dataBaseID: number;
   host: string;

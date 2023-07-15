@@ -7,7 +7,7 @@ export class RedisBox {
   static getInstance = async (configuration: RedisConfiguration): Promise<LitterBox> => {
     const instance = new LitterBox({
       type: 'LitterBox.Redis',
-      pool: new ConnectionPool(configuration),
+      pool: new ConnectionPool({ ...configuration, poolSize: 1 }),
       configuration,
       connection: new RedisConnection(configuration)
     });

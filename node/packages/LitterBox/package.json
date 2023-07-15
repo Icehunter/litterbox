@@ -36,16 +36,16 @@
     "url": "https://github.com/Icehunter/litterbox/issues"
   },
   "dependencies": {
-    "@hapi/hoek": "^9.2.0",
-    "date-fns": "^2.21.3"
+    "@hapi/hoek": "11.0.2",
+    "date-fns": "2.30.0"
   },
   "devDependencies": {
     "@icehunter/eslint-config": "^1.1.0",
-    "@types/hoek": "4.1.3",
-    "@types/node": "^15.0.2",
+    "@types/hoek": "4.1.4",
+    "@types/node": "20.4.2",
     "dts-bundle": "0.7.3",
-    "rimraf": "3.0.2",
-    "typescript": "^4.2.4"
+    "rimraf": "5.0.1",
+    "typescript": "5.1.6"
   },
   "publishConfig": {
     "access": "public"

@@ -1,8 +1,7 @@
 import { IConnection, LitterBoxItem } from '@icehunter/litterbox';
-import { RedisClient, createClient } from 'redis';
+import { RedisClientType, createClient } from 'redis';
 
 import { RedisConfiguration } from './RedisConfiguration';
-import { promisifyAll } from 'bluebird';
 
 export class RedisConnection implements IConnection {
   constructor(configuration: RedisConfiguration) {
@@ -19,32 +18,23 @@ export class RedisConnection implements IConnection {
     if (!options.password) {
       Reflect.deleteProperty(options, 'password');
     }
-    this._cache = promisifyAll(createClient(options));
+
+    this._cache = createClient(options);
   }
-  private _cache: RedisClient;
+  private _cache: RedisClientType;
   private _configuration: RedisConfiguration;
   getItem = async <T>(key: string): Promise<LitterBoxItem<T> | undefined> => {
-    return new Promise((resolve, reject) => {
-      try {
-        this._cache.HGET(key, 'litter', (err, item) => {
-          if (err) {
-            return reject(err);
-          }
-          if (!item) {
-            return resolve(undefined);
-          }
-          let litter: LitterBoxItem<T> | undefined;
-          if (this._configuration.useGZIPCompression) {
-            litter = LitterBoxItem.fromBuffer(Buffer.from(item, 'utf8'));
-          } else {
-            litter = LitterBoxItem.fromJSONString(item.toString());
-          }
-          resolve(litter);
-        });
-      } catch (err) {
-        reject(err);
-      }
-    });
+    const item = await this._cache.HGET(key, 'litter');
+    if (!item) {
+      return;
+    }
+    let litter: LitterBoxItem<T> | undefined;
+    if (this._configuration.useGZIPCompression) {
+      litter = LitterBoxItem.fromBuffer(Buffer.from(item, 'utf8'));
+    } else {
+      litter = LitterBoxItem.fromJSONString(item.toString());
+    }
+    return litter;
   };
   setItem = async <T>(
     key: string,
@@ -52,47 +42,24 @@ export class RedisConnection implements IConnection {
     timeToLive?: number,
     timeToRefresh?: number
   ): Promise<boolean> => {
-    return new Promise((resolve, reject) => {
-      try {
-        const litter = {
-          ...item.clone(),
-          timeToLive: timeToLive ?? item.timeToLive ?? this._configuration.defaultTimeToLive,
-          timeToRefresh: timeToRefresh ?? item.timeToRefresh ?? this._configuration.defaultTimeToRefresh
-        };
-        const cacheItem = this._configuration.useGZIPCompression ? litter.toBuffer() : litter.toJSONString();
-        // we ignore the next line as the types for redis don't allow buffer BUT redis itself does
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        this._cache.HSET(key, 'litter', cacheItem, (err) => {
-          if (err) {
-            return reject(err);
-          }
-          if (litter.timeToLive) {
-            this._cache.EXPIRE(key, litter.timeToLive);
-          }
-          resolve(true);
-        });
-      } catch (err) {
-        reject(err);
-      }
-    });
+    const litter = {
+      ...item.clone(),
+      timeToLive: timeToLive ?? item.timeToLive ?? this._configuration.defaultTimeToLive,
+      timeToRefresh: timeToRefresh ?? item.timeToRefresh ?? this._configuration.defaultTimeToRefresh
+    };
+    const cacheItem = this._configuration.useGZIPCompression ? litter.toBuffer() : litter.toJSONString();
+    await this._cache.HSET(key, 'litter', cacheItem);
+    await this._cache.EXPIRE(key, litter.timeToLive);
+    return true;
   };
   removeItem = async (key: string): Promise<boolean> => {
-    return new Promise((resolve, reject) => {
-      try {
-        this._cache.DEL(key, (err) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(true);
-        });
-      } catch (err) {
-        reject(err);
-      }
-    });
+    await this._cache.DEL(key);
+    return true;
   };
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  connect = async (): Promise<void> => {};
+  connect = async (): Promise<void> => {
+    await this._cache.connect();
+  };
   reconnect = async (): Promise<void> => {
     if (this._cache) {
       this._cache.quit();
@@ -100,17 +67,7 @@ export class RedisConnection implements IConnection {
     await this.connect();
   };
   flush = async (): Promise<boolean> => {
-    return new Promise((resolve, reject) => {
-      try {
-        this._cache.FLUSHALL((err) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(true);
-        });
-      } catch (err) {
-        reject(err);
-      }
-    });
+    await this._cache.FLUSHALL();
+    return true;
   };
 }

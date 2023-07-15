@@ -1,8 +1,8 @@
-import { ActionResult, LitterBoxItem } from './Models';
 import { ILitterBox, ITenancy } from './Interfaces';
+import { ActionResult, LitterBoxItem } from './Models';
 
-import { TenancyEvents } from './events';
 import events from 'events';
+import { TenancyEvents } from './events';
 
 export class Tenancy implements ITenancy {
   constructor(caches: ILitterBox[]) {
@@ -27,7 +27,7 @@ export class Tenancy implements ITenancy {
           type: cacheType,
           err
         });
-        result.error = err;
+        result.error = err as unknown as Error;
       }
     }
     return results;
@@ -47,7 +47,7 @@ export class Tenancy implements ITenancy {
           type: cacheType,
           err
         });
-        result.error = err;
+        result.error = err as unknown as Error;
       }
     }
     return results;
@@ -146,7 +146,7 @@ export class Tenancy implements ITenancy {
       try {
         result.isSuccessful = await cache.setItem<T>(key, item, timeToLive, timeToRefresh);
       } catch (err) {
-        result.error = err;
+        result.error = err as unknown as Error;
       }
     }
     return results;
@@ -197,7 +197,7 @@ export class Tenancy implements ITenancy {
       try {
         result.isSuccessful = await cache.removeItem(key);
       } catch (err) {
-        result.error = err;
+        result.error = err as unknown as Error;
       }
       results.push(result);
     }
