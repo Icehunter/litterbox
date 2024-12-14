@@ -45,7 +45,7 @@
     <ItemGroup>
         <PackageReference Include="LitterBox" Version="6.2.2" />
         <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.10.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     </ItemGroup>
 
     <ItemGroup>
